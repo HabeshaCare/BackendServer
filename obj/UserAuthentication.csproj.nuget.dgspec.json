@@ -1,0 +1,83 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/UserAuthentication.csproj": {}
+  },
+  "projects": {
+    "/home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/UserAuthentication.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/UserAuthentication.csproj",
+        "projectName": "UserAuthentication",
+        "projectPath": "/home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/UserAuthentication.csproj",
+        "packagesPath": "/home/yab/.nuget/packages/",
+        "outputPath": "/home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/yab/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net7.0"
+        ],
+        "sources": {
+          "http://api.nuget.org/v3/index.json": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net7.0": {
+            "targetAlias": "net7.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net7.0": {
+          "targetAlias": "net7.0",
+          "dependencies": {
+            "AspNetCore.Identity.MongoDb": {
+              "target": "Package",
+              "version": "[1.0.0-rc3, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[2.22.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[6.5.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/yab/dotnet/sdk/7.0.403/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
