@@ -10,7 +10,7 @@ namespace UserAuthentication.Services
 {
     public interface IAuthService
     {
-        Task<(int, string)> Registration(RegistrationDTO model, string role);
+        Task<(int, string)> Registration(RegistrationDTO model);
         Task<(int, string)> Login(LoginDTO model);
     }
 }

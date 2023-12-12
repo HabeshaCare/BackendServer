@@ -7,77 +7,79 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using UserAuthentication.Models;
 using UserAuthentication.Models.DTOs;
+using UserAuthentication.Utils;
 
 namespace UserAuthentication.Services
 { 
     public class AuthService : IAuthService
     {
-        private readonly UserManager<User> userManager;
-        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly IMongoClient _client;
+        private readonly IMongoCollection<User> _collection;
         private readonly IConfiguration _configuration;
 
-        public AuthService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration){
-            this.userManager = userManager;
-            this.roleManager = roleManager;
+
+        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration)
+        {
+            _client = new MongoClient(options.Value.ConnectionUrl);
+            var _database = _client.GetDatabase(options.Value.DBName);
+            _collection = _database.GetCollection<User>("Users");
             _configuration = configuration;
         }
 
 
-
         public async Task<(int, string)> Login(LoginDTO model)
         {
-            var user = await userManager.FindByNameAsync(model.Name);
+            var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
+            var user    = await _collection.Find(filterCondition).FirstOrDefaultAsync();
+
             if (user == null)
-                return (0, "Invalid Username");
+                return (0, "Invalid Email");
             
-            if (!await userManager.CheckPasswordAsync(user, model.Password))
+            var passwordHasher = new PasswordHasher<User>();
+            var result = passwordHasher.VerifyHashedPassword(user, user.Password, model.Password);
+
+            if (result != PasswordVerificationResult.Success)
                 return (0, "Invalid Password");
             
-            var userRoles = await userManager.GetRolesAsync(user);
+            var userRoles = Enum.GetValues(typeof(UserRole));
             var authClaims = new List<Claim>
             {
-                new (ClaimTypes.Name, user.Name),
+                new (ClaimTypes.Email, user.Email),
                 new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
+
             foreach (var userRole in userRoles)
-                authClaims.Add(new(ClaimTypes.Role, userRole));
+                authClaims.Add(new(ClaimTypes.Role, userRole.ToString()!));
             
             string token = GenerateToken(authClaims);
             return (1, token);
         }
 
-        public async Task<(int, string)> Registration(RegistrationDTO model, string role)
+        public async Task<(int, string)> Registration(RegistrationDTO model)
         {
-            var userExists = await userManager.FindByNameAsync(model.Name);
+            var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
+            var userExists = await _collection.Find(filterCondition).FirstOrDefaultAsync();
 
             if(userExists != null){
                 return (0, "User already exists");
             }
 
-            User user = new()
+            User user = new(model.Email, model.Phonenumber, model.Profession, model.Password, model.Role);
+            try
             {
-                Email = model.Email,
-                Name = model.Name,
-                UserName = "",
-                Age = model.Age,
-                SecurityStamp = Guid.NewGuid().ToString(),
-            };
-
-            var createUserResult =  await userManager.CreateAsync(user, model.Password);
-
-            if(!createUserResult.Succeeded){
-                return (1, "User creation faild! Please check your details and try again.");
+                await _collection.InsertOneAsync(user);
             }
-
-            if(!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
-
-            if(await roleManager.RoleExistsAsync(role))
-                await userManager.AddToRoleAsync(user, role);
+            catch (Exception ex)
+            {
+                
+                return (0, $"Database error creating the user: {ex.Message}");
+            }
             
             return (1, "User created successfully");
         }

@@ -6,14 +6,15 @@ using UserAuthentication.Services;
 using UserAuthentication.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
+var DBConfig  = builder.Configuration.GetSection("DB");
+
 
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IAuthService, AuthService>();
-
-
+builder.Services.Configure<MongoDBSettings>(DBConfig);
 
 
 

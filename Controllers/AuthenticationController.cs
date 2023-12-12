@@ -9,7 +9,7 @@ using UserAuthentication.Services;
 namespace UserAuthentication.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -21,7 +21,7 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginDTO model)
+        public async Task<IActionResult> Login([FromBody]LoginDTO model)
         {
             try
             {
@@ -39,14 +39,14 @@ namespace UserAuthentication.Controllers
             }
         }
 
-        [HttpPost("registration")]
-        public async Task<IActionResult> Register(RegistrationDTO model, string role)
+        [HttpPost("signup")]
+        public async Task<IActionResult> Register([FromBody] RegistrationDTO model)
         {
             try
             {
                 if(!ModelState.IsValid)
                     return BadRequest("Invalid Payload");
-                var (status, message) = await _authService.Registration(model, role);
+                var (status, message) = await _authService.Registration(model);
                 
                 if(status == 0)
                     return BadRequest(message);

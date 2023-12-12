@@ -25,6 +25,7 @@ namespace UserAuthentication.Models
         [Range(1, 150)]
         public int? Age { get; set; }
         public string? ImageUrl { get; set; }
+        public UserRole Role {get; set;} = UserRole.Normal;
 
         [Required(ErrorMessage = "This is a required field")]
 
@@ -38,12 +39,13 @@ namespace UserAuthentication.Models
           }
         }
 
-        public User(string Email, string Phonenumber, string Profession, string Password)
+        public User(string Email, string Phonenumber, string Profession, string Password, UserRole? userRole)
         {
             this.Email = Email;
             this.Phonenumber = Phonenumber;
             this.Profession = Profession;
             this.Password = Password;
+            if(userRole != null) Role = (UserRole)userRole;
         }
     }
 }

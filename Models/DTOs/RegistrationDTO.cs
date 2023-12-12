@@ -29,6 +29,7 @@ namespace UserAuthentication.Models.DTOs
         private string _password;
 
         public string Password {get; set;}
+        public UserRole Role {get; set;} = UserRole.Normal;
 
         private string _confirmPassword;
         public string ConfirmPassword 
