@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using UserAuthentication.Exceptions;
+using UserAuthentication.Models.DTOs.UserDTOs;
 
 namespace UserAuthentication.Models.DTOs
 {

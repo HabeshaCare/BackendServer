@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using UserAuthentication.Models;
 using UserAuthentication.Models.DTOs;
+using UserAuthentication.Models.DTOs.UserDTOs;
 using UserAuthentication.Utils;
 
 namespace UserAuthentication.Services
@@ -33,10 +34,10 @@ namespace UserAuthentication.Services
         }
 
 
-        public async Task<(int, string)> Login(LoginDTO model)
+        public async Task<(int, string, UsageUserDTO?)> Login(LoginDTO model)
         {
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
-            var user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
+            User user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
 
             var result = VerifyHashedPassword(model.Password, user?.Password ?? "");
 
@@ -44,7 +45,7 @@ namespace UserAuthentication.Services
             bool ifInvalidPassword = !result;
 
             if (ifUserNotFound || ifInvalidPassword)
-                return (0, "Invalid Credentials");
+                return (0, "Invalid Credentials", null);
 
             var userRoles = Enum.GetValues(typeof(UserRole));
             var authClaims = new List<Claim>
@@ -58,17 +59,18 @@ namespace UserAuthentication.Services
                 authClaims.Add(new(ClaimTypes.Role, userRole.ToString()!));
 
             string token = GenerateToken(authClaims);
-            return (1, token);
+            UsageUserDTO foundUser = new(user);
+            return (1, token, foundUser);
         }
 
-        public async Task<(int, string)> Registration(RegistrationDTO model)
+        public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
         {
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
             var userExists = await _collection.Find(filterCondition).FirstOrDefaultAsync();
 
             if (userExists != null)
             {
-                return (0, "User already exists");
+                return (0, "User already exists", null);
             }
 
             User user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
@@ -84,10 +86,10 @@ namespace UserAuthentication.Services
             catch (Exception ex)
             {
 
-                return (0, $"Database error creating the user: {ex.Message}");
+                return (0, $"Database error creating the user: {ex.Message}", null);
             }
 
-            return (1, "User created successfully");
+            return (1, "User created successfully", null);
         }
 
         public string GenerateToken(IEnumerable<Claim> claims)

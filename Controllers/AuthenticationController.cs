@@ -27,12 +27,12 @@ namespace UserAuthentication.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid payload");
-                var (status, message) = await _authService.Login(model);
+                var (status, message, user) = await _authService.Login(model);
 
                 if (status == 0)
                     return BadRequest(new { error = message });
 
-                return Ok(new { token = message, message = "Login successful" });
+                return Ok(new { token = message, message = "Login successful", user });
             }
             catch (Exception ex)
             {
@@ -48,12 +48,12 @@ namespace UserAuthentication.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid Payload");
-                var (status, message) = await _authService.Registration(model);
+                var (status, message, user) = await _authService.Registration(model);
 
                 if (status == 0)
                     return BadRequest(new { errors = message });
 
-                return CreatedAtAction(nameof(Register), model);
+                return CreatedAtAction(nameof(Register), user);
             }
             catch (Exception ex)
             {

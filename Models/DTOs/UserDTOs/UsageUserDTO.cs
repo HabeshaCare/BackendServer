@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace UserAuthentication.Models.DTOs.UserDTOs
 {
-    public class NormalUsageDTO : UserDTO
+    public class UsageUserDTO : UserDTO
     {
         public string  Id { get; set; }
         public UserRole Role { get; set; }
@@ -15,7 +15,7 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
         public int? Age { get; set; }
         public string? ImageUrl { get; set; }
 
-        public NormalUsageDTO(User user)
+        public UsageUserDTO(User user)
         {
             Email = user.Email;
             Id = user.Id!;
