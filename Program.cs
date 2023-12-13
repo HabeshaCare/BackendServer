@@ -1,7 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
 using UserAuthentication.Services;
 using UserAuthentication.Utils;
 
@@ -13,7 +12,7 @@ var DBConfig  = builder.Configuration.GetSection("DB");
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddTransient<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.Configure<MongoDBSettings>(DBConfig);
 
 

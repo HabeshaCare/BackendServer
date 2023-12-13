@@ -51,3 +51,4 @@
 /home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/obj/Debug/net7.0/UserAuthentication.pdb
 /home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/obj/Debug/net7.0/UserAuthentication.genruntimeconfig.cache
 /home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/obj/Debug/net7.0/ref/UserAuthentication.dll
+/home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/bin/Debug/net7.0/BCrypt.Net-Next.dll

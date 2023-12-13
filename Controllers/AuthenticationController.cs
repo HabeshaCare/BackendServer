@@ -13,7 +13,7 @@ namespace UserAuthentication.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly ILogger<AuthenticationController>  _logger;
+        private readonly ILogger<AuthenticationController> _logger;
         public AuthenticationController(IAuthService authService, ILogger<AuthenticationController> logger)
         {
             _authService = authService;
@@ -21,18 +21,19 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody]LoginDTO model)
+        public async Task<IActionResult> Login([FromBody] LoginDTO model)
         {
             try
             {
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid payload");
                 var (status, message) = await _authService.Login(model);
-                
+
                 if (status == 0)
-                    return BadRequest(message);
+                    return BadRequest(new { error = message });
                 return Ok(message);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
@@ -44,16 +45,16 @@ namespace UserAuthentication.Controllers
         {
             try
             {
-                if(!ModelState.IsValid)
+                if (!ModelState.IsValid)
                     return BadRequest("Invalid Payload");
                 var (status, message) = await _authService.Registration(model);
-                
-                if(status == 0)
+
+                if (status == 0)
                     return BadRequest(message);
-                
+
                 return CreatedAtAction(nameof(Register), model);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);

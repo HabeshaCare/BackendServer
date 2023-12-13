@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "mlfneoOVmxOiw0jbuS6hpthq83SONJqTvaiu0X7AhdtweqrlIBCiprSrxLOkz6XezduIksh1FEhQVk/IJ/7msA==",
+  "dgSpecHash": "Iw3uQcHG8+NHijjJEtbtC3ZcUY745twby29xTDo884vHABNRVdNk2L190iGtnXyZ9PVM9efPv3YGEYK0nxEaaA==",
   "success": true,
   "projectFilePath": "/home/yab/Documents/Programming/WebPractice/Dotnet/UserAuthentication/UserAuthentication.csproj",
   "expectedPackageFiles": [
     "/home/yab/.nuget/packages/aspnetcore.identity.mongodb/1.0.0-rc3/aspnetcore.identity.mongodb.1.0.0-rc3.nupkg.sha512",
     "/home/yab/.nuget/packages/awssdk.core/3.7.100.14/awssdk.core.3.7.100.14.nupkg.sha512",
     "/home/yab/.nuget/packages/awssdk.securitytoken/3.7.100.14/awssdk.securitytoken.3.7.100.14.nupkg.sha512",
+    "/home/yab/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/home/yab/.nuget/packages/dnsclient/1.6.1/dnsclient.1.6.1.nupkg.sha512",
     "/home/yab/.nuget/packages/microsoft.aspnetcore.authentication/1.0.0/microsoft.aspnetcore.authentication.1.0.0.nupkg.sha512",
     "/home/yab/.nuget/packages/microsoft.aspnetcore.authentication.cookies/1.0.0/microsoft.aspnetcore.authentication.cookies.1.0.0.nupkg.sha512",
