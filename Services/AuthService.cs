@@ -38,17 +38,18 @@ namespace UserAuthentication.Services
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
             var user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
 
-            if (user == null)
-                return (0, "Invalid Email");
+            var result = VerifyHashedPassword(model.Password, user?.Password ?? "");
 
-            var result = VerifyHashedPassword(user.Password, model.Password);
-            if (!result)
-                return (0, "Invalid Password");
+            bool ifUserNotFound = user == null;
+            bool ifInvalidPassword = !result;
+
+            if (ifUserNotFound || ifInvalidPassword)
+                return (0, "Invalid Credentials");
 
             var userRoles = Enum.GetValues(typeof(UserRole));
             var authClaims = new List<Claim>
             {
-                new (ClaimTypes.Email, user.Email),
+                new (ClaimTypes.Email, user!.Email),
                 new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             };
 
@@ -69,11 +70,13 @@ namespace UserAuthentication.Services
             {
                 return (0, "User already exists");
             }
-            
+
             User user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
             var hashedPassword = HashPassword(model.Password);
-            user.Password= hashedPassword;
-            
+            bool valid = VerifyHashedPassword(user.Password, hashedPassword);
+
+            user.Password = hashedPassword;
+
             try
             {
                 await _collection.InsertOneAsync(user);
@@ -112,9 +115,9 @@ namespace UserAuthentication.Services
             return BCrypt.Net.BCrypt.HashPassword(password);
         }
 
-        public bool VerifyHashedPassword(string hashedPassword, string providedPassword)
+        public bool VerifyHashedPassword(string providedPassword, string hashedPassword)
         {
-            return BCrypt.Net.BCrypt.Verify(hashedPassword, providedPassword);
+            return BCrypt.Net.BCrypt.Verify(providedPassword, hashedPassword);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace UserAuthentication.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
             }
         }
 
@@ -50,14 +50,14 @@ namespace UserAuthentication.Controllers
                 var (status, message) = await _authService.Registration(model);
 
                 if (status == 0)
-                    return BadRequest(message);
+                    return BadRequest(new { errors = message });
 
                 return CreatedAtAction(nameof(Register), model);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
             }
         }
 

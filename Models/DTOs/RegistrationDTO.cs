@@ -16,7 +16,6 @@ namespace UserAuthentication.Models.DTOs
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string Phonenumber { get; set; }
 
-        public string? Id { get; set; }
 
         [Required(ErrorMessage = "This is a required field")]
         public string Profession { get; set; }
