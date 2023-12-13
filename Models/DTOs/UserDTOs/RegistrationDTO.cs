@@ -8,11 +8,8 @@ using UserAuthentication.Exceptions;
 
 namespace UserAuthentication.Models.DTOs
 {
-    public class RegistrationDTO
+    public class RegistrationDTO : UserDTO
     {
-        [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string Email { get; set; }
-
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string Phonenumber { get; set; }
 

@@ -31,7 +31,8 @@ namespace UserAuthentication.Controllers
 
                 if (status == 0)
                     return BadRequest(new { error = message });
-                return Ok(message);
+
+                return Ok(new { token = message, message = "Login successful" });
             }
             catch (Exception ex)
             {
