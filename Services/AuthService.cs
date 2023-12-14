@@ -77,7 +77,6 @@ namespace UserAuthentication.Services
             var hashedPassword = HashPassword(model.Password);
 
             user.Password = hashedPassword;
-            System.Console.WriteLine(model.Role);
 
             try
             {
