@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using UserAuthentication.Exceptions;
 using UserAuthentication.Models.DTOs.UserDTOs;
 
@@ -29,8 +28,7 @@ namespace UserAuthentication.Models.DTOs
 
         public string Password { get; set; }
 
-        [JsonProperty("role")]
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public UserRole Role { get; set; } = UserRole.Normal;
 
         private string _confirmPassword;
