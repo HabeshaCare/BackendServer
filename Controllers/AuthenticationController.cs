@@ -3,7 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using UserAuthentication.Models.DTOs;
+using UserAuthentication.Models.DTOs.UserDTOs;
 using UserAuthentication.Services;
 
 namespace UserAuthentication.Controllers
@@ -29,7 +32,7 @@ namespace UserAuthentication.Controllers
                     return BadRequest("Invalid payload");
                 var (status, message, user) = await _authService.Login(model);
 
-                if (status == 0)
+                if (status == 0 || user == null)
                     return BadRequest(new { error = message });
 
                 return Ok(new { token = message, message = "Login successful", user });

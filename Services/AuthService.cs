@@ -75,9 +75,9 @@ namespace UserAuthentication.Services
 
             User user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
             var hashedPassword = HashPassword(model.Password);
-            bool valid = VerifyHashedPassword(user.Password, hashedPassword);
 
             user.Password = hashedPassword;
+            System.Console.WriteLine(model.Role);
 
             try
             {
@@ -88,8 +88,9 @@ namespace UserAuthentication.Services
 
                 return (0, $"Database error creating the user: {ex.Message}", null);
             }
+            UsageUserDTO createdUser = new(user);
 
-            return (1, "User created successfully", null);
+            return (1, "User created successfully", createdUser);
         }
 
         public string GenerateToken(IEnumerable<Claim> claims)

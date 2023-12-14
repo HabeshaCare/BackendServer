@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace UserAuthentication.Models
 {
@@ -29,6 +31,7 @@ namespace UserAuthentication.Models
     [Range(1, 150)]
     public int? Age { get; set; }
     public string? ImageUrl { get; set; }
+    [JsonConverter(typeof(StringEnumConverter))]
     public UserRole Role { get; set; } = UserRole.Normal;
 
     [Required(ErrorMessage = "This is a required field")]
