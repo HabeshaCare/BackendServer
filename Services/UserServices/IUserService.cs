@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UserAuthentication.Models.DTOs.UserDTOs;
 
-namespace Backend.Services.User
+namespace UserAuthentication.Services.UserServices
 {
     public interface IUserService
     {

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using UserAuthentication.Models.DTOs;
 
-namespace Backend.Services.User
+namespace UserAuthentication.Models.DTOs.UserDTOs
 {
     public class UpdateDTO : RegistrationDTO
     {

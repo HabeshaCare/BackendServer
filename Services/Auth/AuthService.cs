@@ -1,13 +1,6 @@
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
-using BCrypt.Net;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
@@ -18,18 +11,15 @@ using UserAuthentication.Utils;
 
 namespace UserAuthentication.Services
 {
-    public class AuthService : IAuthService
+    public class AuthService : MongoDBService, IAuthService
     {
-        private readonly IMongoClient _client;
         private readonly IMongoCollection<User> _collection;
         private readonly IConfiguration _configuration;
 
 
-        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration)
+        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration):base(options)
         {
-            _client = new MongoClient(options.Value.ConnectionUrl);
-            var _database = _client.GetDatabase(options.Value.DBName);
-            _collection = _database.GetCollection<User>("Users");
+            _collection = GetCollection<User>("Users");
             _configuration = configuration;
         }
 
