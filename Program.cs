@@ -8,7 +8,6 @@ using UserAuthentication.Utils;
 var builder = WebApplication.CreateBuilder(args);
 var DBConfig = builder.Configuration.GetSection("DB");
 
-
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
