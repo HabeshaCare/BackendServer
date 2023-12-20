@@ -41,7 +41,5 @@ namespace UserAuthentication.Services.FileServices
                 return (1, ex.Message, null);
             }
         }
-
-        private 
     }
 }
