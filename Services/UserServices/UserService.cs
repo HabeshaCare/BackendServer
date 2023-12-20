@@ -32,11 +32,11 @@ namespace UserAuthentication.Services.UserServices
                 var rawUser = await _collection.FindOneAndUpdateAsync(filter, update, options);                
                 UsageUserDTO updatedUser = new();
                 updatedUser.MapFromUser(rawUser);
-                return (0, "User updated Successfully", updatedUser);
+                return (1, "User updated Successfully", updatedUser);
             }
             catch (Exception e)
             { 
-                return (1, e.Message, null) ;
+                return (0, e.Message, null) ;
             }
             
         }

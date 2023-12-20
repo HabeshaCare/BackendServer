@@ -17,7 +17,7 @@ namespace UserAuthentication.Services
         private readonly IConfiguration _configuration;
 
 
-        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration):base(options)
+        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration) : base(options)
         {
             _collection = GetCollection<User>("Users");
             _configuration = configuration;
@@ -63,10 +63,9 @@ namespace UserAuthentication.Services
                 return (0, "User already exists", null);
             }
 
-            // User user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
+            user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
             var hashedPassword = HashPassword(model.Password);
-
-            user!.Password = hashedPassword;
+            user.Password = hashedPassword;
 
             try
             {
