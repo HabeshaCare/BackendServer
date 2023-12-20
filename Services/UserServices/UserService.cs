@@ -14,7 +14,7 @@ namespace UserAuthentication.Services.UserServices
             _collection = GetCollection<User>("Users");
         }
 
-        public Task<(int, string, UsageUserDTO?)> Update(UpdateDTO model)
+        public async Task<(int, string, UsageUserDTO?)> Update(UpdateDTO model)
         {
             var filter = Builders<User>.Filter.Eq(user => user.Id, model.Id);
             var update = Builders<User>.Update.Set(user => user.ImageUrl, model.ImageUrl)
@@ -23,7 +23,22 @@ namespace UserAuthentication.Services.UserServices
                                               .Set(user => user.Email, model.Email)
                                               .Set(user => user.Profession, model.Profession)
                                               .Set(user => user.Role, model.Role);
-            _collection.UpdateOneAsync(filter, update);
+            var options = new FindOneAndUpdateOptions<User>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+            try
+            {
+                var rawUser = await _collection.FindOneAndUpdateAsync(filter, update, options);                
+                UsageUserDTO updatedUser = new();
+                updatedUser.MapFromUser(rawUser);
+                return (0, "User updated Successfully", updatedUser);
+            }
+            catch (Exception e)
+            { 
+                return (1, e.Message, null) ;
+            }
+            
         }
     }
 }

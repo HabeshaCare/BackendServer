@@ -56,17 +56,17 @@ namespace UserAuthentication.Services
         public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
         {
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
-            var userExists = await _collection.Find(filterCondition).FirstOrDefaultAsync();
+            User user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
 
-            if (userExists != null)
+            if (user != null)
             {
                 return (0, "User already exists", null);
             }
 
-            User user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
+            // User user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
             var hashedPassword = HashPassword(model.Password);
 
-            user.Password = hashedPassword;
+            user!.Password = hashedPassword;
 
             try
             {
