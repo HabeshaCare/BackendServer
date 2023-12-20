@@ -10,7 +10,7 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; }
+        public string Id { get; set; }
         
         [EmailAddress(ErrorMessage = "Invalid email address format")]
         public string? Email { get; set; }
@@ -29,7 +29,7 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
         [Range(1, 150)]
         public int? Age { get; set; }
 
-        public string? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
 
         public void MapFromUser(User user)
         {
@@ -40,7 +40,6 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
             Role = user.Role;
             City = user.City;
             Age = user.Age;
-            ImageUrl = user.ImageUrl;
         }
     }
 }
