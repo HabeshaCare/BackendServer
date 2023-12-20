@@ -43,6 +43,14 @@ namespace UserAuthentication.Models.DTOs
             }
         }
 
+        public override void MapFromUser(User user)
+        {
+            base.MapFromUser(user);
+            Phonenumber = user.Phonenumber;
+            Profession = user.Profession;
+            Password = user.Password;
+        }
+
 
     }
 }

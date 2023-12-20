@@ -11,5 +11,10 @@ namespace UserAuthentication.Models.DTOs
     {
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; } = "";
+        public override void MapFromUser(User user)
+        {
+            base.MapFromUser(user);
+            Password = user.Password;
+        }
     }
 }

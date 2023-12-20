@@ -18,7 +18,16 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public UserRole Role { get; set; }
 
+
+        public UsageUserDTO()
+        {
+        }
+
         public UsageUserDTO(User user)
+        {
+            MapFromUser(user);
+        }
+        public override void MapFromUser(User user)
         {
             Email = user.Email;
             Id = user.Id!;

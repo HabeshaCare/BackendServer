@@ -17,5 +17,15 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
         [Range(1, 150)]
         public int? Age { get; set; }
         public string? ImageUrl { get; set; }
+
+        public override void MapFromUser(User user)
+        {
+            base.MapFromUser(user);
+            Id = user.Id;
+            Profession = user.Profession;
+            City = user.City;
+            Age = user.Age;
+            ImageUrl = user.ImageUrl;
+        }
     }
 }
