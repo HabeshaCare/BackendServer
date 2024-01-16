@@ -63,7 +63,7 @@ namespace UserAuthentication.Services.UserServices
             if(model.Age != null)
                 update.Set(user => user.Age, model.Age);
             
-            if(model.Email != null)
+            if(model.Email != null)//Check also for email uniquenss
                 update.Set(user => user.Email, model.Email);
 
             if(model.City != null)

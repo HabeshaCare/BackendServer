@@ -10,7 +10,7 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string Id { get; set; }
+        public string? Id { get; set; }
         
         [EmailAddress(ErrorMessage = "Invalid email address format")]
         public string? Email { get; set; }
