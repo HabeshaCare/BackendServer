@@ -49,7 +49,12 @@ namespace UserAuthentication.Services.UserServices
                         Builders<Doctor>.Filter.Eq(u => u.Id, doctorId),
                         Builders<Doctor>.Filter.Eq(u => u.Role, UserRole.Doctor));
 
-                    var result = await _collection.FindOneAndReplaceAsync(filter, doctor);
+                    var options = new FindOneAndReplaceOptions<Doctor>
+                    {
+                        ReturnDocument = ReturnDocument.After // or ReturnDocument.Before
+                    };
+
+                    var result = await _collection.FindOneAndReplaceAsync(filter, doctor, options);
                     UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
 
                     if (result == null)

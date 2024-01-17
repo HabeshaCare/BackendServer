@@ -7,8 +7,8 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
 {
     public class UpdateDoctorDTO
     {
-        public String Specialization { get; set; } = "Medical";
-        public int YearOfExperience { get; set; }
-        
+        public String? Specialization { get; set; }
+        public int? YearOfExperience { get; set; }
+
     }
 }
