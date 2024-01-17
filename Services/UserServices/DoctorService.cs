@@ -22,12 +22,13 @@ namespace UserAuthentication.Services.UserServices
             _mapper = mapper;
         }
 
-        public async Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(String doctorId)
+        private async Task<(int, string?, Doctor?)> GetDoctorById(string doctorId)
         {
             try
             {
-                var doctor = await _collection.FindAsync(d => d.Id == doctorId);
-                return (1, null, _mapper.Map<UsageDoctorDTO>(doctor));
+                var result = await _collection.FindAsync(d => d.Id == doctorId && d.Role == UserRole.Doctor);
+                Doctor doctor = (await result.ToListAsync())[0];
+                return (1, null, doctor);
             }
             catch (Exception ex)
             {
@@ -37,26 +38,35 @@ namespace UserAuthentication.Services.UserServices
 
         public async Task<(int, string, UsageDoctorDTO?)> Update(UpdateDoctorDTO doctorDTO, String doctorId)
         {
-            Doctor doctor = _mapper.Map<Doctor>(doctorDTO);
-            var filter = Builders<Doctor>.Filter.And(
-                Builders<Doctor>.Filter.Eq(u => u.Id, doctorId),
-                Builders<Doctor>.Filter.Eq(u => u.Role, UserRole.Admin));
-
             try
             {
-                var result = await _collection.FindOneAndReplaceAsync(filter,doctor);
-                UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
-
-                if (result != null)
+                var (status, message, doctor) = await GetDoctorById(doctorId);
+                if (status == 1 && doctor != null)
                 {
-                    return (0, "Doctor Can't be found", null);
+                    _mapper.Map(doctorDTO, doctor);
+
+                    var filter = Builders<Doctor>.Filter.And(
+                        Builders<Doctor>.Filter.Eq(u => u.Id, doctorId),
+                        Builders<Doctor>.Filter.Eq(u => u.Role, UserRole.Doctor));
+
+                    var result = await _collection.FindOneAndReplaceAsync(filter, doctor);
+                    UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
+
+                    if (result == null)
+                    {
+                        return (0, "Error updating Doctor", null);
+                    }
+
+                    return (1, "Doctor profile updated successfully", updatedDoctorDTO);
+
                 }
 
-                return (1, "Doctor Profile UpdatedSuccessfully", updatedDoctorDTO);
+                return (0, "Doctor not found", null);
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                return(0, ex.Message, null);
+                return (0, ex.Message, null);
             }
         }
     }
