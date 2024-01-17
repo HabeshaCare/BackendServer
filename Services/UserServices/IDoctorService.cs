@@ -8,6 +8,9 @@ namespace UserAuthentication.Services.UserServices
 {
     public interface IDoctorService
     {
+        Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId);
+        Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size);
         Task<(int, string, UsageDoctorDTO?)> Update(UpdateDoctorDTO doctorDTO, String id);
+
     }
 }

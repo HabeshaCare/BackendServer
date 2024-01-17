@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace UserAuthentication.Services.UserServices
             _mapper = mapper;
         }
 
-        private async Task<(int, string?, Doctor?)> GetDoctorById(string doctorId)
+        private async Task<(int, string?, Doctor?)> GetDoctor(string doctorId)
         {
             try
             {
@@ -35,12 +36,22 @@ namespace UserAuthentication.Services.UserServices
                 return (0, ex.Message, null);
             }
         }
+        public async Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId)
+        {
+            var (status, message, doctor) = await GetDoctor(doctorId);
+            if(status == 1 && doctor != null)
+            {
+                return (status, message, _mapper.Map<UsageDoctorDTO>(doctor));
+            }
+
+            return (status, message, null);
+        }
 
         public async Task<(int, string, UsageDoctorDTO?)> Update(UpdateDoctorDTO doctorDTO, String doctorId)
         {
             try
             {
-                var (status, message, doctor) = await GetDoctorById(doctorId);
+                var (status, message, doctor) = await GetDoctor(doctorId);
                 if (status == 1 && doctor != null)
                 {
                     _mapper.Map(doctorDTO, doctor);
@@ -70,6 +81,22 @@ namespace UserAuthentication.Services.UserServices
 
             }
             catch (Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
+        }
+
+        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size)
+        {
+            
+            try
+            {
+                int skip = (page - 1) * size;
+                var results = await _collection.Find(d => d.Role == UserRole.Doctor).Skip(skip).Limit(size).ToListAsync();
+                UsageDoctorDTO[] doctors = _mapper.Map<UsageDoctorDTO[]>(results);
+                return (1, null, doctors);
+            }
+            catch(Exception ex)
             {
                 return (0, ex.Message, null);
             }
