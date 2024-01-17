@@ -8,6 +8,7 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
 {
     public class UpdateDTO : IUserDTO
     {
+        [BsonIgnoreIfDefault]
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
