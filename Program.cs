@@ -14,9 +14,17 @@ var DBConfig = builder.Configuration.GetSection("DB");
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+//Custome Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IFileService, FileService>();
+
+//Database Configuration
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+//Automapper
 builder.Services.Configure<MongoDBSettings>(DBConfig);
 
 var config = builder.Configuration;

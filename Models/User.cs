@@ -32,6 +32,7 @@ namespace UserAuthentication.Models
     public int? Age { get; set; }
     public string? ImageUrl { get; set; }
     [JsonConverter(typeof(StringEnumConverter))]
+    [BsonRepresentation(BsonType.String)]
     public UserRole Role { get; set; } = UserRole.Normal;
 
     [Required(ErrorMessage = "This is a required field")]
