@@ -9,5 +9,6 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
     {
         public String Specialization { get; set; } = "Medical";
         public int YearOfExperience { get; set; }
+        public bool Verified {get; set;}
     }
 }

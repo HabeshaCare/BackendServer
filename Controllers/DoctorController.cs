@@ -49,7 +49,7 @@ namespace UserAuthentication.Controllers
             if (status == 0 || doctor == null)
                 return BadRequest(new { error = message });
 
-            return Ok(new { user = doctor });
+            return Ok(new {message, user = doctor });
         }
     }
 }

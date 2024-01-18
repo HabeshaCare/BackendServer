@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UserAuthentication.Models;
+using UserAuthentication.Models.DTOs.OptionsDTO;
 using UserAuthentication.Models.DTOs.UserDTOs;
 using UserAuthentication.Services.FileServices;
 using UserAuthentication.Utils;
@@ -66,6 +67,9 @@ namespace UserAuthentication.Services.UserServices
                     };
 
                     var result = await _collection.FindOneAndReplaceAsync(filter, doctor, options);
+                    
+                    doctor.Verified = false;
+
                     UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
 
                     if (result == null)
@@ -73,8 +77,7 @@ namespace UserAuthentication.Services.UserServices
                         return (0, "Error updating Doctor", null);
                     }
 
-                    return (1, "Doctor profile updated successfully", updatedDoctorDTO);
-
+                    return (1, "Doctor profile updated successfully. Status set to verified until approved by Admin", updatedDoctorDTO);
                 }
 
                 return (0, "Doctor not found", null);
@@ -92,7 +95,11 @@ namespace UserAuthentication.Services.UserServices
             try
             {
                 int skip = (page - 1) * size;
-                var results = await _collection.Find(d => d.Role == UserRole.Doctor).Skip(skip).Limit(size).ToListAsync();
+                var results = await _collection.Find(d => d.Verified.GetValueOrDefault() && d.Role == UserRole.Doctor)
+                    .Skip(skip)
+                    .Limit(size)
+                    .ToListAsync();
+                
                 UsageDoctorDTO[] doctors = _mapper.Map<UsageDoctorDTO[]>(results);
                 return (1, null, doctors);
             }
@@ -100,6 +107,12 @@ namespace UserAuthentication.Services.UserServices
             {
                 return (0, ex.Message, null);
             }
+        }
+
+        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size, DoctorFilterDTO filterOptions)
+        {
+
+            throw new NotImplementedException();
         }
     }
 }
