@@ -12,6 +12,7 @@ namespace UserAuthentication.Services.UserServices
         Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId);
         Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size);
         Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size, DoctorFilterDTO filterOptions);
+        Task<(int, string, UsageDoctorDTO?)> VerifyDoctor(string doctorId);
         Task<(int, string, UsageDoctorDTO?)> Update(UpdateDoctorDTO doctorDTO, String id);
 
     }

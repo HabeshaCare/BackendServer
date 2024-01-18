@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using UserAuthentication.Models;
 using UserAuthentication.Models.DTOs.OptionsDTO;
@@ -40,12 +41,38 @@ namespace UserAuthentication.Services.UserServices
         public async Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId)
         {
             var (status, message, doctor) = await GetDoctor(doctorId);
-            if(status == 1 && doctor != null)
+            if (status == 1 && doctor != null)
             {
                 return (status, message, _mapper.Map<UsageDoctorDTO>(doctor));
             }
 
             return (status, message, null);
+        }
+
+        public async Task<(int, string, UsageDoctorDTO?)> VerifyDoctor(string doctorId)
+        {
+            var filter = Builders<Doctor>.Filter.And(
+                Builders<Doctor>.Filter.Eq("Role", UserRole.Doctor),
+                Builders<Doctor>.Filter.Eq("_id", ObjectId.Parse(doctorId))
+            );
+
+            var update = Builders<Doctor>.Update.Set(d => d.Verified, true);
+            var options = new FindOneAndUpdateOptions<Doctor>
+            {
+                ReturnDocument = ReturnDocument.After,
+            };
+            try
+            {
+                var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
+                if (result != null)
+                    return (1, "Doctor Verified", _mapper.Map<UsageDoctorDTO>(result));
+                else
+                    return (0, "Doctor not found", null);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
         }
 
         public async Task<(int, string, UsageDoctorDTO?)> Update(UpdateDoctorDTO doctorDTO, String doctorId)
@@ -67,7 +94,7 @@ namespace UserAuthentication.Services.UserServices
                     };
 
                     var result = await _collection.FindOneAndReplaceAsync(filter, doctor, options);
-                    
+
                     doctor.Verified = false;
 
                     UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
@@ -91,7 +118,6 @@ namespace UserAuthentication.Services.UserServices
 
         public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size)
         {
-            
             try
             {
                 int skip = (page - 1) * size;
@@ -99,11 +125,11 @@ namespace UserAuthentication.Services.UserServices
                     .Skip(skip)
                     .Limit(size)
                     .ToListAsync();
-                
+
                 UsageDoctorDTO[] doctors = _mapper.Map<UsageDoctorDTO[]>(results);
                 return (1, null, doctors);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return (0, ex.Message, null);
             }

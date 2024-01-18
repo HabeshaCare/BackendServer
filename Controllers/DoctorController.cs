@@ -10,7 +10,8 @@ using UserAuthentication.Services.UserServices;
 namespace UserAuthentication.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/doctor")]
+    [Authorize(Roles = "Normal, Admin")]
     public class DoctorController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
@@ -20,14 +21,14 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDoctors([FromQuery] int page=1, [FromQuery] int size=10)
+        public async Task<IActionResult> GetDoctors([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             var (status, message, doctors) = await _doctorService.GetDoctors(page, size);
             if (status == 0 || doctors == null)
             {
-                return BadRequest(new{error=message});
+                return BadRequest(new { error = message });
             }
-            return Ok(new{users=doctors});
+            return Ok(new { users = doctors });
         }
 
         [HttpGet("{id}")]
@@ -36,13 +37,25 @@ namespace UserAuthentication.Controllers
             var (status, message, doctor) = await _doctorService.GetDoctorById(id);
             if (status == 0 || doctor == null)
             {
-                return NotFound(new{error=message});
+                return NotFound(new { error = message });
             }
-            return Ok(new{user=doctor});
+            return Ok(new { user = doctor });
 
         }
 
+        [HttpPut("verify/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> VerifyDoctor(string id)
+        {
+            var (status, message, doctor) = await _doctorService.VerifyDoctor(id);
+            if (status == 0 || doctor == null)
+                return BadRequest(new { errors = message });
+
+            return Ok(new { message, user = doctor });
+        }
+
         [HttpPut("{id}")]
+        [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> UpdateDoctor([FromBody] UpdateDoctorDTO doctorDTO, String id)
         {
             var (status, message, doctor) = await _doctorService.Update(doctorDTO, id);
@@ -50,7 +63,7 @@ namespace UserAuthentication.Controllers
             if (status == 0 || doctor == null)
                 return BadRequest(new { error = message });
 
-            return Ok(new {message, user = doctor });
+            return Ok(new { message, user = doctor });
         }
     }
 }
