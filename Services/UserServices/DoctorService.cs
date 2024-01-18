@@ -77,7 +77,7 @@ namespace UserAuthentication.Services.UserServices
                         return (0, "Error updating Doctor", null);
                     }
 
-                    return (1, "Doctor profile updated successfully. Status set to verified until approved by Admin", updatedDoctorDTO);
+                    return (1, "Doctor profile updated successfully. Status set to unverified until approved by Admin", updatedDoctorDTO);
                 }
 
                 return (0, "Doctor not found", null);
@@ -95,7 +95,7 @@ namespace UserAuthentication.Services.UserServices
             try
             {
                 int skip = (page - 1) * size;
-                var results = await _collection.Find(d => d.Verified.GetValueOrDefault() && d.Role == UserRole.Doctor)
+                var results = await _collection.Find(d => d.Verified == true && d.Role == UserRole.Doctor)
                     .Skip(skip)
                     .Limit(size)
                     .ToListAsync();
@@ -111,8 +111,19 @@ namespace UserAuthentication.Services.UserServices
 
         public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size, DoctorFilterDTO filterOptions)
         {
+            throw new NotImplementedException("Not implemented");
+            // var filterBuilder = Builders<Doctor>.Filter;
+            // var filterDefinition = filterBuilder.Empty; //
 
-            throw new NotImplementedException();
+            // if (filterOptions.MinYearExperience.HasValue)
+            //     filterDefinition &= filterBuilder.Gte("Experience", filterOptions.MinYearExperience);
+
+            // if (filterOptions.MaxYearExperience.HasValue)
+            //     filterDefinition &= filterBuilder.Lte("Experience", filterOptions.MaxYearExperience);
+
+            // if (!string.IsNullOrEmpty(filterOptions.Specialization))
+            //     filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
+
         }
     }
 }

@@ -9,6 +9,6 @@ namespace UserAuthentication.Models.DTOs.OptionsDTO
     {
         public int? MinYearExperience { get; set; }
         public int? MaxYearExperience { get; set; }
-        public string? FilterBySpecialization { get; set; }
+        public string? Specialization { get; set; }
     }
 }
