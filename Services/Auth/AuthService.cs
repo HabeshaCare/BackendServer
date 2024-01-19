@@ -27,7 +27,19 @@ namespace UserAuthentication.Services
         public async Task<(int, string, UsageUserDTO?)> Login(LoginDTO model)
         {
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
-            User user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
+            var projection = Builders<User>.Projection
+                .Include(u => u.Id)
+                .Include(u => u.Age)
+                .Include(u => u.Role)
+                .Include(u => u.City)
+                .Include(u => u.Email)
+                .Include(u => u.Gender)
+                .Include(u => u.Fullname)
+                .Include(u => u.ImageUrl)
+                .Include(u => u.Password)
+                .Include(u => u.Profession)
+                .Include(u => u.Phonenumber);
+            User user = await _collection.Find(filterCondition).Project<User>(projection).FirstOrDefaultAsync();
 
             var result = VerifyHashedPassword(model.Password, user?.Password ?? "");
 
