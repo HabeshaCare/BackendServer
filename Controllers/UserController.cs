@@ -35,7 +35,7 @@ namespace UserAuthentication.Controllers
             string? role = HttpContext.Items["Role"]?.ToString();
 
             userId = userId.IsNullOrEmpty() ? "" : userId;
-            role = role.IsNullOrEmpty() ? "" : userId;
+            role = role.IsNullOrEmpty() ? "" : role;
             bool scheduler = role == UserRole.Normal.ToString();
 
             var (status, message, schedule) = await _scheduleService.GetSchedules(userId!, scheduler, page, size);
@@ -84,6 +84,21 @@ namespace UserAuthentication.Controllers
                 return StatusCode(500, new{errors=message});
             return Ok(new{message, schedule=updatedSchedule});
         }
+        
+        [HttpPut("schedule/{id}")]
+        public async Task<IActionResult> UpdateScheduleStatus(string scheduleId, [FromBody] bool scheduleStatus)
+        {
+            string? role = HttpContext.Items["Role"]?.ToString();
+            if(role == UserRole.Doctor.ToString())
+                return Forbid("Only doctor can accept invitation");
+
+            var (status, message, updatedSchedule) = await _scheduleService.UpdateScheduleStatus(scheduleId, scheduleStatus);
+            
+            if(status == 0 || updatedSchedule == null)
+                return StatusCode(500, new{errors=message});
+            return Ok(new{message, schedule=updatedSchedule});
+        }
+
 
         [HttpDelete("schedule/{id}")]
         public async Task<IActionResult> DeleteSchedule(string scheduleId)
