@@ -77,7 +77,6 @@ if (app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseMiddleware<JWTMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -87,6 +86,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors();
+app.UseMiddleware<JWTMiddleware>();
 
 app.MapControllers();
 

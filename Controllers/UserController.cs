@@ -14,14 +14,14 @@ using UserAuthentication.Services.UserServices;
 namespace UserAuthentication.Controllers
 {
     [ApiController]
-    [Authorize(Roles= "Normal, Doctor, Admin")]
+    [Authorize(Roles = "Normal, Doctor, Admin")]
     [Route("api/user")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
         private readonly IScheduleService _scheduleService;
         private readonly ILogger<UserController> _logger;
-        public UserController(IUserService userService,IScheduleService scheduleService, ILogger<UserController> logger)
+        public UserController(IUserService userService, IScheduleService scheduleService, ILogger<UserController> logger)
         {
             _userService = userService;
             _scheduleService = scheduleService;
@@ -39,22 +39,22 @@ namespace UserAuthentication.Controllers
             bool scheduler = role == UserRole.Normal.ToString();
 
             var (status, message, schedule) = await _scheduleService.GetSchedules(userId!, scheduler, page, size);
-            
-            if(status == 0 || schedule == null)
-                return NotFound(new{errors=message});
-            
-            return Ok(new{message, schedule});
+
+            if (status == 0 || schedule == null)
+                return NotFound(new { errors = message });
+
+            return Ok(new { message, schedule });
         }
 
         [HttpGet("schedule/{id}")]
         public async Task<IActionResult> GetSchedule(string id)
         {
             var (status, message, schedule) = await _scheduleService.GetScheduleById(id);
-            
-            if(status == 0 || schedule == null)
-                return NotFound(new{errors=message});
-            
-            return Ok(new{message, schedule});
+
+            if (status == 0 || schedule == null)
+                return NotFound(new { errors = message });
+
+            return Ok(new { message, schedule });
         }
 
         [HttpPost("schedule/")]
@@ -64,39 +64,39 @@ namespace UserAuthentication.Controllers
             string? role = HttpContext.Items["Role"]?.ToString();
 
             userId = userId.IsNullOrEmpty() ? "" : userId;
-            if(role == UserRole.Doctor.ToString())
+            if (role == UserRole.Doctor.ToString())
                 return Forbid("Doctor can't create schedule");
 
             var (status, message, createdSchedule) = await _scheduleService.CreateSchedule(schedule, userId!);
-            
-            if(status == 0 || createdSchedule == null)
-                return StatusCode(500, new{errors=message});
-            
-            return Ok(new{message, schedule=createdSchedule});
+
+            if (status == 0 || createdSchedule == null)
+                return StatusCode(500, new { errors = message });
+
+            return Ok(new { message, schedule = createdSchedule });
         }
 
         [HttpPut("schedule/{id}")]
         public async Task<IActionResult> UpdateSchedule([FromBody] DateTime dateTime, string scheduleId)
         {
             var (status, message, updatedSchedule) = await _scheduleService.UpdateSchedule(dateTime, scheduleId);
-            
-            if(status == 0 || updatedSchedule == null)
-                return StatusCode(500, new{errors=message});
-            return Ok(new{message, schedule=updatedSchedule});
+
+            if (status == 0 || updatedSchedule == null)
+                return StatusCode(500, new { errors = message });
+            return Ok(new { message, schedule = updatedSchedule });
         }
-        
+
         [HttpPut("schedule/{id}/status")]
         public async Task<IActionResult> UpdateScheduleStatus(string scheduleId, [FromBody] bool scheduleStatus)
         {
             string? role = HttpContext.Items["Role"]?.ToString();
-            if(role == UserRole.Doctor.ToString())
+            if (role == UserRole.Doctor.ToString())
                 return Forbid("Only doctor can accept invitation");
 
             var (status, message, updatedSchedule) = await _scheduleService.UpdateScheduleStatus(scheduleId, scheduleStatus);
-            
-            if(status == 0 || updatedSchedule == null)
-                return StatusCode(500, new{errors=message});
-            return Ok(new{message, schedule=updatedSchedule});
+
+            if (status == 0 || updatedSchedule == null)
+                return StatusCode(500, new { errors = message });
+            return Ok(new { message, schedule = updatedSchedule });
         }
 
 
@@ -104,29 +104,29 @@ namespace UserAuthentication.Controllers
         public async Task<IActionResult> DeleteSchedule(string scheduleId)
         {
             var (status, message) = await _scheduleService.DeleteSchedule(scheduleId);
-            
-            if(status == 0)
-                return StatusCode(500, new{errors=message});
-            return Ok(new{message});
+
+            if (status == 0)
+                return StatusCode(500, new { errors = message });
+            return Ok(new { message });
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UploadImage([FromForm]IFormFile image,string id)
+        public async Task<IActionResult> UploadImage([FromForm] IFormFile image, string id)
         {
             UpdateDTO model = new();
             try
             {
-                if(!ModelState.IsValid)
+                if (!ModelState.IsValid)
                     return BadRequest("Invalid payload");
-                
-                model.Id= id;
+
+                model.Id = id;
                 model.Image = image;
                 var (status, message, user) = await _userService.Update(model);
 
-                if(status == 0 || user == null)
-                    return BadRequest(new{error=message});
-                
-                return Ok(new{message = "User updated successfully", user});
+                if (status == 0 || user == null)
+                    return BadRequest(new { error = message });
+
+                return Ok(new { message = "User updated successfully", user });
 
             }
             catch (Exception ex)

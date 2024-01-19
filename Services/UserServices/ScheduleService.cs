@@ -18,8 +18,8 @@ namespace UserAuthentication.Services.UserServices
         IMongoCollection<User> _usersCollection;
         IMongoCollection<Doctor> _doctorCollection;
         IMapper _mapper;
-        
-        public ScheduleService(IOptions<MongoDBSettings> options, IMapper mapper):base(options)
+
+        public ScheduleService(IOptions<MongoDBSettings> options, IMapper mapper) : base(options)
         {
             _scheduleCollection = GetCollection<Schedule>("Schedule");
             _usersCollection = GetCollection<User>("Users");
@@ -46,25 +46,25 @@ namespace UserAuthentication.Services.UserServices
             ScheduledDoctorDTO doctorInfo;
             var updatedSchedule = _mapper.Map<ScheduleDTO>(schedule);
 
-            if(scheduler)
+            if (scheduler)
             {
-             var result = await _doctorCollection.Find(d => d.Id == schedule.DoctorId).ToListAsync();
-             if(result.Count !=0)
-             {
-                var doctor = result[0];
-                doctorInfo = _mapper.Map<ScheduledDoctorDTO>(doctor);
-                updatedSchedule.Doctor = doctorInfo;
-             }
+                var result = await _doctorCollection.Find(d => d.Id == schedule.DoctorId).ToListAsync();
+                if (result.Count != 0)
+                {
+                    var doctor = result[0];
+                    doctorInfo = _mapper.Map<ScheduledDoctorDTO>(doctor);
+                    updatedSchedule.Doctor = doctorInfo;
+                }
             }
             else
             {
                 var result = await _usersCollection.Find(u => u.Id == schedule.SchedulerId).ToListAsync();
-                if(result.Count !=0)
+                if (result.Count != 0)
                 {
                     var user = result[0];
                     schedulerUserInfo = _mapper.Map<SchedulerUserDTO>(user);
                     updatedSchedule.Scheduler = schedulerUserInfo;
-                }                
+                }
             }
 
             return updatedSchedule;
@@ -79,7 +79,7 @@ namespace UserAuthentication.Services.UserServices
 
                 await _scheduleCollection.InsertOneAsync(schedule);
 
-                ScheduleDTO createdSchedule = _mapper.Map<ScheduleDTO>(schedule);
+                ScheduleDTO createdSchedule = await FetchScheduleInformation(schedule, true);
 
                 return (1, "Schedule created successfully", createdSchedule);
             }
@@ -94,13 +94,13 @@ namespace UserAuthentication.Services.UserServices
             try
             {
                 var (status, message, schedule) = await GetSchedule(scheduleId);
-                if(status == 0 || schedule == null)
+                if (status == 0 || schedule == null)
                     return (0, "Schedule not found", null);
-                
+
                 var scheduleDTO = _mapper.Map<ScheduleDTO>(schedule);
                 return (1, "Schedule Found", scheduleDTO);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return (0, ex.Message, null);
             }
@@ -124,12 +124,12 @@ namespace UserAuthentication.Services.UserServices
                     .Skip(skip)
                     .Limit(size)
                     .ToListAsync();
-                
+
                 if (foundSchedules.Count == 0)
                     return (0, "No Schedules Found", Array.Empty<ScheduleDTO>());
 
                 ScheduleDTO[] schedules = _mapper.Map<ScheduleDTO[]>(foundSchedules);
-                
+
                 var scheduleTasks = foundSchedules.Select(schedule => FetchScheduleInformation(schedule, scheduler)).ToList();
                 schedules = await Task.WhenAll(scheduleTasks);
 
@@ -152,8 +152,8 @@ namespace UserAuthentication.Services.UserServices
             try
             {
                 var (status, message, schedule) = await GetSchedule(scheduleId);
-                
-                if(status == 0 || schedule == null)
+
+                if (status == 0 || schedule == null)
                     return (0, "Schedule not found", null);
 
                 schedule.ScheduleTime = dateTime;
@@ -164,7 +164,7 @@ namespace UserAuthentication.Services.UserServices
 
                 return (1, "Schedule Updated", fetchScheduleInfo.Result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return (0, ex.Message, null);
             }
@@ -181,8 +181,8 @@ namespace UserAuthentication.Services.UserServices
             try
             {
                 var (status, message, schedule) = await GetSchedule(scheduleId);
-                
-                if(status == 0 || schedule == null)
+
+                if (status == 0 || schedule == null)
                     return (0, "Schedule not found", null);
 
                 schedule.Confirmed = scheduleStatus;
@@ -193,19 +193,19 @@ namespace UserAuthentication.Services.UserServices
 
                 return (1, "Schedule Updated", fetchScheduleInfo.Result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return (0, ex.Message, null);
             }
         }
-        
+
         public async Task<(int, string)> DeleteSchedule(string scheduleId)
         {
             try
             {
                 var result = await _scheduleCollection.FindOneAndDeleteAsync(s => s.Id == scheduleId);
-                
-                if(result == null)
+
+                if (result == null)
                     return (0, "Schedule not found");
                 return (1, "Schedule deleted successfully");
             }
