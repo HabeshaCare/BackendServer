@@ -9,7 +9,8 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
     public class UserDTO : IUserDTO
     {
         [EmailAddress(ErrorMessage = "Invalid email address")]
-        public String Email { get; set; }
+        public string Email { get; set; } = "";
+        public char Gender { get; set; }
 
         public virtual void MapFromUser(User user)
         {

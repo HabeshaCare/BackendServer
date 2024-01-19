@@ -25,6 +25,8 @@ namespace UserAuthentication.Models
 
     [Required(ErrorMessage = "This is a required field")]
     public string Profession { get; set; }
+    public string Fullname { get; set; } = "";
+    public char Gender { get; set; }
 
     public string? City { get; set; }
 
@@ -37,7 +39,7 @@ namespace UserAuthentication.Models
 
     [Required(ErrorMessage = "This is a required field")]
 
-    public string Password { get; set; }
+    public string Password { get; set; } = "";
 
     public User(string Email, string Phonenumber, string Profession, UserRole? userRole)
     {
