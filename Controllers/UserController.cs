@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using UserAuthentication.DTOs.ScheduleDTOs;
 using UserAuthentication.Models;
 using UserAuthentication.Models.DTOs.UserDTOs;
 using UserAuthentication.Services.UserServices;
@@ -40,7 +41,7 @@ namespace UserAuthentication.Controllers
             var (status, message, schedule) = await _scheduleService.GetSchedules(userId!, scheduler, page, size);
             
             if(status == 0 || schedule == null)
-                return NotFound(new{message});
+                return NotFound(new{errors=message});
             
             return Ok(new{message, schedule});
         }
@@ -51,9 +52,47 @@ namespace UserAuthentication.Controllers
             var (status, message, schedule) = await _scheduleService.GetScheduleById(id);
             
             if(status == 0 || schedule == null)
-                return NotFound(new{message});
+                return NotFound(new{errors=message});
             
             return Ok(new{message, schedule});
+        }
+
+        [HttpPost("schedule/")]
+        public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleDTO schedule)
+        {
+            string? userId = HttpContext.Items["UserId"]?.ToString();
+            string? role = HttpContext.Items["Role"]?.ToString();
+
+            userId = userId.IsNullOrEmpty() ? "" : userId;
+            if(role == UserRole.Doctor.ToString())
+                return Forbid("Doctor can't create schedule");
+
+            var (status, message, createdSchedule) = await _scheduleService.CreateSchedule(schedule, userId!);
+            
+            if(status == 0 || createdSchedule == null)
+                return StatusCode(500, new{errors=message});
+            
+            return Ok(new{message, schedule=createdSchedule});
+        }
+
+        [HttpPut("schedule/{id}")]
+        public async Task<IActionResult> UpdateSchedule([FromBody] DateTime dateTime, string scheduleId)
+        {
+            var (status, message, updatedSchedule) = await _scheduleService.UpdateSchedule(dateTime, scheduleId);
+            
+            if(status == 0 || updatedSchedule == null)
+                return StatusCode(500, new{errors=message});
+            return Ok(new{message, schedule=updatedSchedule});
+        }
+
+        [HttpDelete("schedule/{id}")]
+        public async Task<IActionResult> DeleteSchedule(string scheduleId)
+        {
+            var (status, message) = await _scheduleService.DeleteSchedule(scheduleId);
+            
+            if(status == 0)
+                return StatusCode(500, new{errors=message});
+            return Ok(new{message});
         }
 
         [HttpPut("{id}")]
