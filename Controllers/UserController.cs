@@ -100,7 +100,7 @@ namespace UserAuthentication.Controllers
         }
 
 
-        [HttpDelete("schedule/{id}")]
+        [HttpDelete("schedule/{scheduleId}")]
         public async Task<IActionResult> DeleteSchedule(string scheduleId)
         {
             var (status, message) = await _scheduleService.DeleteSchedule(scheduleId);
