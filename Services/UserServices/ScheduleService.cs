@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using UserAuthentication.DTOs.ScheduleDTOs;
 using UserAuthentication.Models;
@@ -24,6 +25,19 @@ namespace UserAuthentication.Services.UserServices
             _usersCollection = GetCollection<User>("Users");
             _doctorCollection = GetCollection<Doctor>("Users");
             _mapper = mapper;
+        }
+
+        private async Task<(int, string?, Schedule)> GetSchedule(string id)
+        {
+            try
+            {
+                var schedule = (await _scheduleCollection.Find(s => s.Id == id).ToListAsync())[0];
+                return (1, null, schedule);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
         }
 
         private async Task<ScheduleDTO> FetchScheduleInformation(Schedule schedule, bool scheduler)
@@ -56,16 +70,21 @@ namespace UserAuthentication.Services.UserServices
             return updatedSchedule;
         }
 
-        public async Task<(int, string, ScheduleDTO?)> GetSchedule(string scheduleId)
+        public Task<(int, string, ScheduleDTO?)> CreateSchedule(DateTime dateTime, string schedulerId, string dotorId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<(int, string, ScheduleDTO?)> GetScheduleById(string scheduleId)
         {
             try
             {
-                var results = await _scheduleCollection.Find(s => s.Id == scheduleId).ToListAsync();
-                if(results.Count == 0)
+                var (status, message, schedule) = await GetSchedule(scheduleId);
+                if(status == 0 || schedule == null)
                     return (0, "Schedule not found", null);
                 
-                var schedules = _mapper.Map<ScheduleDTO[]>(results);
-                return (1, "Schedule Found", schedules[0]);
+                var scheduleDTO = _mapper.Map<ScheduleDTO>(schedule);
+                return (1, "Schedule Found", scheduleDTO);
             }
             catch(Exception ex)
             {
@@ -108,19 +127,78 @@ namespace UserAuthentication.Services.UserServices
             }
         }
 
-        public Task<(int, string, ScheduleDTO?)> UpdateSchedule(DateTime dateTime, string scheduleId)
+        public async Task<(int, string, ScheduleDTO?)> UpdateSchedule(DateTime dateTime, string scheduleId)
         {
-            throw new NotImplementedException();
+            var filter = Builders<Schedule>.Filter.Eq(u => u.Id, scheduleId);
+            var options = new FindOneAndReplaceOptions<Schedule>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+
+            try
+            {
+                var (status, message, schedule) = await GetSchedule(scheduleId);
+                
+                if(status == 0 || schedule == null)
+                    return (0, "Schedule not found", null);
+
+                schedule.ScheduleTime = dateTime;
+
+                var updateSchedule = Task.Run(() => _scheduleCollection.FindOneAndReplaceAsync(filter, schedule, options));
+                var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, true));
+                await Task.WhenAll(updateSchedule, fetchScheduleInfo);
+
+                return (1, "Schedule Updated", fetchScheduleInfo.Result);
+            }
+            catch(Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
         }
 
-        public Task<(int, string, ScheduleDTO?)> UpdateScheduleStatus(string scheduleId, bool status)
+        public async Task<(int, string, ScheduleDTO?)> UpdateScheduleStatus(string scheduleId, bool scheduleStatus)
         {
-            throw new NotImplementedException();
+            var filter = Builders<Schedule>.Filter.Eq(u => u.Id, scheduleId);
+            var options = new FindOneAndReplaceOptions<Schedule>
+            {
+                ReturnDocument = ReturnDocument.After
+            };
+
+            try
+            {
+                var (status, message, schedule) = await GetSchedule(scheduleId);
+                
+                if(status == 0 || schedule == null)
+                    return (0, "Schedule not found", null);
+
+                schedule.Confirmed = scheduleStatus;
+
+                var updateSchedule = Task.Run(() => _scheduleCollection.FindOneAndReplaceAsync(filter, schedule, options));
+                var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, true));
+                await Task.WhenAll(updateSchedule, fetchScheduleInfo);
+
+                return (1, "Schedule Updated", fetchScheduleInfo.Result);
+            }
+            catch(Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
         }
         
-        public Task<(int, string, ScheduleDTO?)> DeleteSchedule(string scheduleId)
+        public async Task<(int, string)> DeleteSchedule(string scheduleId)
         {
-            throw new NotImplementedException();
-        }        
+            try
+            {
+                var result = await _scheduleCollection.FindOneAndDeleteAsync(s => s.Id == scheduleId);
+                
+                if(result == null)
+                    return (0, "Schedule not found");
+                return (1, "Schedule deleted successfully");
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message);
+            }
+        }
     }
 }

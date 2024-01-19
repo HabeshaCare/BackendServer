@@ -8,10 +8,11 @@ namespace UserAuthentication.Services.UserServices
 {
     public interface IScheduleService
     {
-        Task<(int, string, ScheduleDTO?)> GetSchedule(string scheduleId);
+        Task<(int, string, ScheduleDTO?)> GetScheduleById(string scheduleId);
         Task<(int, string, ScheduleDTO[])> GetSchedules(string userId, bool scheduler, int page, int size);
+        Task<(int, string, ScheduleDTO?)> CreateSchedule(DateTime dateTime, string schedulerId, string dotorId);
         Task<(int, string, ScheduleDTO?)> UpdateSchedule(DateTime dateTime, string scheduleId);
-        Task<(int, string, ScheduleDTO?)> UpdateScheduleStatus(string scheduleId, bool status);
-        Task<(int, string, ScheduleDTO?)> DeleteSchedule(string scheduleId);
+        Task<(int, string, ScheduleDTO?)> UpdateScheduleStatus(string scheduleId, bool scheduleStatus);
+        Task<(int, string)> DeleteSchedule(string scheduleId);
     }
 }

@@ -48,7 +48,7 @@ namespace UserAuthentication.Controllers
         [HttpGet("schedule/{id}")]
         public async Task<IActionResult> GetSchedule(string id)
         {
-            var (status, message, schedule) = await _scheduleService.GetSchedule(id);
+            var (status, message, schedule) = await _scheduleService.GetScheduleById(id);
             
             if(status == 0 || schedule == null)
                 return NotFound(new{message});
