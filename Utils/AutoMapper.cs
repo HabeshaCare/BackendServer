@@ -16,6 +16,7 @@ namespace UserAuthentication.Utils
             CreateMap<Doctor, UpdateDoctorDTO>().ReverseMap();
             CreateMap<Doctor, UsageDoctorDTO>().ReverseMap();
             CreateMap<Schedule, ScheduleDTO>().ReverseMap();
+            CreateMap<Schedule, CreateScheduleDTO>().ReverseMap();
         }
     }
 }

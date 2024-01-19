@@ -70,9 +70,23 @@ namespace UserAuthentication.Services.UserServices
             return updatedSchedule;
         }
 
-        public Task<(int, string, ScheduleDTO?)> CreateSchedule(DateTime dateTime, string schedulerId, string dotorId)
+        public async Task<(int, string, ScheduleDTO?)> CreateSchedule(CreateScheduleDTO createScheduleDTO, string schedulerId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                Schedule schedule = _mapper.Map<Schedule>(createScheduleDTO);
+                schedule.SchedulerId = schedulerId;
+
+                await _scheduleCollection.InsertOneAsync(schedule);
+
+                ScheduleDTO createdSchedule = _mapper.Map<ScheduleDTO>(schedule);
+
+                return (1, "Schedule created successfully", createdSchedule);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
         }
 
         public async Task<(int, string, ScheduleDTO?)> GetScheduleById(string scheduleId)
