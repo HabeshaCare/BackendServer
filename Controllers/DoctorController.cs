@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserAuthentication.Models.DTOs.OptionsDTO;
 using UserAuthentication.Models.DTOs.UserDTOs;
 using UserAuthentication.Services.UserServices;
 
@@ -21,13 +22,11 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDoctors([FromQuery] int page = 1, [FromQuery] int size = 10)
+        public async Task<IActionResult> GetDoctors([FromQuery] DoctorFilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            var (status, message, doctors) = await _doctorService.GetDoctors(page, size);
+            var (status, message, doctors) = await (filterOptions != null ? _doctorService.GetDoctors(filterOptions, page, size) : _doctorService.GetDoctors(page, size));
             if (status == 0 || doctors == null)
-            {
-                return BadRequest(new { error = message });
-            }
+                return NotFound(new { error = message });
             return Ok(new { users = doctors });
         }
 

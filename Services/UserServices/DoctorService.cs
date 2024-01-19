@@ -93,9 +93,9 @@ namespace UserAuthentication.Services.UserServices
                         ReturnDocument = ReturnDocument.After // or ReturnDocument.Before
                     };
 
+                    doctor.Verified = false;
                     var result = await _collection.FindOneAndReplaceAsync(filter, doctor, options);
 
-                    doctor.Verified = false;
 
                     UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
 
@@ -135,21 +135,41 @@ namespace UserAuthentication.Services.UserServices
             }
         }
 
-        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size, DoctorFilterDTO filterOptions)
+        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(DoctorFilterDTO filterOptions, int page, int size)
         {
-            throw new NotImplementedException("Not implemented");
-            // var filterBuilder = Builders<Doctor>.Filter;
-            // var filterDefinition = filterBuilder.Empty; //
+            var filterBuilder = Builders<Doctor>.Filter;
+            var filterDefinition = filterBuilder.Empty;
 
-            // if (filterOptions.MinYearExperience.HasValue)
-            //     filterDefinition &= filterBuilder.Gte("Experience", filterOptions.MinYearExperience);
+            filterDefinition &= filterBuilder.Eq("Verified", true);
+            filterDefinition &= filterBuilder.Eq("Role", UserRole.Doctor);
 
-            // if (filterOptions.MaxYearExperience.HasValue)
-            //     filterDefinition &= filterBuilder.Lte("Experience", filterOptions.MaxYearExperience);
+            int skip = (page - 1) * size;
 
-            // if (!string.IsNullOrEmpty(filterOptions.Specialization))
-            //     filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
+            if (filterOptions.MinYearExperience.HasValue)
+                filterDefinition &= filterBuilder.Gte("YearOfExperience", filterOptions.MinYearExperience);
 
+            if (filterOptions.MaxYearExperience.HasValue)
+                filterDefinition &= filterBuilder.Lte("YearOfExperience", filterOptions.MaxYearExperience);
+
+            if (!string.IsNullOrEmpty(filterOptions.Specialization))
+                filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
+            try
+            {
+                var foundDoctors = await _collection.Find(filterDefinition)
+                    .Skip(skip)
+                    .Limit(size)
+                    .ToListAsync();
+
+                if (foundDoctors.Count == 0)
+                    return (0, "No matching doctors found", Array.Empty<UsageDoctorDTO>());
+
+                UsageDoctorDTO[] doctors = _mapper.Map<UsageDoctorDTO[]>(foundDoctors);
+                return (1, $"Found {foundDoctors.Count} matching doctors", doctors);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
         }
     }
 }
