@@ -15,7 +15,7 @@ namespace UserAuthentication.Controllers
 {
     [ApiController]
     [Authorize(Roles= "Normal, Doctor, Admin")]
-    [Route("api/[controller]")]
+    [Route("api/user")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -85,7 +85,7 @@ namespace UserAuthentication.Controllers
             return Ok(new{message, schedule=updatedSchedule});
         }
         
-        [HttpPut("schedule/{id}")]
+        [HttpPut("schedule/{id}/status")]
         public async Task<IActionResult> UpdateScheduleStatus(string scheduleId, [FromBody] bool scheduleStatus)
         {
             string? role = HttpContext.Items["Role"]?.ToString();
