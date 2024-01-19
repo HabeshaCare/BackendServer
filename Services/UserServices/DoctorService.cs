@@ -75,6 +75,43 @@ namespace UserAuthentication.Services.UserServices
             }
         }
 
+        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(DoctorFilterDTO filterOptions, int page, int size)
+        {
+            var filterBuilder = Builders<Doctor>.Filter;
+            var filterDefinition = filterBuilder.Empty;
+
+            filterDefinition &= filterBuilder.Eq("Verified", true);
+            filterDefinition &= filterBuilder.Eq("Role", UserRole.Doctor);
+
+            int skip = (page - 1) * size;
+
+            if (filterOptions.MinYearExperience.HasValue)
+                filterDefinition &= filterBuilder.Gte("YearOfExperience", filterOptions.MinYearExperience);
+
+            if (filterOptions.MaxYearExperience.HasValue)
+                filterDefinition &= filterBuilder.Lte("YearOfExperience", filterOptions.MaxYearExperience);
+
+            if (!string.IsNullOrEmpty(filterOptions.Specialization))
+                filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
+            try
+            {
+                var foundDoctors = await _collection.Find(filterDefinition)
+                    .Skip(skip)
+                    .Limit(size)
+                    .ToListAsync();
+
+                if (foundDoctors.Count == 0)
+                    return (0, "No matching doctors found", Array.Empty<UsageDoctorDTO>());
+
+                UsageDoctorDTO[] doctors = _mapper.Map<UsageDoctorDTO[]>(foundDoctors);
+                return (1, $"Found {foundDoctors.Count} matching doctors", doctors);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
+        }
+
         public async Task<(int, string, UsageDoctorDTO?)> Update(UpdateDoctorDTO doctorDTO, String doctorId)
         {
             try
@@ -109,62 +146,6 @@ namespace UserAuthentication.Services.UserServices
 
                 return (0, "Doctor not found", null);
 
-            }
-            catch (Exception ex)
-            {
-                return (0, ex.Message, null);
-            }
-        }
-
-        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(int page, int size)
-        {
-            try
-            {
-                int skip = (page - 1) * size;
-                var results = await _collection.Find(d => d.Verified == true && d.Role == UserRole.Doctor)
-                    .Skip(skip)
-                    .Limit(size)
-                    .ToListAsync();
-
-                UsageDoctorDTO[] doctors = _mapper.Map<UsageDoctorDTO[]>(results);
-                return (1, null, doctors);
-            }
-            catch (Exception ex)
-            {
-                return (0, ex.Message, null);
-            }
-        }
-
-        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(DoctorFilterDTO filterOptions, int page, int size)
-        {
-            var filterBuilder = Builders<Doctor>.Filter;
-            var filterDefinition = filterBuilder.Empty;
-
-            filterDefinition &= filterBuilder.Eq("Verified", true);
-            filterDefinition &= filterBuilder.Eq("Role", UserRole.Doctor);
-
-            int skip = (page - 1) * size;
-
-            if (filterOptions.MinYearExperience.HasValue)
-                filterDefinition &= filterBuilder.Gte("YearOfExperience", filterOptions.MinYearExperience);
-
-            if (filterOptions.MaxYearExperience.HasValue)
-                filterDefinition &= filterBuilder.Lte("YearOfExperience", filterOptions.MaxYearExperience);
-
-            if (!string.IsNullOrEmpty(filterOptions.Specialization))
-                filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
-            try
-            {
-                var foundDoctors = await _collection.Find(filterDefinition)
-                    .Skip(skip)
-                    .Limit(size)
-                    .ToListAsync();
-
-                if (foundDoctors.Count == 0)
-                    return (0, "No matching doctors found", Array.Empty<UsageDoctorDTO>());
-
-                UsageDoctorDTO[] doctors = _mapper.Map<UsageDoctorDTO[]>(foundDoctors);
-                return (1, $"Found {foundDoctors.Count} matching doctors", doctors);
             }
             catch (Exception ex)
             {
