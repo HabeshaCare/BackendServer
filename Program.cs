@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using UserAuthentication.Middleware;
 using UserAuthentication.Services;
 using UserAuthentication.Services.FileServices;
 using UserAuthentication.Services.UserServices;
@@ -76,7 +77,7 @@ if (app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
+app.UseMiddleware<JWTMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -93,7 +93,7 @@ namespace UserAuthentication.Services.UserServices
                     .ToListAsync();
                 
                 if (foundSchedules.Count == 0)
-                    return (0, "No matching doctors found", Array.Empty<ScheduleDTO>());
+                    return (0, "No Schedules Found", Array.Empty<ScheduleDTO>());
 
                 ScheduleDTO[] schedules = _mapper.Map<ScheduleDTO[]>(foundSchedules);
                 
