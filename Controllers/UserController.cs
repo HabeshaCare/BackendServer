@@ -15,7 +15,7 @@ namespace UserAuthentication.Controllers
 {
     [ApiController]
     [Authorize(Roles= "Normal, Doctor, Admin")]
-    [Route("api/]")]
+    [Route("api/user")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
