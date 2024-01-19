@@ -114,9 +114,9 @@ namespace UserAuthentication.Services.UserServices
             int skip = (page - 1) * size;
 
             if (scheduler)
-                filterDefinition &= filterBuilder.Gte("SchedulerId", userId);
+                filterDefinition &= filterBuilder.Eq("SchedulerId", userId);
             else
-                filterDefinition &= filterBuilder.Lte("DoctorId", userId);
+                filterDefinition &= filterBuilder.Eq("DoctorId", userId);
 
             try
             {

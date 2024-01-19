@@ -49,17 +49,13 @@ namespace UserAuthentication.Services
             if (ifUserNotFound || ifInvalidPassword)
                 return (0, "Invalid Credentials", null);
 
-            var userRoles = Enum.GetValues(typeof(UserRole));
             var authClaims = new List<Claim>
             {
-                new (ClaimTypes.Email, user!.Email),
-                new (ClaimTypes.NameIdentifier, user!.Id!),
-                new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(ClaimTypes.Email, user!.Email),
+                new(ClaimTypes.NameIdentifier, user!.Id!),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(ClaimTypes.Role, user.Role.ToString())
             };
-
-
-            foreach (var userRole in userRoles)
-                authClaims.Add(new(ClaimTypes.Role, userRole.ToString()!));
 
             string token = GenerateToken(authClaims);
             UsageUserDTO foundUser = new(user);

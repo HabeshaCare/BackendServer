@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.IdentityModel.Tokens;
 
 namespace UserAuthentication.Middleware
 {
@@ -20,7 +21,6 @@ namespace UserAuthentication.Middleware
             var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var role = context.User.FindFirst(ClaimTypes.Role)?.Value;
 
-            // Add the user ID to the request properties
             context.Items["UserId"] = userId;
             context.Items["Role"] = role;
 

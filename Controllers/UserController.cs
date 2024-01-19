@@ -36,7 +36,7 @@ namespace UserAuthentication.Controllers
 
             userId = userId.IsNullOrEmpty() ? "" : userId;
             role = role.IsNullOrEmpty() ? "" : role;
-            bool scheduler = role == UserRole.Normal.ToString();
+            bool scheduler = role != UserRole.Doctor.ToString();
 
             var (status, message, schedule) = await _scheduleService.GetSchedules(userId!, scheduler, page, size);
 
