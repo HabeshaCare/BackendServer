@@ -188,7 +188,7 @@ namespace UserAuthentication.Services.UserServices
                 schedule.Confirmed = scheduleStatus;
 
                 var updateSchedule = Task.Run(() => _scheduleCollection.FindOneAndReplaceAsync(filter, schedule, options));
-                var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, true));
+                var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, false));
                 await Task.WhenAll(updateSchedule, fetchScheduleInfo);
 
                 return (1, "Schedule Updated", fetchScheduleInfo.Result);

@@ -85,12 +85,12 @@ namespace UserAuthentication.Controllers
             return Ok(new { message, schedule = updatedSchedule });
         }
 
-        [HttpPut("schedule/{id}/status")]
+        [HttpPut("schedule/{scheduleId}/status")]
         public async Task<IActionResult> UpdateScheduleStatus(string scheduleId, [FromBody] bool scheduleStatus)
         {
             string? role = HttpContext.Items["Role"]?.ToString();
-            if (role == UserRole.Doctor.ToString())
-                return Forbid("Only doctor can accept invitation");
+            if (role != UserRole.Doctor.ToString())
+                return Forbid();
 
             var (status, message, updatedSchedule) = await _scheduleService.UpdateScheduleStatus(scheduleId, scheduleStatus);
 
