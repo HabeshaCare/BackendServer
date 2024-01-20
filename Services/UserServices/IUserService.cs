@@ -8,6 +8,7 @@ namespace UserAuthentication.Services.UserServices
 {
     public interface IUserService
     {
-        Task<(int, string, UsageUserDTO?)> Update(UpdateDTO model);
+        Task<(int, string?, UsageUserDTO?)> GetUserById(string id);
+        Task<(int, string, UsageUserDTO?)> Update(UpdateUserDTO model, string userId, IFormFile? image);
     }
 }

@@ -16,7 +16,7 @@ namespace UserAuthentication.Utils
         {
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<User, UsageUserDTO>().ReverseMap();
-            CreateMap<User, UpdateDTO>().ReverseMap();
+            CreateMap<User, UpdateUserDTO>().ReverseMap();
             CreateMap<User, RegistrationDTO>().ReverseMap();
             CreateMap<User, LoginDTO>().ReverseMap();
             CreateMap<Doctor, UpdateDoctorDTO>().ReverseMap();

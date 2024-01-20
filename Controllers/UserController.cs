@@ -112,17 +112,11 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UploadImage([FromForm] IFormFile image, string id)
+        public async Task<IActionResult> UploadImage(string id, [FromForm] UpdateUserDTO? model, [FromForm] IFormFile? image)
         {
-            UpdateDTO model = new();
             try
             {
-                if (!ModelState.IsValid)
-                    return BadRequest("Invalid payload");
-
-                model.Id = id;
-                model.Image = image;
-                var (status, message, user) = await _userService.Update(model);
+                var (status, message, user) = await _userService.Update(model, id, image);
 
                 if (status == 0 || user == null)
                     return BadRequest(new { error = message });

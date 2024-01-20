@@ -7,7 +7,7 @@ namespace UserAuthentication.Services.FileServices
 {
     public class FileService : IFileService
     {
-        private List<string>_allowedFileTypes = new(){ ".pdf", ".jpg"};
+        private List<string> _allowedFileTypes = new() { ".pdf", ".jpg" };
         public async Task<(int, string, string?)> UploadFile(IFormFile file, string id, string uploadDir = "Uploads")
         {
             try
@@ -16,10 +16,10 @@ namespace UserAuthentication.Services.FileServices
                     throw new ArgumentNullException("Invalid file uploaded");
 
                 var fileExtenstion = Path.GetExtension(file.FileName);
-                if(!_allowedFileTypes.Contains(fileExtenstion))
+                if (!_allowedFileTypes.Contains(fileExtenstion))
                     throw new ArgumentException("Invalid file type");
 
-                var fileName = (id ?? Guid.NewGuid().ToString()) + fileExtenstion;
+                var fileName = id ?? $"{id}_{Guid.NewGuid()}{fileExtenstion}";
                 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), uploadDir);
 
                 if (!Directory.Exists(uploadFolder))
@@ -32,8 +32,8 @@ namespace UserAuthentication.Services.FileServices
                     await file.CopyToAsync(filestream);
                 }
 
-            var fileUrl = $"{uploadDir}/{fileName}";
-            return (0, "File Created Successfully", fileUrl);
+                var fileUrl = $"{uploadDir}/{fileName}";
+                return (0, "File Created Successfully", fileUrl);
 
             }
             catch (Exception ex)
