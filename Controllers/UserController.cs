@@ -75,10 +75,11 @@ namespace UserAuthentication.Controllers
             return Ok(new { message, schedule = createdSchedule });
         }
 
-        [HttpPut("schedule/{id}")]
+        [HttpPut("schedule/{scheduleId}")]
         public async Task<IActionResult> UpdateSchedule([FromBody] DateTime dateTime, string scheduleId)
         {
-            var (status, message, updatedSchedule) = await _scheduleService.UpdateSchedule(dateTime, scheduleId);
+            bool scheduler = HttpContext.Items["Role"]?.ToString() != UserRole.Doctor.ToString();
+            var (status, message, updatedSchedule) = await _scheduleService.UpdateSchedule(dateTime, scheduleId, scheduler);
 
             if (status == 0 || updatedSchedule == null)
                 return StatusCode(500, new { errors = message });

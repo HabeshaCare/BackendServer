@@ -141,7 +141,7 @@ namespace UserAuthentication.Services.UserServices
             }
         }
 
-        public async Task<(int, string, ScheduleDTO?)> UpdateSchedule(DateTime dateTime, string scheduleId)
+        public async Task<(int, string, ScheduleDTO?)> UpdateSchedule(DateTime dateTime, string scheduleId, bool scheduler)
         {
             var filter = Builders<Schedule>.Filter.Eq(u => u.Id, scheduleId);
             var options = new FindOneAndReplaceOptions<Schedule>
@@ -159,7 +159,7 @@ namespace UserAuthentication.Services.UserServices
                 schedule.ScheduleTime = dateTime;
 
                 var updateSchedule = Task.Run(() => _scheduleCollection.FindOneAndReplaceAsync(filter, schedule, options));
-                var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, true));
+                var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, scheduler));
                 await Task.WhenAll(updateSchedule, fetchScheduleInfo);
 
                 return (1, "Schedule Updated", fetchScheduleInfo.Result);
