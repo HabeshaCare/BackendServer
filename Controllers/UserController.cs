@@ -132,7 +132,7 @@ namespace UserAuthentication.Controllers
             }
         }
 
-        [HttpPost("{id}/profile_picture/")]
+        [HttpPost("{id}/picture/")]
         public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
         {
             try
