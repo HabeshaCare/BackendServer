@@ -8,7 +8,7 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
     public class UpdateDoctorDTO
     {
         public String? Specialization { get; set; }
-        public int? YearOfExperience { get; set; }
+        public int? YearOfExperience { get; set; } = null;
 
     }
 }

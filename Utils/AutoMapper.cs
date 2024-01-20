@@ -14,17 +14,17 @@ namespace UserAuthentication.Utils
     {
         public AutoMapper()
         {
-            CreateMap<User, UserDTO>().ReverseMap();
-            CreateMap<User, UsageUserDTO>().ReverseMap();
-            CreateMap<User, UpdateUserDTO>().ReverseMap();
-            CreateMap<User, RegistrationDTO>().ReverseMap();
-            CreateMap<User, LoginDTO>().ReverseMap();
-            CreateMap<Doctor, UpdateDoctorDTO>().ReverseMap();
-            CreateMap<Doctor, UsageDoctorDTO>().ReverseMap();
-            CreateMap<Doctor, ScheduledDoctorDTO>().ReverseMap();
-            CreateMap<Schedule, ScheduleDTO>().ReverseMap();
-            CreateMap<Schedule, CreateScheduleDTO>().ReverseMap();
-            CreateMap<User, SchedulerUserDTO>().ReverseMap();
+            CreateMap<User, UserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<User, UsageUserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<User, UpdateUserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<User, RegistrationDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<User, LoginDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Doctor, UpdateDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Doctor, UsageDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Doctor, ScheduledDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Schedule, ScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Schedule, CreateScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<User, SchedulerUserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

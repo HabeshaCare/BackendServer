@@ -61,7 +61,7 @@ namespace UserAuthentication.Services.UserServices
                 var (userStatus, userMessage, user) = await GetUser(userId);
 
                 if (userStatus == 0 || user == null)
-                    return (userStatus, userMessage, null);
+                    return (userStatus, userMessage ?? "User doesn't Exist", null);
 
                 _mapper.Map(model, user);
 

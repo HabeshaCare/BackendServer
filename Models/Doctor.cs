@@ -8,11 +8,11 @@ namespace UserAuthentication.Models
     public class Doctor : User
     {
         public string Specialization { get; set; } = "";
-        public int YearOfExperience { get; set; }
-        public bool? Verified {get; set;}
+        public int? YearOfExperience { get; set; }
+        public bool? Verified { get; set; }
         public Doctor(string Email, string Phonenumber, string Profession) : base(Email, Phonenumber, Profession, UserRole.Doctor)
         {
-            
+
         }
     }
 }
