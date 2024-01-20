@@ -15,31 +15,8 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
         public string? City { get; set; }
         public int? Age { get; set; }
         public string? ImageUrl { get; set; }
-        
+
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public UserRole Role { get; set; }
-
-
-        public UsageUserDTO()
-        {
-        }
-
-        public UsageUserDTO(User user)
-        {
-            MapFromUser(user);
-        }
-        public override void MapFromUser(User user)
-        {
-            Email = user.Email;
-            Id = user.Id!;
-            Role = user.Role;
-            Profession = user.Profession;
-            Fullname = user.Fullname;
-            Gender = user.Gender;
-            Phonenumber = user.Phonenumber;
-            City = user.City;
-            Age = user.Age;
-            ImageUrl = user.ImageUrl;
-        }
     }
 }

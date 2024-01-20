@@ -1,3 +1,4 @@
+using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UserAuthentication.Models;
@@ -9,12 +10,14 @@ namespace UserAuthentication.Services.UserServices
 {
     public class UserService : MongoDBService, IUserService
     {
-        private readonly IMongoCollection<User>_collection;
+        private readonly IMongoCollection<User> _collection;
         private readonly IFileService _fileService;
-        public UserService(IOptions<MongoDBSettings> options, IFileService fileService) : base(options)
+        private readonly IMapper _mapper;
+        public UserService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
         {
             _collection = GetCollection<User>("Users");
             _fileService = fileService;
+            _mapper = mapper;
         }
 
         public async Task<(int, string, UsageUserDTO?)> Update(UpdateDTO model)
@@ -23,15 +26,15 @@ namespace UserAuthentication.Services.UserServices
             var filter = Builders<User>.Filter.Eq(user => user.Id, model.Id);
             try
             {
-                if(model.Image != null)
+                if (model.Image != null)
                 {
                     var (status, message, filePath) = await _fileService.UploadFile(model.Image, model.Id!, "ProfilePics");
-                    if(status == 1 || filePath == null)
+                    if (status == 1 || filePath == null)
                         return (status, message, null);
                     imageUrl = filePath;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return (1, ex.Message, null);
             }
@@ -44,38 +47,38 @@ namespace UserAuthentication.Services.UserServices
             };
             try
             {
-                var rawUser = await _collection.FindOneAndUpdateAsync(filter, update, options);                
-                UsageUserDTO updatedUser = new();
-                updatedUser.MapFromUser(rawUser);
+                var rawUser = await _collection.FindOneAndUpdateAsync(filter, update, options);
+
+                UsageUserDTO updatedUser = _mapper.Map<UsageUserDTO>(rawUser);
                 return (1, "User updated Successfully", updatedUser);
             }
             catch (Exception ex)
-            { 
-                return (0, ex.Message, null) ;
+            {
+                return (0, ex.Message, null);
             }
-            
+
         }
 
         public UpdateDefinition<User> GetUpdateDefinition(UpdateDTO model, string? imageUrl)
         {
             var update = Builders<User>.Update.Set(user => user.Id, model.Id);
-            
-            if(model.Age != null)
+
+            if (model.Age != null)
                 update.Set(user => user.Age, model.Age);
-            
-            if(model.Email != null)//Check also for email uniquenss
+
+            if (model.Email != null)//Check also for email uniquenss
                 update.Set(user => user.Email, model.Email);
 
-            if(model.City != null)
+            if (model.City != null)
                 update.Set(user => user.City, model.City);
 
-            if(model.Profession != null)
+            if (model.Profession != null)
                 update.Set(user => user.Profession, model.Profession);
-            
-            if(model.Role != null)
+
+            if (model.Role != null)
                 update.Set(user => user.Role, model.Role);
 
-            if(imageUrl != null)
+            if (imageUrl != null)
                 update.Set(user => user.ImageUrl, imageUrl);
 
             return update;

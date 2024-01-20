@@ -6,15 +6,10 @@ using System.Threading.Tasks;
 
 namespace UserAuthentication.Models.DTOs.UserDTOs
 {
-    public class UserDTO : IUserDTO
+    public class UserDTO
     {
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string Email { get; set; } = "";
         public char Gender { get; set; }
-
-        public virtual void MapFromUser(User user)
-        {
-            Email = user.Email;
-        }
     }
 }

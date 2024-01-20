@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
@@ -15,12 +16,14 @@ namespace UserAuthentication.Services
     {
         private readonly IMongoCollection<User> _collection;
         private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
 
-        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration) : base(options)
+        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration, IMapper mapper) : base(options)
         {
             _collection = GetCollection<User>("Users");
             _configuration = configuration;
+            _mapper = mapper;
         }
 
 
@@ -58,7 +61,7 @@ namespace UserAuthentication.Services
             };
 
             string token = GenerateToken(authClaims);
-            UsageUserDTO foundUser = new(user);
+            UsageUserDTO foundUser = _mapper.Map<UsageUserDTO>(user);
             return (1, token, foundUser);
         }
 
@@ -85,7 +88,7 @@ namespace UserAuthentication.Services
 
                 return (0, $"Database error creating the user: {ex.Message}", null);
             }
-            UsageUserDTO createdUser = new(user);
+            UsageUserDTO createdUser = _mapper.Map<UsageUserDTO>(user);
 
             return (1, "User created successfully", createdUser);
         }
