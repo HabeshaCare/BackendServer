@@ -10,6 +10,7 @@ using UserAuthentication.DTOs.ScheduleDTOs;
 using UserAuthentication.Models;
 using UserAuthentication.Models.DTOs.UserDTOs;
 using UserAuthentication.Services.UserServices;
+using UserAuthentication.Utils;
 
 namespace UserAuthentication.Controllers
 {
@@ -112,16 +113,36 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, [FromForm] UpdateUserDTO? model, [FromForm] IFormFile? image)
+        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO model)
         {
             try
             {
-                var (status, message, user) = await _userService.Update(model, id, image);
+                var (status, message, user) = await _userService.UpdateUser(model, id);
 
                 if (status == 0 || user == null)
                     return BadRequest(new { error = message });
 
                 return Ok(new { message = "User updated successfully", user });
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
+            }
+        }
+
+        [HttpPost("{id}/profile_picture/")]
+        public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
+        {
+            try
+            {
+                var (status, message, user) = await _userService.UploadProfile(id, image);
+
+                if (status == 0 || user == null)
+                    return BadRequest(new { error = message });
+
+                return Ok(new { message, user });
 
             }
             catch (Exception ex)

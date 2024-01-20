@@ -30,7 +30,7 @@ namespace UserAuthentication.Services.UserServices
             try
             {
                 var result = await _collection.FindAsync(d => d.Id == doctorId && d.Role == UserRole.Doctor);
-                Doctor doctor = (await result.ToListAsync())[0];
+                Doctor doctor = (await result.ToListAsync()).FirstOrDefault();
                 return (1, null, doctor);
             }
             catch (Exception ex)

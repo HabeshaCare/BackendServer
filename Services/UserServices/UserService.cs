@@ -45,25 +45,25 @@ namespace UserAuthentication.Services.UserServices
             return (1, "User Found", foundUser);
         }
 
-        public async Task<(int, string, UsageUserDTO?)> Update(UpdateUserDTO model, string userId, IFormFile? image)
+        public async Task<(int, string, UsageUserDTO?)> UploadProfile(string userId, IFormFile? image)
         {
             var filter = Builders<User>.Filter.Eq(user => user.Id, userId);
             try
             {
+                string? imageUrl = null;
                 if (image != null)
                 {
                     var (fileStatus, fileMessage, filePath) = await _fileService.UploadFile(image, userId, "ProfilePics");
                     if (fileStatus == 1 || filePath == null)
                         return (fileStatus, fileMessage, null);
 
-                    model.ImageUrl = filePath;
+                    imageUrl = filePath;
                 }
                 var (userStatus, userMessage, user) = await GetUser(userId);
+                user.ImageUrl = imageUrl;
 
                 if (userStatus == 0 || user == null)
                     return (userStatus, userMessage ?? "User doesn't Exist", null);
-
-                _mapper.Map(model, user);
 
                 var options = new FindOneAndReplaceOptions<User>
                 {
@@ -73,7 +73,41 @@ namespace UserAuthentication.Services.UserServices
                 var rawUser = await _collection.FindOneAndReplaceAsync(filter, user, options);
 
                 UsageUserDTO updatedUser = _mapper.Map<UsageUserDTO>(rawUser);
-                return (1, "User updated Successfully", updatedUser);
+                return (1, "Profile Image Uploaded Successfully", updatedUser);
+            }
+            catch (Exception ex)
+            {
+                return (1, ex.Message, null);
+            }
+
+        }
+
+        public async Task<(int, string, UsageUserDTO?)> UpdateUser(UpdateUserDTO model, string userId)
+        {
+            var filter = Builders<User>.Filter.Eq(user => user.Id, userId);
+            try
+            {
+                if (model != null)
+                {
+
+                    var (userStatus, userMessage, user) = await GetUser(userId);
+
+                    if (userStatus == 0 || user == null)
+                        return (userStatus, userMessage ?? "User doesn't Exist", null);
+
+                    _mapper.Map(model, user);
+
+                    var options = new FindOneAndReplaceOptions<User>
+                    {
+                        ReturnDocument = ReturnDocument.After
+                    };
+
+                    var rawUser = await _collection.FindOneAndReplaceAsync(filter, user, options);
+
+                    UsageUserDTO updatedUser = _mapper.Map<UsageUserDTO>(rawUser);
+                    return (1, "User updated Successfully", updatedUser);
+                }
+                return (0, "Invalid Input", null);
             }
             catch (Exception ex)
             {

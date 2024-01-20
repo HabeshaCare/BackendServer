@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using UserAuthentication.Models.DTOs.OptionsDTO;
 using UserAuthentication.Models.DTOs.UserDTOs;
 using UserAuthentication.Services.UserServices;
+using UserAuthentication.Utils;
 
 namespace UserAuthentication.Controllers
 {
@@ -57,8 +58,9 @@ namespace UserAuthentication.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Doctor")]
-        public async Task<IActionResult> UpdateDoctor([FromBody] UpdateDoctorDTO doctorDTO, String id)
+        public async Task<IActionResult> UpdateDoctor(string id, [FromBody] UpdateDoctorDTO? doctorDTO, [FromForm] UpdateDoctorDTO? doctorFormDTO)
         {
+            doctorDTO = NullObjects.IsAllNullOrEmpty(doctorDTO) ? doctorFormDTO : doctorDTO;
             var (status, message, doctor) = await _doctorService.Update(doctorDTO, id);
 
             if (status == 0 || doctor == null)
