@@ -26,7 +26,7 @@ namespace UserAuthentication.Models
     [Required(ErrorMessage = "This is a required field")]
     public string Profession { get; set; }
     public string Fullname { get; set; } = "";
-    public char Gender { get; set; }
+    public char? Gender { get; set; }
 
     public string? City { get; set; }
 
