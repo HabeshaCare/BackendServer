@@ -13,13 +13,13 @@ namespace UserAuthentication.Services.FileServices
             try
             {
                 if (file == null || file.Length == 0)
-                    throw new ArgumentNullException("Invalid file uploaded");
+                    throw new ArgumentNullException(nameof(file));
 
                 var fileExtenstion = Path.GetExtension(file.FileName);
                 if (!_allowedFileTypes.Contains(fileExtenstion))
                     throw new ArgumentException("Invalid file type");
 
-                var fileName = id ?? $"{id}_{Guid.NewGuid()}{fileExtenstion}";
+                var fileName = $"{id}_{Guid.NewGuid()}{fileExtenstion}";
                 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), uploadDir);
 
                 if (!Directory.Exists(uploadFolder))
