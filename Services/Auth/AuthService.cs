@@ -44,7 +44,7 @@ namespace UserAuthentication.Services
                 .Include(u => u.Phonenumber);
             User user = await _collection.Find(filterCondition).Project<User>(projection).FirstOrDefaultAsync();
 
-            var result = VerifyHashedPassword(model.Password, user?.Password ?? "");
+            bool result = user != null && VerifyHashedPassword(model.Password, user.Password);
 
             bool ifUserNotFound = user == null;
             bool ifInvalidPassword = !result;
