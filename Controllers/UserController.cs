@@ -112,7 +112,7 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UploadImage(string id, [FromForm] UpdateUserDTO? model, [FromForm] IFormFile? image)
+        public async Task<IActionResult> UpdateUser(string id, [FromForm] UpdateUserDTO? model, [FromForm] IFormFile? image)
         {
             try
             {

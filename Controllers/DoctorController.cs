@@ -12,7 +12,6 @@ namespace UserAuthentication.Controllers
 {
     [ApiController]
     [Route("api/doctor")]
-    [Authorize(Roles = "Normal, Admin")]
     public class DoctorController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
@@ -22,6 +21,7 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Normal, Admin")]
         public async Task<IActionResult> GetDoctors([FromQuery] DoctorFilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             var (status, message, doctors) = await _doctorService.GetDoctors(filterOptions!, page, size);
@@ -31,6 +31,8 @@ namespace UserAuthentication.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Normal, Admin")]
+
         public async Task<IActionResult> GetDoctorById(string id)
         {
             var (status, message, doctor) = await _doctorService.GetDoctorById(id);
