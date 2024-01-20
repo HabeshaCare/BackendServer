@@ -19,10 +19,12 @@ namespace UserAuthentication.Services.UserServices
     {
         private readonly IMongoCollection<Doctor> _collection;
         private readonly IMapper _mapper;
-        public DoctorService(IOptions<MongoDBSettings> options, IMapper mapper) : base(options)
+        private readonly IFileService _fileService;
+        public DoctorService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
         {
             _collection = GetCollection<Doctor>("Users");
             _mapper = mapper;
+            _fileService = fileService;
         }
 
         private async Task<(int, string?, Doctor?)> GetDoctor(string doctorId)
@@ -112,7 +114,7 @@ namespace UserAuthentication.Services.UserServices
             }
         }
 
-        public async Task<(int, string, UsageDoctorDTO?)> Update(UpdateDoctorDTO doctorDTO, String doctorId)
+        public async Task<(int, string, UsageDoctorDTO?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
         {
             try
             {
@@ -142,6 +144,52 @@ namespace UserAuthentication.Services.UserServices
                     }
 
                     return (1, "Doctor profile updated successfully. Status set to unverified until approved by Admin", updatedDoctorDTO);
+                }
+
+                return (0, "Doctor not found", null);
+
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
+        }
+        public async Task<(int, string, UsageDoctorDTO?)> UploadLiscenseInformation(IFormFile licenseInformation, string doctorId)
+        {
+            try
+            {
+                string? licenseInformationPath = null;
+                var (status, message, doctor) = await GetDoctor(doctorId);
+                if (status == 1 && doctor != null)
+                {
+                    var (fileStatus, fileMessage, filePath) = await _fileService.UploadFile(licenseInformation, doctorId, "Licenses");
+                    if (fileStatus == 1 || filePath == null)
+                        return (fileStatus, fileMessage, null);
+
+                    licenseInformationPath = filePath;
+                    doctor.LicensePath = filePath;
+
+                    var filter = Builders<Doctor>.Filter.And(
+                        Builders<Doctor>.Filter.Eq(u => u.Id, doctorId),
+                        Builders<Doctor>.Filter.Eq(u => u.Role, UserRole.Doctor));
+
+                    var options = new FindOneAndReplaceOptions<Doctor>
+                    {
+                        ReturnDocument = ReturnDocument.After // or ReturnDocument.Before
+                    };
+
+                    doctor.Verified = false;
+                    var result = await _collection.FindOneAndReplaceAsync(filter, doctor, options);
+
+
+                    UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
+
+                    if (result == null)
+                    {
+                        return (0, "Error updating Doctor", null);
+                    }
+
+                    return (1, "License Information Uploaded Successfully. Status set to unverified until approved by Admin", updatedDoctorDTO);
                 }
 
                 return (0, "Doctor not found", null);

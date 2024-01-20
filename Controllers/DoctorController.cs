@@ -58,10 +58,21 @@ namespace UserAuthentication.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Doctor")]
-        public async Task<IActionResult> UpdateDoctor(string id, [FromBody] UpdateDoctorDTO? doctorDTO, [FromForm] UpdateDoctorDTO? doctorFormDTO)
+        public async Task<IActionResult> UpdateDoctor(string id, [FromBody] UpdateDoctorDTO doctorDTO)
         {
-            doctorDTO = NullObjects.IsAllNullOrEmpty(doctorDTO) ? doctorFormDTO : doctorDTO;
-            var (status, message, doctor) = await _doctorService.Update(doctorDTO, id);
+            var (status, message, doctor) = await _doctorService.UpdateDoctor(doctorDTO, id);
+
+            if (status == 0 || doctor == null)
+                return BadRequest(new { error = message });
+
+            return Ok(new { message, user = doctor });
+        }
+
+        [HttpPost("{id}/license")]
+        [Authorize(Roles = "Doctor")]
+        public async Task<IActionResult> UploadLicense(string id, [FromBody] UpdateDoctorDTO doctorDTO)
+        {
+            var (status, message, doctor) = await _doctorService.UpdateDoctor(doctorDTO, id);
 
             if (status == 0 || doctor == null)
                 return BadRequest(new { error = message });
