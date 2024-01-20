@@ -70,9 +70,9 @@ namespace UserAuthentication.Controllers
 
         [HttpPost("{id}/license")]
         [Authorize(Roles = "Doctor")]
-        public async Task<IActionResult> UploadLicense(string id, [FromBody] UpdateDoctorDTO doctorDTO)
+        public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
-            var (status, message, doctor) = await _doctorService.UpdateDoctor(doctorDTO, id);
+            var (status, message, doctor) = await _doctorService.UploadLiscense(license, id);
 
             if (status == 0 || doctor == null)
                 return BadRequest(new { error = message });

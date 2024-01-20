@@ -154,7 +154,7 @@ namespace UserAuthentication.Services.UserServices
                 return (0, ex.Message, null);
             }
         }
-        public async Task<(int, string, UsageDoctorDTO?)> UploadLiscenseInformation(IFormFile licenseInformation, string doctorId)
+        public async Task<(int, string, UsageDoctorDTO?)> UploadLiscense(IFormFile licenseInformation, string doctorId)
         {
             try
             {

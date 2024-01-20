@@ -13,6 +13,9 @@ namespace UserAuthentication.Services.UserServices
         Task<(int, string?, UsageDoctorDTO[])> GetDoctors(DoctorFilterDTO filterOptions, int page, int size);
         Task<(int, string, UsageDoctorDTO?)> VerifyDoctor(string doctorId);
         Task<(int, string, UsageDoctorDTO?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, String id);
+        Task<(int, string, UsageDoctorDTO?)> UploadLiscense(IFormFile licenseInformation, string doctorId);
+
+
 
     }
 }
