@@ -9,7 +9,7 @@ namespace UserAuthentication.Services.ChatServices
 {
     public interface IChatAIService
     {
-        Task<(int, string?, UsageMessageDTO?)> AddMessage(string userId, string message, MessageType messageType = MessageType.Human);
         Task<(int, string?, UsageMessageDTO[])> GetMessages(string userId);
+        Task<(int, string?, UsageMessageDTO?)> AskAI(string userId, string message);
     }
 }

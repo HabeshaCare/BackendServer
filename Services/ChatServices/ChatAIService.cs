@@ -21,7 +21,7 @@ namespace UserAuthentication.Services.ChatServices
             _messageCollection = GetCollection<Message>("Messages");
             _mapper = mapper;
         }
-        public async Task<(int, string?, UsageMessageDTO?)> AddMessage(string userId, string message, MessageType messageType = MessageType.Human)
+        private async Task<(int, string?, UsageMessageDTO?)> AddMessage(string userId, string message, MessageType messageType = MessageType.Human)
         {
             Message newMessage = new(){UserId = userId, Type = messageType, Content = message};
             var createdMessage = _mapper.Map<UsageMessageDTO>(newMessage);
@@ -29,6 +29,24 @@ namespace UserAuthentication.Services.ChatServices
             {
                 await _messageCollection.InsertOneAsync(newMessage);
                 return (1, "Message added successfully", createdMessage);
+            }
+            catch (Exception ex)
+            {
+                
+                return (0, ex.Message, null);
+            }
+        }
+
+        public async Task<(int, string?, UsageMessageDTO?)> AskAI(string userId, string message)
+        {
+            try
+            {
+               //TODO: Ask llm for response
+
+               var addUserMessage = Task.Run(() => AddMessage(userId, message));
+               var addAiMessage = Task.Run(() => AddMessage(userId, message, MessageType.AI));
+               await Task.WhenAll(addUserMessage, addAiMessage);
+               return (1, "Asking llm successful", null);
             }
             catch (Exception ex)
             {
