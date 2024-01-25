@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using UserAuthentication.Middleware;
 using UserAuthentication.Services;
+using UserAuthentication.Services.ChatServices;
 using UserAuthentication.Services.FileServices;
 using UserAuthentication.Services.UserServices;
 using UserAuthentication.Utils;
@@ -20,6 +21,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IChatAIService, ChatAIService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IFileService, FileService>();
 

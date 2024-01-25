@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using UserAuthentication.DTOs.ScheduleDTOs;
 using UserAuthentication.Models;
 using UserAuthentication.Models.DTOs.UserDTOs;
+using UserAuthentication.Services.ChatServices;
 using UserAuthentication.Services.UserServices;
 using UserAuthentication.Utils;
 
@@ -20,12 +21,14 @@ namespace UserAuthentication.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IChatAIService _chatAIService;
         private readonly IScheduleService _scheduleService;
         private readonly ILogger<UserController> _logger;
-        public UserController(IUserService userService, IScheduleService scheduleService, ILogger<UserController> logger)
+        public UserController(IUserService userService, IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
         {
             _userService = userService;
             _scheduleService = scheduleService;
+            _chatAIService = chatAIService;
             _logger = logger;
         }
 
@@ -150,6 +153,25 @@ namespace UserAuthentication.Controllers
                 _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
             }
+        }
+
+        [HttpGet("{id}/chat/")]
+        public async Task<IActionResult> GetUserMessages(string id)
+        {
+            var (status, message, messages) = await _chatAIService.GetMessages(id);
+            if(status == 0)
+                return BadRequest(new{error=message});
+            
+            return Ok(new{successMessage=message, messages});
+        }
+
+        [HttpPost("{id}/chat/")]
+        public async Task<IActionResult> AskAI([FromBody] string message, string id)
+        {
+            var (status, statusMessage, response) = await _chatAIService.AskAI(id, message);
+            if(status == 0 || response == null)
+                return NotFound(new{error = "AI server not found"});
+            return Ok(new{response, message = statusMessage});
         }
     }
 }
