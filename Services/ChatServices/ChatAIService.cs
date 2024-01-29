@@ -38,12 +38,11 @@ namespace UserAuthentication.Services.ChatServices
             }
         }
 
-        private async Task<(int, string?, string?)> HttpRequestToServer(string question)
+        private async Task<(int, string?, string?)> HttpPostRequest(string question, string url = "http://localhost:5000/ask")
         {
             using (HttpClient httpClient = new HttpClient())
             {
                 // Specify the API endpoint URL
-                string apiUrl = "http://localhost:5000/ask";
 
                 try
                 {
@@ -55,7 +54,7 @@ namespace UserAuthentication.Services.ChatServices
                     string jsonBody = JsonSerializer.Serialize(requestData);
 
                     StringContent content = new(jsonBody, System.Text.Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await httpClient.PostAsync(apiUrl, content);
+                    HttpResponseMessage response = await httpClient.PostAsync(url, content);
 
                     if (response.IsSuccessStatusCode)
                     {
@@ -80,11 +79,10 @@ namespace UserAuthentication.Services.ChatServices
             try
             {
                 //TODO: Ask llm for response
-
                 var addUserMessage = Task.Run(() => AddMessage(userId, message));
                 var addAiMessage = Task.Run(() => AddMessage(userId, message, MessageType.AI));
                 await Task.WhenAll(addUserMessage, addAiMessage);
-                await HttpRequestToServer("What am I sick about?");
+                await HttpPostRequest("What am I sick about?");
                 return (1, "Asking llm successful", null);
             }
             catch (Exception ex)
