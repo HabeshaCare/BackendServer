@@ -7,8 +7,11 @@ using UserAuthentication.Models.DTOs.UserDTOs;
 
 namespace UserAuthentication.Models.DTOs
 {
-    public class LoginDTO : UserDTO
+    public class LoginDTO
     {
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string Email { get; set; }
+        
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; } = "";
     }
