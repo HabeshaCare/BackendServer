@@ -37,34 +37,34 @@ namespace UserAuthentication.Services.ChatServices
             }
         }
 
-        private async Task<(int, string?, string?)> HttpRequestToServer()
-        {
-            using (HttpClient httpClient = new HttpClient())
-            {
-                // Specify the API endpoint URL
-                string apiUrl = "http://localhost:5000/ask";
+        // private async Task<(int, string?, string?)> HttpRequestToServer()
+        // {
+        //     using (HttpClient httpClient = new HttpClient())
+        //     {
+        //         // Specify the API endpoint URL
+        //         string apiUrl = "http://localhost:5000/ask";
 
-                try
-                {
-                    HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
+        //         try
+        //         {
+        //             HttpResponseMessage response = await httpClient.GetAsync(apiUrl);
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseData = await response.Content.ReadAsStringAsync();
+        //             if (response.IsSuccessStatusCode)
+        //             {
+        //                 string responseData = await response.Content.ReadAsStringAsync();
 
-                        Console.WriteLine("API Response: " + responseData);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"API Request Failed: {response.StatusCode} - {response.ReasonPhrase}");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return (0, ex.Message, null);
-                }
-            }
-        }
+        //                 Console.WriteLine("API Response: " + responseData);
+        //             }
+        //             else
+        //             {
+        //                 Console.WriteLine($"API Request Failed: {response.StatusCode} - {response.ReasonPhrase}");
+        //             }
+        //         }
+        //         catch (Exception ex)
+        //         {
+        //             return (0, ex.Message, null);
+        //         }
+        //     }
+        // }
 
         public async Task<(int, string?, UsageMessageDTO?)> AskAI(string userId, string message)
         {
