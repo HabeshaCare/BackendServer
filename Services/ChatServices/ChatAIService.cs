@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Newtonsoft.Json.Linq;
 using UserAuthentication.DTOs.MessageDTOs;
 using UserAuthentication.Models;
 using UserAuthentication.Utils;
@@ -38,39 +39,29 @@ namespace UserAuthentication.Services.ChatServices
             }
         }
 
-        private async Task<(int, string?, string?)> HttpPostRequest(string question, string url = "http://localhost:5000/ask")
+        private static async Task<(int, string?, string?)> HttpPostRequest(string question, string url = "http://localhost:5000/ask")
         {
-            using (HttpClient httpClient = new HttpClient())
+            using HttpClient httpClient = new();
+            try
             {
-                // Specify the API endpoint URL
-
-                try
+                var requestData = new
                 {
-                    var requestData = new
-                    {
-                        query = question
-                    };
+                    query = question
+                };
 
-                    string jsonBody = JsonSerializer.Serialize(requestData);
+                string jsonBody = JsonSerializer.Serialize(requestData);
 
-                    StringContent content = new(jsonBody, System.Text.Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await httpClient.PostAsync(url, content);
+                StringContent content = new(jsonBody, System.Text.Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await httpClient.PostAsync(url, content);
 
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string responseData = await response.Content.ReadAsStringAsync();
-                        Console.WriteLine("API Response: " + responseData);
-                    }
-                    else
-                    {
-                        Console.WriteLine($"API Request Failed: {response.StatusCode} - {response.ReasonPhrase}");
-                    }
-                    return (1, "Message success", null);
-                }
-                catch (Exception ex)
-                {
-                    return (0, ex.Message, null);
-                }
+                string responseData = await response.Content.ReadAsStringAsync();
+                var answer = JObject.Parse(responseData)["Response"];
+
+                return (response.IsSuccessStatusCode ? 1 : 0, null, answer?.ToString());
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, null);
             }
         }
 
@@ -80,10 +71,17 @@ namespace UserAuthentication.Services.ChatServices
             {
                 //TODO: Ask llm for response
                 var addUserMessage = Task.Run(() => AddMessage(userId, message));
-                var addAiMessage = Task.Run(() => AddMessage(userId, message, MessageType.AI));
-                await Task.WhenAll(addUserMessage, addAiMessage);
-                await HttpPostRequest("What am I sick about?");
-                return (1, "Asking llm successful", null);
+
+
+                var (status, statusMessage, answer) = await HttpPostRequest(message,"https://hakim-llm.onrender.com");
+                var addAiMessage = Task.Run(() => AddMessage(userId, answer, MessageType.AI));
+
+                var result = await Task.WhenAll(addUserMessage, addAiMessage);
+                UsageMessageDTO? aiMessage = result[0].Item3;
+
+                if(status == 1 && aiMessage != null)
+                    return (1, "Asking llm successful", aiMessage);
+                return (0, message, null);
             }
             catch (Exception ex)
             {
