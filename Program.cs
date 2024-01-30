@@ -56,7 +56,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("Open", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+    options.AddPolicy("AllowSpecificOrigin", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
 });
 builder.Services.AddAuthorization();
 
@@ -79,7 +79,7 @@ if (app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-
+app.UseCors("AllowSpecificOrigin");
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
