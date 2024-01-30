@@ -75,7 +75,7 @@ namespace UserAuthentication.Services
                 return (0, "User already exists", null);
             }
 
-            user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
+            user = _mapper.Map<User>(model);
             var hashedPassword = HashPassword(model.Password);
             user.Password = hashedPassword;
 
@@ -101,8 +101,8 @@ namespace UserAuthentication.Services
             {
                 Issuer = _configuration["JWTKey:ValidIssuer"],
                 Audience = _configuration["JWTKey:ValidAudience"],
-                // Expires = DateTime.UtcNow.AddHours(_TokenExpiryTimeInHour),
-                Expires = DateTime.UtcNow.AddMinutes(30),
+                Expires = DateTime.UtcNow.AddHours(_TokenExpiryTimeInHour),
+                // Expires = DateTime.UtcNow.AddMinutes(30),
                 SigningCredentials = new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256),
                 Subject = new ClaimsIdentity(claims)
             };

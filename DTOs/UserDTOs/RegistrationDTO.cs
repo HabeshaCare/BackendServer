@@ -16,8 +16,7 @@ namespace UserAuthentication.Models.DTOs
         public string Phonenumber { get; set; }
 
 
-        [Required(ErrorMessage = "This is a required field")]
-        public string Profession { get; set; }
+        public string? Profession { get; set; }
 
 
         [Range(1, 150)]
