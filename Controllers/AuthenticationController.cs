@@ -30,12 +30,30 @@ namespace UserAuthentication.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid payload");
-                var (status, message, user) = await _authService.Login(model);
+                var (status, tokenOrMessage, user) = await _authService.Login(model);
 
                 if (status == 0 || user == null)
-                    return BadRequest(new { error = message });
+                    return BadRequest(new { error = tokenOrMessage });
 
-                return Ok(new { token = message, message = "Login successful", user });
+                Response.Cookies.Append("token", tokenOrMessage, new CookieOptions
+                {
+                    HttpOnly = false,
+                    Secure = false,
+                    SameSite = SameSiteMode.None,
+                    MaxAge = TimeSpan.FromDays(1),
+
+                });
+
+                Response.Cookies.Append("user", JsonConvert.SerializeObject(user), new CookieOptions
+                {
+                    HttpOnly = false,
+                    Secure = false,
+                    SameSite = SameSiteMode.None,
+                    MaxAge = TimeSpan.FromDays(1),
+
+                });
+                
+                return Ok(new { token = tokenOrMessage, message = "Login successful", user });
             }
             catch (Exception ex)
             {
@@ -49,6 +67,7 @@ namespace UserAuthentication.Controllers
         {
             try
             {
+                var request = Request;
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid Payload");
                 var (status, message, user) = await _authService.Registration(model);
