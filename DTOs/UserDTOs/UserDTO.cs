@@ -10,6 +10,6 @@ namespace UserAuthentication.Models.DTOs.UserDTOs
     {
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string Email { get; set; }
-        public char? Gender { get; set; }
+        public string? Gender { get; set; }
     }
 }

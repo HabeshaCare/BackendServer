@@ -75,7 +75,7 @@ namespace UserAuthentication.Services
                 return (0, "User already exists", null);
             }
 
-            user = new(model.Email, model.Phonenumber, model.Profession, model.Role);
+            user = _mapper.Map<User>(model);
             var hashedPassword = HashPassword(model.Password);
             user.Password = hashedPassword;
 
