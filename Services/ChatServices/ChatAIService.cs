@@ -73,13 +73,13 @@ namespace UserAuthentication.Services.ChatServices
                 var addUserMessage = Task.Run(() => AddMessage(userId, message));
 
 
-                var (status, statusMessage, answer) = await HttpPostRequest(message,"https://hakim-llm.onrender.com");
+                var (status, statusMessage, answer) = await HttpPostRequest(message, "https://hakim-llm.onrender.com/ask");
                 var addAiMessage = Task.Run(() => AddMessage(userId, answer, MessageType.AI));
 
                 var result = await Task.WhenAll(addUserMessage, addAiMessage);
-                UsageMessageDTO? aiMessage = result[0].Item3;
+                UsageMessageDTO? aiMessage = result[1].Item3;
 
-                if(status == 1 && aiMessage != null)
+                if (status == 1 && aiMessage != null)
                     return (1, "Asking llm successful", aiMessage);
                 return (0, message, null);
             }
