@@ -44,7 +44,7 @@ namespace UserAuthentication.Controllers
 
                 });
 
-                Response.Cookies.Append("user", JsonConvert.SerializeObject(user), new CookieOptions
+                Response.Cookies.Append("userId", user.Id, new CookieOptions
                 {
                     HttpOnly = false,
                     Secure = false,
