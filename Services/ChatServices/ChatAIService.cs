@@ -25,6 +25,12 @@ namespace UserAuthentication.Services.ChatServices
         }
         private async Task<(int, string?, UsageMessageDTO?)> AddMessage(string userId, string message, MessageType messageType = MessageType.Human)
         {
+
+            //Guard to prevent null message from being sent
+            if(userId == null || message == null){
+                return (0, "Not all required fields are set", null);
+            }
+
             Message newMessage = new() { UserId = userId, Type = messageType, Content = message };
             var createdMessage = _mapper.Map<UsageMessageDTO>(newMessage);
             try
@@ -69,7 +75,6 @@ namespace UserAuthentication.Services.ChatServices
         {
             try
             {
-                //TODO: Ask llm for response
                 var addUserMessage = Task.Run(() => AddMessage(userId, message));
 
 
