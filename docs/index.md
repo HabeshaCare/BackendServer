@@ -1,4 +1,3 @@
-```markdown
 # Project Introduction
 
 Welcome to Hakime Backend!
