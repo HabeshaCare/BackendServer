@@ -30,5 +30,3 @@ To get started with Hakime backend, follow these steps:
    cd your-project
    dotnet run
    ```
-
-[Next Page](./webapi.md)
