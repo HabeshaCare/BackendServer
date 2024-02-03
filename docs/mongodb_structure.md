@@ -1,5 +1,13 @@
 # MongoDB Collections Documentation:
 
+## Repository Structure
+
+Explore the main components of our project:
+
+1. [Mobile Integration Documentation](./mobile_app_integration.md): Learn how the mobile app integrates with our API, facilitating seamless communication.
+
+2. [API Endpoints Documentation](./webapi.md): Comprehensive details about the API endpoints, including user management, messaging, and scheduling functionalities.
+
 ## User Collection:
 
 This collection serves as the backbone for user management, messaging, and scheduling functionalities within the API. It stores information about users with different roles (Normal users, Doctors, Admins) and is used for user authentication, authorization, providing user details, and supporting CRUD operations for user management. Here are the details of the collection:

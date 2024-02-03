@@ -1,5 +1,13 @@
 # WebAPI
 
+## Repository Structure
+
+Explore the main components of our project:
+
+1. [MongoDB Documentation](./mongodb_structure.md): Detailed information about the MongoDB collections and structures used in the project.
+
+2. [Mobile Integration Documentation](./mobile_app_integration.md): Learn how the mobile app integrates with our API, facilitating seamless communication.
+
 All data types are `application/json` unless specified otherwise.
 
 ## Authentication methods used

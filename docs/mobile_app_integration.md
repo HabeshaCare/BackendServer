@@ -1,5 +1,13 @@
 # Mobile App Integration Documentation:
 
+## Repository Structure
+
+Explore the main components of our project:
+
+1. [MongoDB Documentation](./mongodb_structure.md): Detailed information about the MongoDB collections and structures used in the project.
+
+2. [API Endpoints Documentation](./webapi.md): Comprehensive details about the API endpoints, including user management, messaging, and scheduling functionalities.
+
 ## API Endpoint interaction
 
 From the web API endpoints, the following are integrated into the mobile application:
