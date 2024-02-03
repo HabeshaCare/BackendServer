@@ -46,5 +46,7 @@ Before you begin, ensure you have the following installed:
 ## Mobile Application
 
 Explore the interconnected health experience further with the Hakime Mobile App. Find the mobile app repository [here](https://github.com/michael-099/Hakime).
+## Detailed documentation
+For detailed documentation, visit the [Hakime Project GitHub Pages](https://habeshacare.github.io/BackendServer/).
 
 Feel free to contribute and enhance the health services ecosystem in Ethiopia with Hakime!
