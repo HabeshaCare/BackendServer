@@ -15,6 +15,9 @@ using UserAuthentication.Utils;
 
 namespace UserAuthentication.Controllers
 {
+    /// <summary>
+    /// Controller responsible for handling user-related operations. user can be any one in our system.
+    /// </summary>
     [ApiController]
     [Authorize(Roles = "Normal, Doctor, Admin")]
     [Route("api/user")]
@@ -32,6 +35,12 @@ namespace UserAuthentication.Controllers
             _logger = logger;
         }
 
+        /// <summary>
+        /// Get a list of schedules for the user or doctor.
+        /// </summary>
+        /// <param name="page">Page number (default is 1).</param>
+        /// <param name="size">Number of items per page (default is 10).</param>
+        /// <returns>ActionResult containing the list of schedules.</returns>
         [HttpGet("schedule/")]
         public async Task<IActionResult> GetSchedules([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
@@ -79,6 +88,9 @@ namespace UserAuthentication.Controllers
             return Ok(new { message, schedule = createdSchedule });
         }
 
+        /// <summary>
+        /// Update the schedule time for a specific schedule.
+        /// </summary>
         [HttpPut("schedule/{scheduleId}")]
         public async Task<IActionResult> UpdateSchedule([FromBody] DateTime dateTime, string scheduleId)
         {
@@ -89,6 +101,10 @@ namespace UserAuthentication.Controllers
                 return StatusCode(500, new { errors = message });
             return Ok(new { message, schedule = updatedSchedule });
         }
+
+        /// <summary>
+        /// Update the status of a specific schedule (confirmed or not).
+        /// </summary>
 
         [HttpPut("schedule/{scheduleId}/status")]
         public async Task<IActionResult> UpdateScheduleStatus(string scheduleId, [FromBody] bool scheduleStatus)
@@ -159,19 +175,19 @@ namespace UserAuthentication.Controllers
         public async Task<IActionResult> GetUserMessages(string id)
         {
             var (status, message, messages) = await _chatAIService.GetMessages(id);
-            if(status == 0)
-                return BadRequest(new{error=message});
-            
-            return Ok(new{successMessage=message, messages});
+            if (status == 0)
+                return BadRequest(new { error = message });
+
+            return Ok(new { successMessage = message, messages });
         }
 
         [HttpPost("{id}/chat/")]
         public async Task<IActionResult> AskAI([FromBody] string message, string id)
         {
             var (status, statusMessage, response) = await _chatAIService.AskAI(id, message);
-            if(status == 0 || response == null)
-                return NotFound(new{error = "AI server not found"});
-            return Ok(new{response, message = statusMessage});
+            if (status == 0 || response == null)
+                return NotFound(new { error = "AI server not found" });
+            return Ok(new { response, message = statusMessage });
         }
     }
 }

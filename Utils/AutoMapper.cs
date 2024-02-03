@@ -15,6 +15,7 @@ namespace UserAuthentication.Utils
     {
         public AutoMapper()
         {
+            //Used to check if a property is not null before trying to map.
             CreateMap<User, UserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<User, LoginDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<User, UsageUserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
@@ -27,6 +28,7 @@ namespace UserAuthentication.Utils
             CreateMap<Schedule, ScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Schedule, CreateScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Message, MessageDTO>().ReverseMap();
-            CreateMap<Message, UsageMessageDTO>().ReverseMap();        }
+            CreateMap<Message, UsageMessageDTO>().ReverseMap();
+        }
     }
 }

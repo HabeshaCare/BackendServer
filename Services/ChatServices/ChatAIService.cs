@@ -27,7 +27,8 @@ namespace UserAuthentication.Services.ChatServices
         {
 
             //Guard to prevent null message from being sent
-            if(userId == null || message == null){
+            if (userId == null || message == null)
+            {
                 return (0, "Not all required fields are set", null);
             }
 
@@ -45,6 +46,7 @@ namespace UserAuthentication.Services.ChatServices
             }
         }
 
+        /// Sends an HTTP POST request to the AI server to ask a question.
         private static async Task<(int, string?, string?)> HttpPostRequest(string question, string url = "http://localhost:5000/ask")
         {
             using HttpClient httpClient = new();
@@ -71,6 +73,7 @@ namespace UserAuthentication.Services.ChatServices
             }
         }
 
+        /// Asks the AI a question and adds the user's and AI's messages to the chat log.
         public async Task<(int, string?, UsageMessageDTO?)> AskAI(string userId, string message)
         {
             try
@@ -81,6 +84,7 @@ namespace UserAuthentication.Services.ChatServices
                 var (status, statusMessage, answer) = await HttpPostRequest(message, "https://hakim-llm.onrender.com/ask");
                 var addAiMessage = Task.Run(() => AddMessage(userId, answer, MessageType.AI));
 
+                // Waits for both tasks to complete that are being executed in parallel.
                 var result = await Task.WhenAll(addUserMessage, addAiMessage);
                 UsageMessageDTO? aiMessage = result[1].Item3;
 
@@ -95,6 +99,7 @@ namespace UserAuthentication.Services.ChatServices
             }
         }
 
+        /// Retrieves all messages for a specific user from the chat log.
         public async Task<(int, string?, UsageMessageDTO[])> GetMessages(string userId)
         {
             try

@@ -11,6 +11,9 @@ using UserAuthentication.Utils;
 
 namespace UserAuthentication.Controllers
 {
+    /// <summary>
+    /// Controller responsible for handling doctor-related operations.
+    /// </summary>
     [ApiController]
     [Route("api/doctor")]
     public class DoctorController : ControllerBase
@@ -21,6 +24,13 @@ namespace UserAuthentication.Controllers
             _doctorService = doctorService;
         }
 
+        /// <summary>
+        /// Get a list of doctors based on optional filter options, page, and size.
+        /// </summary>
+        /// <param name="filterOptions">Filter options for doctor retrieval (optional).</param>
+        /// <param name="page">Page number (default is 1).</param>
+        /// <param name="size">Number of items per page (default is 10).</param>
+        /// <returns>ActionResult containing the list of doctors.</returns>
         [HttpGet]
         [Authorize(Roles = "Normal, Admin")]
         public async Task<IActionResult> GetDoctors([FromQuery] DoctorFilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
@@ -45,6 +55,9 @@ namespace UserAuthentication.Controllers
 
         }
 
+        /// <summary>
+        /// Verify a doctor's credentials by an admin.
+        /// </summary>
         [HttpPut("verify/{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> VerifyDoctor(string id)
@@ -68,6 +81,9 @@ namespace UserAuthentication.Controllers
             return Ok(new { message, user = doctor });
         }
 
+        /// <summary>
+        /// Upload a license for a doctor.
+        /// </summary>
         [HttpPost("{id}/license")]
         [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)

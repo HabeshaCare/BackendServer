@@ -44,6 +44,7 @@ namespace UserAuthentication.Services
                 .Include(u => u.Phonenumber);
             User user = await _collection.Find(filterCondition).Project<User>(projection).FirstOrDefaultAsync();
 
+            // Extracts user information and verifies the password.
             bool result = user != null && VerifyHashedPassword(model.Password, user.Password);
 
             bool ifUserNotFound = user == null;
@@ -52,6 +53,7 @@ namespace UserAuthentication.Services
             if (ifUserNotFound || ifInvalidPassword)
                 return (0, "Invalid Credentials", null);
 
+            // Generates authentication claims and token.
             var authClaims = new List<Claim>
             {
                 new(ClaimTypes.Email, user!.Email),
@@ -75,6 +77,7 @@ namespace UserAuthentication.Services
                 return (0, "User already exists", null);
             }
 
+            // Maps DTO to User model and hashes the password.
             user = _mapper.Map<User>(model);
             var hashedPassword = HashPassword(model.Password);
             user.Password = hashedPassword;
@@ -93,6 +96,7 @@ namespace UserAuthentication.Services
             return (1, "User created successfully", createdUser);
         }
 
+        //Generates a JWT authentication token based on provided claims.
         public string GenerateToken(IEnumerable<Claim> claims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWTKey:Secret"]!));

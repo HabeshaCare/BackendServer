@@ -40,6 +40,7 @@ namespace UserAuthentication.Services.UserServices
             }
         }
 
+        /// Fetches additional schedule information, such as scheduler or doctor details
         private async Task<ScheduleDTO> FetchScheduleInformation(Schedule schedule, bool scheduler)
         {
             SchedulerUserDTO schedulerUserInfo;

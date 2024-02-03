@@ -11,6 +11,9 @@ using UserAuthentication.Services;
 
 namespace UserAuthentication.Controllers
 {
+    /// <summary>
+    /// Controller responsible for handling authentication operations.
+    /// </summary>
     [ApiController]
     [Route("api/auth")]
     public class AuthenticationController : ControllerBase
@@ -32,6 +35,7 @@ namespace UserAuthentication.Controllers
                     return BadRequest("Invalid payload");
                 var (status, tokenOrMessage, user) = await _authService.Login(model);
 
+                //Checking if the method executed successfully
                 if (status == 0 || user == null)
                     return BadRequest(new { error = tokenOrMessage });
 
@@ -44,6 +48,7 @@ namespace UserAuthentication.Controllers
 
                 });
 
+                // Set authentication cookies.
                 Response.Cookies.Append("userId", user.Id, new CookieOptions
                 {
                     HttpOnly = false,
@@ -52,7 +57,7 @@ namespace UserAuthentication.Controllers
                     MaxAge = TimeSpan.FromDays(1),
 
                 });
-                
+
                 return Ok(new { token = tokenOrMessage, message = "Login successful", user });
             }
             catch (Exception ex)

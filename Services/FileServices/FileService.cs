@@ -8,6 +8,8 @@ namespace UserAuthentication.Services.FileServices
     public class FileService : IFileService
     {
         private List<string> _allowedFileTypes = new() { ".pdf", ".jpg" };
+
+        /// Uploads a file to the specified directory.
         public async Task<(int, string, string?)> UploadFile(IFormFile file, string id, string uploadDir = "Uploads")
         {
             try
