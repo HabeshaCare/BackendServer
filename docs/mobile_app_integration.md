@@ -15,3 +15,5 @@ From the web API endpoints, the following are integrated into the mobile applica
 - `/api/doctor`: Integrated to see the list of doctors recommended for the user. The detailed profile information of each doctor is cached in the mobile app for later use.
 
 - `/api/user/schedule`: Used to get a list of a user’s schedule in the mobile application. The necessary information of a user is found from the JWT token. The schedules are formatted and displayed in the mobile app. Users can also make a scheduled appointment with the doctor after visiting the detailed profile of a given doctor.
+
+## Mobile app setting up documentation
