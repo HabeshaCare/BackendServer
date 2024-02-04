@@ -16,11 +16,13 @@ namespace UserAuthentication.Services.ChatServices
     public class ChatAIService : MongoDBService, IChatAIService
     {
         private readonly IMongoCollection<Message> _messageCollection;
+        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
-        public ChatAIService(IOptions<MongoDBSettings> options, IMapper mapper) : base(options)
+        public ChatAIService(IOptions<MongoDBSettings> options, IMapper mapper, IConfiguration configuration) : base(options)
         {
             _messageCollection = GetCollection<Message>("Messages");
+            _configuration = configuration;
             _mapper = mapper;
         }
         private async Task<(int, string?, UsageMessageDTO?)> AddMessage(string userId, string message, MessageType messageType = MessageType.Human)
@@ -80,9 +82,9 @@ namespace UserAuthentication.Services.ChatServices
             {
                 var addUserMessage = Task.Run(() => AddMessage(userId, message));
 
-
-                var (status, statusMessage, answer) = await HttpPostRequest(message, "https://hakim-llm.onrender.com/ask");
-                var addAiMessage = Task.Run(() => AddMessage(userId, answer, MessageType.AI));
+                string llmUrl = _configuration["LLMUrl"]!;
+                var (status, statusMessage, answer) = await HttpPostRequest(message, llmUrl);
+                var addAiMessage = Task.Run(() => AddMessage(userId, answer ?? "", MessageType.AI));
 
                 // Waits for both tasks to complete that are being executed in parallel.
                 var result = await Task.WhenAll(addUserMessage, addAiMessage);
