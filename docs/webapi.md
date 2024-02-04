@@ -186,6 +186,8 @@ Certainly! Here's the formatted content for the remaining section:
 
 - **Post:**
 
+  The server first forwards the message to our chat bot server located in the url specified in the `app.settings.json`. After this the result will be forwarded back to user. The default server will be, unless changed the one hosted on `https://hakim-llm.onrender.com/ask`. This can be made by setting up the server locally and changing the url using the instruction specified [here](../README.md#running-the-application).
+
   - **Path:** id of the user who is sending the message.
   - **Body:** the user’s message in string. It is a single string value that is going to be sent to the endpoint, not a JSON value. Eg. “Who are you?”.
   - **Returned data:** The returned response of the AI.
