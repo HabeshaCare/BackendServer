@@ -1,14 +1,16 @@
-using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using UserAuthentication.Middleware;
 using UserAuthentication.Services;
 using UserAuthentication.Services.ChatServices;
 using UserAuthentication.Services.FileServices;
 using UserAuthentication.Services.UserServices;
 using UserAuthentication.Utils;
+using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 var DBConfig = builder.Configuration.GetSection("DB");
@@ -16,9 +18,17 @@ var DBConfig = builder.Configuration.GetSection("DB");
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Hakime Backend API", Version = "v1" });
 
-//Custome Services
+    // Set the comments path for the Swagger JSON and UI.
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+});
+
+//Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
@@ -71,7 +81,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c =>
     {
         // Set the Swagger endpoint to the root
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Your API V1");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Hakime Backend API V1");
 
         // Set the RoutePrefix to an empty string to serve Swagger UI on the root
         c.RoutePrefix = string.Empty;
