@@ -128,7 +128,7 @@ namespace UserAuthentication.Controllers
 
             if (status == 0)
                 return StatusCode(500, new { errors = message });
-            return Ok(new { message });
+            return Ok(new { message, success = true });
         }
 
         [HttpPut("{id}")]

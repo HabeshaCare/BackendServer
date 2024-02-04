@@ -14,7 +14,7 @@ All data types are `application/json` unless specified otherwise.
 
 The authentication method used in this API is JWT (Json Web Token). JWT is configured in the backend to contain the user information that is logged, including the user Id and role. This information is used later for different authorizations. The JWT is sent after login and should be used to make API calls to every protected route afterwards. The requests should set a header named `Authorization` with the value of `Bearer ` followed by the JWT token received for that session.
 
-For authorization, there is a middleware configured to fetch some user information from the token for internal processes and also the .NET’s identity framework. This enables the protection of some routes based on the role of a certain user. The following demonstrates an example header used to get access to protected routes.
+For authorization, there is a middleware configured to fetch some user information from the token for internal processes and also the .NET’s identity framework for mongo `AspNetCore.Identity.MongoDb`. This enables the protection of some routes based on the role of a certain user. The following demonstrates an example header used to get access to protected routes.
 
 ```json
 {
@@ -157,7 +157,7 @@ For authorization, there is a middleware configured to fetch some user informati
 		"city": "Addis Ababa",
 		"age": 21,
 		"imageUrl": "ProfilePics/65be272eab0ad32f8d6bb7d1_e7bb5452-4c08-4d01-86b2-35f850d42ad2.jpg",
-		"role": "Admin",
+		"role": "Normal",
 		"email": "user@example.com",
 		"gender": "Male"
 	}
