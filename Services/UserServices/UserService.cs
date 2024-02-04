@@ -13,11 +13,13 @@ namespace UserAuthentication.Services.UserServices
     public class UserService : MongoDBService, IUserService
     {
         private readonly IMongoCollection<User> _collection;
+        private readonly IMongoCollection<Doctor> _doctorCollection;
         private readonly IFileService _fileService;
         private readonly IMapper _mapper;
         public UserService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
         {
             _collection = GetCollection<User>("Users");
+            _doctorCollection = GetCollection<Doctor>("Users");
             _fileService = fileService;
             _mapper = mapper;
         }
@@ -29,9 +31,15 @@ namespace UserAuthentication.Services.UserServices
                 var rawUser = await _collection.Find(u => u.Id == id).FirstOrDefaultAsync();
                 return (1, null, rawUser);
             }
+            catch (FormatException)
+            {
+                var rawUser = await _doctorCollection.Find(u => u.Id == id).FirstOrDefaultAsync();
+                return (1, null, rawUser);
+            }
             catch (Exception ex)
             {
                 return (0, ex.Message, null);
+
             }
         }
 
@@ -60,11 +68,11 @@ namespace UserAuthentication.Services.UserServices
                     imageUrl = filePath;
                 }
                 var (userStatus, userMessage, user) = await GetUser(userId);
-                user.ImageUrl = imageUrl;
 
                 if (userStatus == 0 || user == null)
                     return (userStatus, userMessage ?? "User doesn't Exist", null);
 
+                user.ImageUrl = imageUrl;
                 var options = new FindOneAndReplaceOptions<User>
                 {
                     ReturnDocument = ReturnDocument.After

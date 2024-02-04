@@ -147,7 +147,21 @@ For authorization, there is a middleware configured to fetch some user informati
 **Returned data:**
 
 ```
-
+{
+	"message": "Profile Image Uploaded Successfully",
+	"user": {
+		"id": "65be272eab0ad32f8d6bb7d1",
+		"profession": "Programmer",
+		"fullname": "John Doe",
+		"phonenumber": "0911926067",
+		"city": "Addis Ababa",
+		"age": 21,
+		"imageUrl": "ProfilePics/65be272eab0ad32f8d6bb7d1_e7bb5452-4c08-4d01-86b2-35f850d42ad2.jpg",
+		"role": "Admin",
+		"email": "user@example.com",
+		"gender": "Male"
+	}
+}
 ```
 
 Certainly! Here's the formatted content for the remaining section:
