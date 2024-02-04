@@ -47,7 +47,6 @@ Before you begin, ensure you have the following installed:
        ```json
 
               "LLMUrl":"http://localhost:5000/ask"
-       ```
 
 ## Mobile Application
 
