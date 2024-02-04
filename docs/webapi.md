@@ -97,6 +97,8 @@ For authorization, there is a middleware configured to fetch some user informati
 
 ### `/api/user/{id}`
 
+This is accessible by Normal, Doctor and Admin as long as they are authenticated.
+
 **Methods:** `Put`
 
 **Path:** id of the user to be updated
@@ -138,6 +140,8 @@ For authorization, there is a middleware configured to fetch some user informati
 
 ### `/api/user/{id}/picture`
 
+This is accessible by Normal, Doctor and Admin as long as they are authenticated.
+
 **Methods:** `Post`
 
 **Path:** id of the user to upload the image for
@@ -168,6 +172,8 @@ Certainly! Here's the formatted content for the remaining section:
 
 ````markdown
 ### `/api/user/{id}/chat`
+
+This is accessible by Normal, Doctor and Admin as long as they are authenticated.
 
 #### Methods
 
@@ -220,6 +226,8 @@ Certainly! Here's the formatted content for the remaining section:
 
 ### `/api/doctor`
 
+This is accessible by Normal, Doctor and Admin as long as they are authenticated.
+
 #### Methods
 
 - **Get:**
@@ -256,6 +264,8 @@ Certainly! Here's the formatted content for the remaining section:
   ```
 
 ### `/api/doctor/{id}`
+
+This is accessible by Normal, Doctor and Admin as long as they are authenticated.
 
 #### Methods
 
@@ -335,6 +345,8 @@ Certainly! Here's the formatted content for the remaining section:
 ````markdown
 ### `/api/doctor/verify/{id}`
 
+This is accessible by Admin.
+
 #### Methods
 
 - **Put:**
@@ -351,6 +363,8 @@ Certainly! Here's the formatted content for the remaining section:
 ````
 
 ### `/api/doctor/{id}/license`
+
+This is accessible by Doctor.
 
 #### Methods
 
@@ -383,6 +397,8 @@ Certainly! Here's the formatted content for the remaining section:
   ```
 
 ### `/api/user/schedule`
+
+This is accessible by Normal, Doctor and Admin as long as they are authenticated.
 
 The returned data sets the scheduler to null and doctor to its corresponding value if the schedule is being queried by the person who requested the schedule. On the contrary, if the doctor who is receiving the schedule is querying the API it will be returning the scheduler information instead of the doctor’s.
 
@@ -458,6 +474,8 @@ The returned data sets the scheduler to null and doctor to its corresponding val
 
 ### `/api/user/schedule/{id}`
 
+This is accessible by Normal, Doctor and Admin as long as they are authenticated.
+
 #### Methods
 
 - **Get:**
@@ -518,6 +536,8 @@ The returned data sets the scheduler to null and doctor to its corresponding val
   ```
 
 ### `/api/user/schedule/{scheduleId}/status`
+
+This is accessible by Doctor.
 
 #### Methods
 
