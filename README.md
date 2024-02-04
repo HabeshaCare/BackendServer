@@ -44,9 +44,9 @@ Before you begin, ensure you have the following installed:
 2. Access the API at `http://localhost:5072`.
 3. (Optional) The chat bot server is deployed and the above application uses it by default. If you prefer to run the chat bot server locally (Still need to internet to work) you can follow the setting up steps from [this](https://github.com/HabeshaCare/ChatBotServer) repository's READme first.
 4. After that change the LLMUrl in `app.settings.json`:
-       ```json
-
-              "LLMUrl":"http://localhost:5000/ask"
+       ```
+           "LLMUrl":"http://localhost:5000/ask"
+       ```
 
 ## Mobile Application
 
