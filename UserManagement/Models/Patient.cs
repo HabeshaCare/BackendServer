@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using UserManagement.Models;
 
-namespace BackendServer.Models
+namespace UserManagement.Models
 {
     public class Patient : User
     {

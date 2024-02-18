@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using BackendServer.Models;
+using UserManagement.Models;
 using UserManagement.DTOs.MessageDTOs;
 using UserManagement.DTOs.ScheduleDTOs;
 using UserManagement.Models;
