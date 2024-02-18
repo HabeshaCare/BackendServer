@@ -13,23 +13,14 @@ namespace UserManagement.Models.DTOs
     public class RegistrationDTO : UserDTO
     {
         [Phone(ErrorMessage = "Invalid phone number format")]
-        public string Phonenumber { get; set; }
-
-
+        public string? Phonenumber { get; set; }
         public string? Profession { get; set; }
-
-
         [Range(1, 150)]
-
         [Required(ErrorMessage = "This is a required field")]
-
         private string _password;
-
         public string Password { get; set; }
-
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public UserRole Role { get; set; } = UserRole.Normal;
-
         private string _confirmPassword;
         public string ConfirmPassword
         {
@@ -41,5 +32,18 @@ namespace UserManagement.Models.DTOs
                 _confirmPassword = value;
             }
         }
+
+        //Patient Specific Information
+        public string? NationalId { get; set; }
+        public DateTime DateOfBirth { get; set; }
+        public int Height { get; set; }
+        public int Weight { get; set; }
+
+        //Doctor Specific Information
+        public string? LicensePath { get; set; }
+        public string Specialization { get; set; } = "";
+        public int? YearOfExperience { get; set; }
+
+        //Admin Specific Information
     }
 }
