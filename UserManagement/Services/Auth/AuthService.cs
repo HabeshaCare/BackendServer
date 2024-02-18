@@ -81,6 +81,10 @@ namespace UserManagement.Services
             {
                 user = _mapper.Map<Patient>(model);
             }
+            if (user.Role == UserRole.Normal)
+            {
+                user = _mapper.Map<Patient>(model);
+            }
 
             // Maps DTO to User model and hashes the password.
             user = _mapper.Map<User>(model);
