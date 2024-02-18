@@ -6,11 +6,11 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using UserAuthentication.DTOs.ScheduleDTOs;
-using UserAuthentication.Models;
-using UserAuthentication.Utils;
+using UserManagement.DTOs.ScheduleDTOs;
+using UserManagement.Models;
+using UserManagement.Utils;
 
-namespace UserAuthentication.Services.UserServices
+namespace UserManagement.Services.UserServices
 {
     public class ScheduleService : MongoDBService, IScheduleService
     {

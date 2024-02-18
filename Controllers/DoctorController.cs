@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UserAuthentication.Models.DTOs.OptionsDTO;
-using UserAuthentication.Models.DTOs.UserDTOs;
-using UserAuthentication.Services.UserServices;
-using UserAuthentication.Utils;
+using UserManagement.Models.DTOs.OptionsDTO;
+using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Services.UserServices;
+using UserManagement.Utils;
 
-namespace UserAuthentication.Controllers
+namespace UserManagement.Controllers
 {
     /// <summary>
     /// Controller responsible for handling doctor-related operations.

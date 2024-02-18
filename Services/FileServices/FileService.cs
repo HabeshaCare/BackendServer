@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace UserAuthentication.Services.FileServices
+namespace UserManagement.Services.FileServices
 {
     public class FileService : IFileService
     {

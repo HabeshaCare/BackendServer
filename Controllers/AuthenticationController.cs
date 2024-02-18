@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using UserAuthentication.Models.DTOs;
-using UserAuthentication.Models.DTOs.UserDTOs;
-using UserAuthentication.Services;
+using UserManagement.Models.DTOs;
+using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Services;
 
-namespace UserAuthentication.Controllers
+namespace UserManagement.Controllers
 {
     /// <summary>
     /// Controller responsible for handling authentication operations.

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace UserAuthentication.Models
+namespace UserManagement.Models
 {
     public class Schedule
     {

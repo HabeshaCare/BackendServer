@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UserAuthentication.DTOs.ScheduleDTOs;
+using UserManagement.DTOs.ScheduleDTOs;
 
-namespace UserAuthentication.Services.UserServices
+namespace UserManagement.Services.UserServices
 {
     public interface IScheduleService
     {

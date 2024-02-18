@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UserAuthentication.DTOs.MessageDTOs;
-using UserAuthentication.Models;
+using UserManagement.DTOs.MessageDTOs;
+using UserManagement.Models;
 
-namespace UserAuthentication.Services.ChatServices
+namespace UserManagement.Services.ChatServices
 {
     public interface IChatAIService
     {

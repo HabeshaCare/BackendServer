@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace UserAuthentication.Models.DTOs.UserDTOs
+namespace UserManagement.Models.DTOs.UserDTOs
 {
     public class UsageUserDTO : UserDTO
     {

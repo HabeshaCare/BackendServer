@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using UserAuthentication.DTOs.ScheduleDTOs;
-using UserAuthentication.Models;
-using UserAuthentication.Models.DTOs.UserDTOs;
-using UserAuthentication.Services.ChatServices;
-using UserAuthentication.Services.UserServices;
-using UserAuthentication.Utils;
+using UserManagement.DTOs.ScheduleDTOs;
+using UserManagement.Models;
+using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Services.ChatServices;
+using UserManagement.Services.UserServices;
+using UserManagement.Utils;
 
-namespace UserAuthentication.Controllers
+namespace UserManagement.Controllers
 {
     /// <summary>
     /// Controller responsible for handling user-related operations. user can be any one in our system.

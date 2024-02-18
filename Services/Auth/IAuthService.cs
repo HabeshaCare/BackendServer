@@ -4,11 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using UserAuthentication.Models;
-using UserAuthentication.Models.DTOs;
-using UserAuthentication.Models.DTOs.UserDTOs;
+using UserManagement.Models;
+using UserManagement.Models.DTOs;
+using UserManagement.Models.DTOs.UserDTOs;
 
-namespace UserAuthentication.Services
+namespace UserManagement.Services
 {
     public interface IAuthService
     {

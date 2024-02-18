@@ -2,13 +2,13 @@ using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using UserAuthentication.Models;
-using UserAuthentication.Models.DTOs.UserDTOs;
-using UserAuthentication.Services.FileServices;
-using UserAuthentication.Utils;
+using UserManagement.Models;
+using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Services.FileServices;
+using UserManagement.Utils;
 using ZstdSharp.Unsafe;
 
-namespace UserAuthentication.Services.UserServices
+namespace UserManagement.Services.UserServices
 {
     public class UserService : MongoDBService, IUserService
     {

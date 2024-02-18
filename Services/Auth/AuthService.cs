@@ -5,12 +5,12 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
-using UserAuthentication.Models;
-using UserAuthentication.Models.DTOs;
-using UserAuthentication.Models.DTOs.UserDTOs;
-using UserAuthentication.Utils;
+using UserManagement.Models;
+using UserManagement.Models.DTOs;
+using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Utils;
 
-namespace UserAuthentication.Services
+namespace UserManagement.Services
 {
     public class AuthService : MongoDBService, IAuthService
     {
@@ -70,11 +70,16 @@ namespace UserAuthentication.Services
         public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
         {
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
-            User user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
+            dynamic user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
 
             if (user != null)
             {
                 return (0, "User already exists", null);
+            }
+
+            if (user.Role == UserRole.Normal)
+            {
+                user = _mapper.Map<Patient>(model);
             }
 
             // Maps DTO to User model and hashes the password.

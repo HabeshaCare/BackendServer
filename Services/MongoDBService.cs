@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-using UserAuthentication.Utils;
+using UserManagement.Utils;
 
-namespace UserAuthentication.Services
+namespace UserManagement.Services
 {
     public class MongoDBService
     {

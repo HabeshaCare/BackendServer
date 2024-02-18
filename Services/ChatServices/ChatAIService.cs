@@ -7,11 +7,11 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
-using UserAuthentication.DTOs.MessageDTOs;
-using UserAuthentication.Models;
-using UserAuthentication.Utils;
+using UserManagement.DTOs.MessageDTOs;
+using UserManagement.Models;
+using UserManagement.Utils;
 
-namespace UserAuthentication.Services.ChatServices
+namespace UserManagement.Services.ChatServices
 {
     public class ChatAIService : MongoDBService, IChatAIService
     {

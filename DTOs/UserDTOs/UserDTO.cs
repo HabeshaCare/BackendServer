@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace UserAuthentication.Models.DTOs.UserDTOs
+namespace UserManagement.Models.DTOs.UserDTOs
 {
     public class UserDTO
     {

@@ -1,8 +1,8 @@
-namespace UserAuthentication.Models
+namespace UserManagement.Models
 {
     public enum MessageType
     {
-        Human, 
+        Human,
         AI
     }
 }

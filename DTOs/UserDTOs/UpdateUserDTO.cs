@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using UserAuthentication.Models.DTOs;
+using UserManagement.Models.DTOs;
 
-namespace UserAuthentication.Models.DTOs.UserDTOs
+namespace UserManagement.Models.DTOs.UserDTOs
 {
     public class UpdateUserDTO : UserDTO
     {

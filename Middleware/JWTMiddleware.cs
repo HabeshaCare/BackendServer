@@ -5,7 +5,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 
-namespace UserAuthentication.Middleware
+namespace UserManagement.Middleware
 {
     /// Middleware for extracting and storing JWT claims in the HttpContext.
     public class JWTMiddleware

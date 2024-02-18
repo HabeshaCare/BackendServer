@@ -8,7 +8,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace UserAuthentication.Models
+namespace UserManagement.Models
 {
     public class Message
     {
@@ -19,7 +19,7 @@ namespace UserAuthentication.Models
 
         [JsonConverter(typeof(StringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
-        public MessageType Type {get; set;} = MessageType.Human;
+        public MessageType Type { get; set; } = MessageType.Human;
         public required string UserId { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
     }

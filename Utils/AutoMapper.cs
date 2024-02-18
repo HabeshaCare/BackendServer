@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using UserAuthentication.DTOs.MessageDTOs;
-using UserAuthentication.DTOs.ScheduleDTOs;
-using UserAuthentication.Models;
-using UserAuthentication.Models.DTOs;
-using UserAuthentication.Models.DTOs.UserDTOs;
+using BackendServer.Models;
+using UserManagement.DTOs.MessageDTOs;
+using UserManagement.DTOs.ScheduleDTOs;
+using UserManagement.Models;
+using UserManagement.Models.DTOs;
+using UserManagement.Models.DTOs.UserDTOs;
 
-namespace UserAuthentication.Utils
+namespace UserManagement.Utils
 {
     public class AutoMapper : Profile
     {
@@ -25,6 +26,7 @@ namespace UserAuthentication.Utils
             CreateMap<Doctor, UpdateDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Doctor, UsageDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Doctor, ScheduledDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<User, Patient>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Schedule, ScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Schedule, CreateScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Message, MessageDTO>().ReverseMap();

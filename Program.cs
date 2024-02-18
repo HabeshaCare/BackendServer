@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using UserAuthentication.Middleware;
-using UserAuthentication.Services;
-using UserAuthentication.Services.ChatServices;
-using UserAuthentication.Services.FileServices;
-using UserAuthentication.Services.UserServices;
-using UserAuthentication.Utils;
+using UserManagement.Middleware;
+using UserManagement.Services;
+using UserManagement.Services.ChatServices;
+using UserManagement.Services.FileServices;
+using UserManagement.Services.UserServices;
+using UserManagement.Utils;
 using System.Reflection;
 using System.Text;
 

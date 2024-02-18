@@ -5,15 +5,16 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace UserAuthentication.Models
+namespace UserManagement.Models
 {
     public enum UserRole
     {
         Admin,
         Normal,
         Doctor,
-        Hospital, 
-        Pharmacy, 
-        Laboratory
+        HospitalAdmin,
+        PharmacyAdmin,
+        LaboratoryAdmin,
+        Reception
     }
 }

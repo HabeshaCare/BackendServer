@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using UserAuthentication.Exceptions;
-using UserAuthentication.Models.DTOs.UserDTOs;
+using UserManagement.Exceptions;
+using UserManagement.Models.DTOs.UserDTOs;
 
-namespace UserAuthentication.Models.DTOs
+namespace UserManagement.Models.DTOs
 {
     public class RegistrationDTO : UserDTO
     {

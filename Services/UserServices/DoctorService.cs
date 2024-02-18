@@ -7,13 +7,13 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using UserAuthentication.Models;
-using UserAuthentication.Models.DTOs.OptionsDTO;
-using UserAuthentication.Models.DTOs.UserDTOs;
-using UserAuthentication.Services.FileServices;
-using UserAuthentication.Utils;
+using UserManagement.Models;
+using UserManagement.Models.DTOs.OptionsDTO;
+using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Services.FileServices;
+using UserManagement.Utils;
 
-namespace UserAuthentication.Services.UserServices
+namespace UserManagement.Services.UserServices
 {
     public class DoctorService : MongoDBService, IDoctorService
     {
