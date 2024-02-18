@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using UserManagement.Models;
 using UserManagement.Utils;
 
 namespace UserManagement.Services
@@ -22,6 +23,21 @@ namespace UserManagement.Services
         protected IMongoCollection<T> GetCollection<T>(string collectionName)
         {
             return database.GetCollection<T>(collectionName);
+        }
+
+        protected IMongoCollection<User> GetCollection(UserRole role)
+        {
+            switch (role)
+            {
+                case UserRole.Normal:
+                    return (IMongoCollection<User>)GetCollection<Patient>("Patients");
+                case UserRole.Doctor:
+                    return (IMongoCollection<User>)GetCollection<Doctor>("Doctors");
+                case UserRole.Admin:
+                    return (IMongoCollection<User>)GetCollection<Administrator>("Administrators");
+                default:
+                    return GetCollection<User>("Users");
+            }
         }
     }
 }

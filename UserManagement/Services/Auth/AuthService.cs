@@ -14,9 +14,9 @@ namespace UserManagement.Services
 {
     public class AuthService : MongoDBService, IAuthService
     {
-        private readonly IMongoCollection<User> _collection;
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
+        private IMongoCollection<User> _collection;
 
 
         public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration, IMapper mapper) : base(options)
@@ -69,6 +69,8 @@ namespace UserManagement.Services
 
         public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
         {
+            _collection = GetCollection(model.Role);
+
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
             dynamic user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
 
@@ -77,17 +79,22 @@ namespace UserManagement.Services
                 return (0, "User already exists", null);
             }
 
-            if (user.Role == UserRole.Normal)
+            switch (user.Role)
             {
-                user = _mapper.Map<Patient>(model);
-            }
-            if (user.Role == UserRole.Normal)
-            {
-                user = _mapper.Map<Patient>(model);
+                case UserRole.Normal:
+                    user = _mapper.Map<Patient>(model);
+                    break;
+                case UserRole.Doctor:
+                    user = _mapper.Map<Doctor>(model);
+                    break;
+                case UserRole.Admin:
+                    user = _mapper.Map<Administrator>(model);
+                    break;
+                default:
+                    return (0, "Invalid Role", null);
             }
 
             // Maps DTO to User model and hashes the password.
-            user = _mapper.Map<User>(model);
             var hashedPassword = HashPassword(model.Password);
             user.Password = hashedPassword;
 
