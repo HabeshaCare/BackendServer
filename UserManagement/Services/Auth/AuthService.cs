@@ -69,7 +69,6 @@ namespace UserManagement.Services
 
         public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
         {
-            _collection = GetCollection(model.Role);
 
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
             dynamic user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
@@ -79,7 +78,7 @@ namespace UserManagement.Services
                 return (0, "User already exists", null);
             }
 
-            switch (user.Role)
+            switch (model.Role)
             {
                 case UserRole.Normal:
                     user = _mapper.Map<Patient>(model);

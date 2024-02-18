@@ -41,7 +41,7 @@ namespace UserManagement.Models.DTOs
 
         //Doctor Specific Information
         public string? LicensePath { get; set; }
-        public string Specialization { get; set; } = "";
+        public string Specialization { get; set; } = "Medical";
         public int? YearOfExperience { get; set; }
 
         //Admin Specific Information

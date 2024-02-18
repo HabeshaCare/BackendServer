@@ -24,20 +24,5 @@ namespace UserManagement.Services
         {
             return database.GetCollection<T>(collectionName);
         }
-
-        protected IMongoCollection<User> GetCollection(UserRole role)
-        {
-            switch (role)
-            {
-                case UserRole.Normal:
-                    return (IMongoCollection<User>)GetCollection<Patient>("Patients");
-                case UserRole.Doctor:
-                    return (IMongoCollection<User>)GetCollection<Doctor>("Doctors");
-                case UserRole.Admin:
-                    return (IMongoCollection<User>)GetCollection<Administrator>("Administrators");
-                default:
-                    return GetCollection<User>("Users");
-            }
-        }
     }
 }

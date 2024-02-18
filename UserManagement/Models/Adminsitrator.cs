@@ -7,6 +7,6 @@ namespace UserManagement.Models
 {
     public class Administrator : User
     {
-        public new AdminRole Role { get; set; }
+        // public new AdminRole Role { get; set; }
     }
 }
