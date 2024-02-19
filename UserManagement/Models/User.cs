@@ -14,19 +14,19 @@ namespace UserManagement.Models
     public class User
     {
         [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [Phone(ErrorMessage = "Invalid phone number format")]
-        public string Phonenumber { get; set; }
+        public string? Phonenumber { get; set; }
 
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
         [Required(ErrorMessage = "This is a required field")]
-        public string Profession { get; set; }
+        public string? Profession { get; set; }
 
-        public string Fullname { get; set; } = "";
+        public string? Fullname { get; set; } = "";
 
         public string? Gender { get; set; }
 
@@ -42,6 +42,6 @@ namespace UserManagement.Models
         public UserRole Role { get; set; } = UserRole.Normal;
 
         [Required(ErrorMessage = "This is a required field")]
-        public string Password { get; set; } = "";
+        public required string Password { get; set; }
     }
 }
