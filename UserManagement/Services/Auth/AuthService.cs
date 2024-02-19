@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using UserManagement.Models;
 using UserManagement.Models.DTOs;
 using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Services.UserServices;
 using UserManagement.Utils;
 
 namespace UserManagement.Services
@@ -16,18 +17,20 @@ namespace UserManagement.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
-        private IMongoCollection<User> _collection;
+        private readonly IMongoCollection<User> _collection;
+        private readonly IDoctorService _doctorService;
 
 
-        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration, IMapper mapper) : base(options)
+        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration, IMapper mapper, IDoctorService doctorService) : base(options)
         {
             _collection = GetCollection<User>("Users");
             _configuration = configuration;
+            _doctorService = doctorService;
             _mapper = mapper;
         }
 
 
-        public async Task<(int, string, UsageUserDTO?)> Login(LoginDTO model)
+        public async Task<(int, string, dynamic?)> Login(LoginDTO model)
         {
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
             var projection = Builders<User>.Projection
@@ -40,7 +43,6 @@ namespace UserManagement.Services
                 .Include(u => u.Fullname)
                 .Include(u => u.ImageUrl)
                 .Include(u => u.Password)
-                .Include(u => u.Profession)
                 .Include(u => u.Phonenumber);
             User user = await _collection.Find(filterCondition).Project<User>(projection).FirstOrDefaultAsync();
 
@@ -56,7 +58,7 @@ namespace UserManagement.Services
             // Generates authentication claims and token.
             var authClaims = new List<Claim>
             {
-                new(ClaimTypes.Email, user!.Email),
+                new(ClaimTypes.Email, user!.Email!),
                 new(ClaimTypes.NameIdentifier, user!.Id!),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(ClaimTypes.Role, user.Role.ToString())
@@ -67,7 +69,7 @@ namespace UserManagement.Services
             return (1, token, foundUser);
         }
 
-        public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
+        public async Task<(int, string, dynamic?)> Registration(RegistrationDTO model)
         {
 
             var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
@@ -78,6 +80,20 @@ namespace UserManagement.Services
                 return (0, "User already exists", null);
             }
 
+            user = _mapper.Map<User>(model);
+
+            //Register the user profile
+            try
+            {
+                await _collection.InsertOneAsync(user);
+            }
+            catch (Exception ex)
+            {
+
+                return (0, $"Database error creating the user: {ex.Message}", null);
+            }
+
+            //Update the role specific information in a different collection
             switch (model.Role)
             {
                 case UserRole.Normal:
@@ -85,6 +101,12 @@ namespace UserManagement.Services
                     break;
                 case UserRole.Doctor:
                     user = _mapper.Map<Doctor>(model);
+                    UpdateDoctorDTO doctorDTO = _mapper.Map<UpdateDoctorDTO>(user);
+                    var response = await _doctorService.UpdateDoctor(doctorDTO, user.Id);
+                    if (response.Item1 == 0)
+                    {
+                        return (0, response.Item2, null);
+                    }
                     break;
                 case UserRole.Admin:
                     user = _mapper.Map<Administrator>(model);
@@ -97,15 +119,6 @@ namespace UserManagement.Services
             var hashedPassword = HashPassword(model.Password);
             user.Password = hashedPassword;
 
-            try
-            {
-                await _collection.InsertOneAsync(user);
-            }
-            catch (Exception ex)
-            {
-
-                return (0, $"Database error creating the user: {ex.Message}", null);
-            }
             UsageUserDTO createdUser = _mapper.Map<UsageUserDTO>(user);
 
             return (1, "User created successfully", createdUser);

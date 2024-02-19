@@ -22,7 +22,7 @@ namespace UserManagement.Services.UserServices
         private readonly IFileService _fileService;
         public DoctorService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
         {
-            _collection = GetCollection<Doctor>("Users");
+            _collection = GetCollection<Doctor>("Doctors");
             _mapper = mapper;
             _fileService = fileService;
         }
