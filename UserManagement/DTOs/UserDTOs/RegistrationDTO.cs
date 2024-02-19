@@ -17,14 +17,13 @@ namespace UserManagement.Models.DTOs
         public string? Profession { get; set; }
         [Range(1, 150)]
         [Required(ErrorMessage = "This is a required field")]
-        private string _password;
-        public string Password { get; set; }
+        public required string Password { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public UserRole Role { get; set; } = UserRole.Normal;
-        private string _confirmPassword;
-        public string ConfirmPassword
+        private string? _confirmPassword;
+        public required string ConfirmPassword
         {
-            get => _confirmPassword;
+            get => _confirmPassword!;
             set
             {
                 if (value != Password)
@@ -45,5 +44,7 @@ namespace UserManagement.Models.DTOs
         public int? YearOfExperience { get; set; }
 
         //Admin Specific Information
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public AdminRole AdminRole { get; set; }
     }
 }
