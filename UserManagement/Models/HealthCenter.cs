@@ -7,6 +7,6 @@ namespace UserManagement.Models
 {
     public class HealthCenter : Institution
     {
-        public string[] Doctors { get; set; } = Array.Empty<string>();
+        public string[] DoctorsId { get; set; } = Array.Empty<string>();
     }
 }
