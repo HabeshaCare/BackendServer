@@ -25,20 +25,23 @@ namespace UserManagement.Models
 
         [Required(ErrorMessage = "This is a required field")]
         public string Profession { get; set; }
+
         public string Fullname { get; set; } = "";
+
         public string? Gender { get; set; }
 
         public string? City { get; set; }
 
         [Range(1, 150)]
         public int? Age { get; set; }
+
         public string? ImageUrl { get; set; }
+
         [JsonConverter(typeof(StringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
         public UserRole Role { get; set; } = UserRole.Normal;
 
         [Required(ErrorMessage = "This is a required field")]
-
         public string Password { get; set; } = "";
     }
 }
