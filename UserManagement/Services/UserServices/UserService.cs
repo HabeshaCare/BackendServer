@@ -6,7 +6,6 @@ using UserManagement.Models;
 using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.Services.FileServices;
 using UserManagement.Utils;
-using ZstdSharp.Unsafe;
 
 namespace UserManagement.Services.UserServices
 {
