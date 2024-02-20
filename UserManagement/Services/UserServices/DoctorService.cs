@@ -107,7 +107,7 @@ namespace UserManagement.Services.UserServices
             }
         }
 
-        public async Task<(int, string, UsageDoctorDTO?)> UploadLiscense(IFormFile licenseInformation, string doctorId)
+        public async Task<(int, string, UsageDoctorDTO?)> UploadLicense(IFormFile licenseInformation, string doctorId)
         {
             try
             {
