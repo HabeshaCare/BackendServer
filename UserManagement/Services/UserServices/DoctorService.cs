@@ -17,12 +17,12 @@ namespace UserManagement.Services.UserServices
 {
     public class DoctorService : MongoDBService, IDoctorService
     {
-        private readonly IMongoCollection<Doctor> _collection;
+        private readonly IMongoCollection<Doctor> _doctorCollection;
         private readonly IMapper _mapper;
         private readonly IFileService _fileService;
         public DoctorService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
         {
-            _collection = GetCollection<Doctor>("Doctors");
+            _doctorCollection = GetCollection<Doctor>("Doctors");
             _mapper = mapper;
             _fileService = fileService;
         }
@@ -31,8 +31,9 @@ namespace UserManagement.Services.UserServices
         {
             try
             {
-                var result = await _collection.FindAsync(d => d.Id == doctorId && d.Role == UserRole.Doctor);
-                Doctor doctor = (await result.ToListAsync()).FirstOrDefault();
+                var doctorResult = await _doctorCollection.FindAsync(d => d.Id == doctorId);
+                Doctor? profile = (await doctorResult.ToListAsync()).FirstOrDefault();
+                Doctor doctor = _mapper.Map<Doctor>(profile);
                 return (1, null, doctor);
             }
             catch (Exception ex)
@@ -65,7 +66,7 @@ namespace UserManagement.Services.UserServices
             };
             try
             {
-                var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
+                var result = await _doctorCollection.FindOneAndUpdateAsync(filter, update, options);
                 if (result != null)
                     return (1, "Doctor Verified", _mapper.Map<UsageDoctorDTO>(result));
                 else
@@ -97,7 +98,7 @@ namespace UserManagement.Services.UserServices
                 filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
             try
             {
-                var foundDoctors = await _collection.Find(filterDefinition)
+                var foundDoctors = await _doctorCollection.Find(filterDefinition)
                     .Skip(skip)
                     .Limit(size)
                     .ToListAsync();
@@ -110,7 +111,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return (0, ex.Message, null)!;
             }
         }
 
@@ -124,8 +125,7 @@ namespace UserManagement.Services.UserServices
                     _mapper.Map(doctorDTO, doctor);
 
                     var filter = Builders<Doctor>.Filter.And(
-                        Builders<Doctor>.Filter.Eq(u => u.Id, doctorId),
-                        Builders<Doctor>.Filter.Eq(u => u.Role, UserRole.Doctor));
+                        Builders<Doctor>.Filter.Eq(u => u.Id, doctorId));
 
                     var options = new FindOneAndReplaceOptions<Doctor>
                     {
@@ -133,7 +133,7 @@ namespace UserManagement.Services.UserServices
                     };
 
                     doctor.Verified = false;
-                    var result = await _collection.FindOneAndReplaceAsync(filter, doctor, options);
+                    var result = await _doctorCollection.FindOneAndReplaceAsync(filter, doctor, options);
 
 
                     UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
@@ -170,8 +170,7 @@ namespace UserManagement.Services.UserServices
                     doctor.LicensePath = filePath;
 
                     var filter = Builders<Doctor>.Filter.And(
-                        Builders<Doctor>.Filter.Eq(u => u.Id, doctorId),
-                        Builders<Doctor>.Filter.Eq(u => u.Role, UserRole.Doctor));
+                        Builders<Doctor>.Filter.Eq(u => u.Id, doctorId));
 
                     var options = new FindOneAndReplaceOptions<Doctor>
                     {
@@ -179,7 +178,7 @@ namespace UserManagement.Services.UserServices
                     };
 
                     doctor.Verified = false;
-                    var result = await _collection.FindOneAndReplaceAsync(filter, doctor, options);
+                    var result = await _doctorCollection.FindOneAndReplaceAsync(filter, doctor, options);
 
 
                     UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
