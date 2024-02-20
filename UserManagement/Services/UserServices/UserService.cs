@@ -11,9 +11,9 @@ namespace UserManagement.Services.UserServices
 {
     public class UserService<T> : MongoDBService, IUserService where T : User
     {
-        private readonly IMongoCollection<T> _collection;
-        private readonly IFileService _fileService;
-        private readonly IMapper _mapper;
+        protected readonly IMongoCollection<T> _collection;
+        protected readonly IFileService _fileService;
+        protected readonly IMapper _mapper;
         public UserService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
         {
             _collection = GetCollection<T>($"{typeof(T).Name}s");
@@ -61,7 +61,7 @@ namespace UserManagement.Services.UserServices
 
 
         // USD refers to the Usage DTO of a user
-        private async Task<(int, string?, T?)> GetUser(string userId)
+        protected async Task<(int, string?, T?)> GetUser(string userId)
         {
             try
             {
@@ -89,13 +89,8 @@ namespace UserManagement.Services.UserServices
         }
 
         // USD refers to the Usage DTO of a user
-        public async Task<(int, string?, USD[])> GetUsers<USD>(int page, int size, UserRole role = UserRole.Normal)
+        public async Task<(int, string?, USD[])> GetUsers<USD>(FilterDefinition<T> filterDefinition, int page, int size)
         {
-            var filterBuilder = Builders<T>.Filter;
-            var filterDefinition = filterBuilder.Empty;
-
-            filterDefinition &= filterBuilder.Eq("Role", role);
-
             int skip = (page - 1) * size;
             try
             {

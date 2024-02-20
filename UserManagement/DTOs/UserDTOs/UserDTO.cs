@@ -9,7 +9,7 @@ namespace UserManagement.Models.DTOs.UserDTOs
     public class UserDTO
     {
         [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
         public string? Gender { get; set; }
     }
 }

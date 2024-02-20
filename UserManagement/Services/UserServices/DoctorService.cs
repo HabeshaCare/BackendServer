@@ -15,47 +15,76 @@ using UserManagement.Utils;
 
 namespace UserManagement.Services.UserServices
 {
-    public class DoctorService : MongoDBService, IDoctorService
+    public class DoctorService : UserService<Doctor>, IDoctorService
     {
-        private readonly IMongoCollection<Doctor> _doctorCollection;
-        private readonly IMapper _mapper;
-        private readonly IFileService _fileService;
-        public DoctorService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
+        public DoctorService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options, fileService, mapper)
         {
-            _doctorCollection = GetCollection<Doctor>("Doctors");
-            _mapper = mapper;
-            _fileService = fileService;
         }
 
         private async Task<(int, string?, Doctor?)> GetDoctor(string doctorId)
         {
+            return await GetUser(doctorId);
+        }
+
+        public async Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId)
+        {
+            return await GetUserById<UsageDoctorDTO>(doctorId);
+        }
+
+        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(FilterDTO filterOptions, int page, int size)
+        {
+            var filterBuilder = Builders<Doctor>.Filter;
+            var filterDefinition = filterBuilder.Empty;
+
+            filterDefinition &= filterBuilder.Eq("Verified", true);
+
+            if (filterOptions.MinYearExperience.HasValue)
+                filterDefinition &= filterBuilder.Gte("YearOfExperience", filterOptions.MinYearExperience);
+
+            if (filterOptions.MaxYearExperience.HasValue)
+                filterDefinition &= filterBuilder.Lte("YearOfExperience", filterOptions.MaxYearExperience);
+
+            if (!string.IsNullOrEmpty(filterOptions.Specialization))
+                filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
+
+            return await GetUsers<UsageDoctorDTO>(filterDefinition, page, size);
+        }
+
+        public async Task<(int, string, UsageDoctorDTO?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
+        {
             try
             {
-                var doctorResult = await _doctorCollection.FindAsync(d => d.Id == doctorId);
-                Doctor? profile = (await doctorResult.ToListAsync()).FirstOrDefault();
-                Doctor doctor = _mapper.Map<Doctor>(profile);
-                return (1, null, doctor);
+                var (status, message, doctor) = await GetDoctor(doctorId);
+                if (status == 1 && doctor != null)
+                {
+                    doctorDTO.Verified = false;
+                    _mapper.Map(doctorDTO, doctor);
+
+                    var filter = Builders<Doctor>.Filter.And(
+                        Builders<Doctor>.Filter.Eq(u => u.Id, doctorId));
+
+                    var (updateStatus, updateMessage, updatedDoctorDTO) = await UpdateUser<UpdateDoctorDTO, UsageDoctorDTO>(doctorDTO, doctorId);
+
+
+                    if (updateStatus == 0 || updatedDoctorDTO == null)
+                    {
+                        return (0, "Error updating Doctor", null);
+                    }
+
+                    return (1, "Doctor profile updated successfully. Status set to unverified until approved by Admin", updatedDoctorDTO);
+                }
+
+                return (0, "Doctor not found", null);
             }
             catch (Exception ex)
             {
                 return (0, ex.Message, null);
             }
         }
-        public async Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId)
-        {
-            var (status, message, doctor) = await GetDoctor(doctorId);
-            if (status == 1 && doctor != null)
-            {
-                return (status, message, _mapper.Map<UsageDoctorDTO>(doctor));
-            }
-
-            return (status, message, null);
-        }
 
         public async Task<(int, string, UsageDoctorDTO?)> VerifyDoctor(string doctorId)
         {
             var filter = Builders<Doctor>.Filter.And(
-                Builders<Doctor>.Filter.Eq("Role", UserRole.Doctor),
                 Builders<Doctor>.Filter.Eq("_id", ObjectId.Parse(doctorId))
             );
 
@@ -66,7 +95,7 @@ namespace UserManagement.Services.UserServices
             };
             try
             {
-                var result = await _doctorCollection.FindOneAndUpdateAsync(filter, update, options);
+                var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
                 if (result != null)
                     return (1, "Doctor Verified", _mapper.Map<UsageDoctorDTO>(result));
                 else
@@ -78,82 +107,6 @@ namespace UserManagement.Services.UserServices
             }
         }
 
-        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(DoctorFilterDTO filterOptions, int page, int size)
-        {
-            var filterBuilder = Builders<Doctor>.Filter;
-            var filterDefinition = filterBuilder.Empty;
-
-            filterDefinition &= filterBuilder.Eq("Verified", true);
-            filterDefinition &= filterBuilder.Eq("Role", UserRole.Doctor);
-
-            int skip = (page - 1) * size;
-
-            if (filterOptions.MinYearExperience.HasValue)
-                filterDefinition &= filterBuilder.Gte("YearOfExperience", filterOptions.MinYearExperience);
-
-            if (filterOptions.MaxYearExperience.HasValue)
-                filterDefinition &= filterBuilder.Lte("YearOfExperience", filterOptions.MaxYearExperience);
-
-            if (!string.IsNullOrEmpty(filterOptions.Specialization))
-                filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
-            try
-            {
-                var foundDoctors = await _doctorCollection.Find(filterDefinition)
-                    .Skip(skip)
-                    .Limit(size)
-                    .ToListAsync();
-
-                if (foundDoctors.Count == 0)
-                    return (0, "No matching doctors found", Array.Empty<UsageDoctorDTO>());
-
-                UsageDoctorDTO[] doctors = _mapper.Map<UsageDoctorDTO[]>(foundDoctors);
-                return (1, $"Found {foundDoctors.Count} matching doctors", doctors);
-            }
-            catch (Exception ex)
-            {
-                return (0, ex.Message, null)!;
-            }
-        }
-
-        public async Task<(int, string, UsageDoctorDTO?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
-        {
-            try
-            {
-                var (status, message, doctor) = await GetDoctor(doctorId);
-                if (status == 1 && doctor != null)
-                {
-                    _mapper.Map(doctorDTO, doctor);
-
-                    var filter = Builders<Doctor>.Filter.And(
-                        Builders<Doctor>.Filter.Eq(u => u.Id, doctorId));
-
-                    var options = new FindOneAndReplaceOptions<Doctor>
-                    {
-                        ReturnDocument = ReturnDocument.After // or ReturnDocument.Before
-                    };
-
-                    doctor.Verified = false;
-                    var result = await _doctorCollection.FindOneAndReplaceAsync(filter, doctor, options);
-
-
-                    UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
-
-                    if (result == null)
-                    {
-                        return (0, "Error updating Doctor", null);
-                    }
-
-                    return (1, "Doctor profile updated successfully. Status set to unverified until approved by Admin", updatedDoctorDTO);
-                }
-
-                return (0, "Doctor not found", null);
-
-            }
-            catch (Exception ex)
-            {
-                return (0, ex.Message, null);
-            }
-        }
         public async Task<(int, string, UsageDoctorDTO?)> UploadLiscense(IFormFile licenseInformation, string doctorId)
         {
             try
@@ -178,7 +131,7 @@ namespace UserManagement.Services.UserServices
                     };
 
                     doctor.Verified = false;
-                    var result = await _doctorCollection.FindOneAndReplaceAsync(filter, doctor, options);
+                    var result = await _collection.FindOneAndReplaceAsync(filter, doctor, options);
 
 
                     UsageDoctorDTO updatedDoctorDTO = _mapper.Map<UsageDoctorDTO>(result);
@@ -199,5 +152,6 @@ namespace UserManagement.Services.UserServices
                 return (0, ex.Message, null);
             }
         }
+
     }
 }
