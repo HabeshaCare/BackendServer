@@ -89,6 +89,24 @@ namespace UserManagement.Services.UserServices
         }
 
         // USD refers to the Usage DTO of a user
+        public async Task<(int, string?, USD?)> GetUserByEmail<USD>(string email)
+        {
+            try
+            {
+                var filterCondition = Builders<T>.Filter.Eq("Email", email);
+                T user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
+                USD? foundUser = _mapper.Map<USD>(user);
+                return (1, "Found User", foundUser);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, default(USD));
+            }
+        }
+
+
+
+        // USD refers to the Usage DTO of a user
         public async Task<(int, string?, USD[])> GetUsers<USD>(FilterDefinition<T> filterDefinition, int page, int size)
         {
             int skip = (page - 1) * size;
