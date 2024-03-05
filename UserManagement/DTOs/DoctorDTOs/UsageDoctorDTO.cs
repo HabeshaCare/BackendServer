@@ -7,8 +7,9 @@ namespace UserManagement.Models.DTOs.UserDTOs
 {
     public class UsageDoctorDTO : UsageUserDTO
     {
-        public string LicensePath { get; set; }
-        public String Specialization { get; set; } = "Medical";
+        public string? Location { get; set; }
+        public string? LicensePath { get; set; }
+        public string Specialization { get; set; } = "Medical";
         public int YearOfExperience { get; set; }
         public bool Verified { get; set; }
     }

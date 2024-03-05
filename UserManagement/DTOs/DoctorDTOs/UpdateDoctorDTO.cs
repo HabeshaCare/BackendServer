@@ -7,6 +7,7 @@ namespace UserManagement.Models.DTOs.UserDTOs
 {
     public class UpdateDoctorDTO : UpdateUserDTO
     {
+        public string? Location { get; set; }
         public string? LicensePath { get; set; }
         public string? Specialization { get; set; }
         public int? YearOfExperience { get; set; }

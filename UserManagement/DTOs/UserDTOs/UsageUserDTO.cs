@@ -11,7 +11,6 @@ namespace UserManagement.Models.DTOs.UserDTOs
         public string Id { get; set; } = "";
         public string Fullname { get; set; } = "";
         public string Phonenumber { get; set; } = "";
-        public string? Location { get; set; }
         public DateTime? DateOfBirth { get; set; } = null;
         public string? ImageUrl { get; set; }
 
