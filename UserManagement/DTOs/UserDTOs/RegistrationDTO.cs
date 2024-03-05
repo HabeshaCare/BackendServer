@@ -40,9 +40,5 @@ namespace UserManagement.Models.DTOs
         public string? LicensePath { get; set; }
         public string Specialization { get; set; } = "Medical";
         public int? YearOfExperience { get; set; }
-
-        //Admin Specific Information
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public AdminRole AdminRole { get; set; }
     }
 }

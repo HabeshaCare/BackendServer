@@ -52,7 +52,6 @@ namespace UserManagement.Controllers
                 return NotFound(new { error = message });
             }
             return Ok(new { success = true });
-
         }
 
         /// <summary>

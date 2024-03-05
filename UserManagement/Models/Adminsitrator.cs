@@ -11,8 +11,10 @@ namespace UserManagement.Models
 {
     public class Administrator : User
     {
-        [JsonConverter(typeof(StringEnumConverter))]
-        [BsonRepresentation(BsonType.String)]
-        public AdminRole AdminRole { get; set; }
+        /* 
+        Currently, this class is only needed to keep because 
+        administrators are kept in a separate collection and 
+        a different type is need to handle it
+        */
     }
 }
