@@ -17,9 +17,11 @@ namespace UserManagement.Services
     {
         private readonly IMapper _mapper;
         private readonly IDoctorService _doctorService;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(IMapper mapper, IDoctorService doctorService)
+        public AuthService(IMapper mapper, IDoctorService doctorService, IConfiguration configuration)
         {
+            _configuration = configuration;
             _doctorService = doctorService;
             _mapper = mapper;
         }
@@ -37,7 +39,7 @@ namespace UserManagement.Services
             User user = _mapper.Map<User>(doctorTask.Result.Item3);
 
             bool ifUserNotFound = user == null;
-            bool ifInvalidPassword = VerifyHashedPassword(model.Password, user.Password ?? "");
+            bool ifInvalidPassword = VerifyHashedPassword(model.Password, ifUserNotFound ? "" : user!.Password ?? "");
 
             if (ifUserNotFound || ifInvalidPassword)
                 return (0, "Invalid Credentials", null);
@@ -58,38 +60,36 @@ namespace UserManagement.Services
 
         public async Task<(int, string, dynamic?)> Registration(RegistrationDTO model)
         {
-
             switch (model.Role)
             {
                 case UserRole.Normal:
-                    // user = _mapper.Map<Patient>(model);
-                    break;
+                    //TODO: This should be implemented for the Patients too.
+                    return (0, "Not implemented", null);
                 case UserRole.Doctor:
-                    var (status, message, doctor) = await _doctorService.GetUserByEmail<Doctor>(model.Email!);
-                    user = _mapper.Map<Doctor>(model);
+                    Doctor user = _mapper.Map<Doctor>(model);
                     //Register the user profile
-                    var (status, message, resultUser) = await _doctorService.AddUser<UsageUserDTO, Doctor>(user);
-                    break;
+                    var (status, message, resultUser) = await _doctorService.AddDoctor(user);
+
+                    if (status == 1 && resultUser != null)
+                    {
+                        // Maps DTO to User model and hashes the password.
+                        var hashedPassword = HashPassword(model.Password);
+                        user.Password = hashedPassword;
+
+                        UsageUserDTO createdUser = _mapper.Map<UsageUserDTO>(user);
+
+                        return (1, "User created successfully", createdUser);
+                    }
+                    else
+                    {
+                        return (status, message, null);
+                    }
                 case UserRole.Admin:
-                    user = _mapper.Map<Administrator>(model);
-                    break;
+                    //TODO: This should be implemented for the different admins too.
+                    return (0, "Not implemented", null);
                 default:
                     return (0, "Invalid Role", null);
             }
-            if (user != null)
-            {
-                return (0, "User already exists", null);
-            }
-
-            //Update the role specific information in a different collection
-
-            // Maps DTO to User model and hashes the password.
-            var hashedPassword = HashPassword(model.Password);
-            user.Password = hashedPassword;
-
-            UsageUserDTO createdUser = _mapper.Map<UsageUserDTO>(user);
-
-            return (1, "User created successfully", createdUser);
         }
 
         //Generates a JWT authentication token based on provided claims.
