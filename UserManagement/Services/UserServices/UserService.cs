@@ -178,7 +178,7 @@ namespace UserManagement.Services.UserServices
         {
             try
             {
-                var (status, message, foundUser) = await GetUser(user.Id!);
+                var (status, message, foundUser) = await GetUserByEmail<T>(user.Email ?? "");
 
                 if (status == 1 && foundUser != null)
                     return (0, "User already exists", default(USD));
