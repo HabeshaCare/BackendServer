@@ -9,7 +9,7 @@ using UserManagement.Utils;
 
 namespace UserManagement.Services.UserServices
 {
-    public class UserService<T> : MongoDBService, IUserService where T : User
+    public class UserService<T> : MongoDBService, IUserService<T> where T : User
     {
         protected readonly IMongoCollection<T> _collection;
         protected readonly IFileService _fileService;
