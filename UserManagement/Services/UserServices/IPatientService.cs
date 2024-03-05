@@ -7,11 +7,11 @@ using UserManagement.Models;
 
 namespace UserManagement.Services.UserServices
 {
-    public interface IPatientService
+    public interface IPatientService : IUserService
     {
         Task<(int, string?, UsagePatientDTO?)> GetPatientById(string patientId);
-        Task<(int, string?, UsagePatientDTO?)> GetPatientByEmail(string email);
-        Task<(int, string, UsagePatientDTO?)> AddPatient(Patient user);
+        Task<(int, string?, UsagePatientDTO?)> GetPatientByEmail(string patientEmail);
+        Task<(int, string, UsagePatientDTO?)> AddPatient(Patient patient);
         Task<(int, string, UsagePatientDTO?)> UpdatePatient(UpdatePatientDTO patientDTO, string id);
     }
 }

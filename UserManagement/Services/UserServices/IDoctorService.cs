@@ -8,7 +8,7 @@ using UserManagement.Models.DTOs.UserDTOs;
 
 namespace UserManagement.Services.UserServices
 {
-    public interface IDoctorService
+    public interface IDoctorService : IUserService
     {
         Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId);
         Task<(int, string?, UsageDoctorDTO?)> GetDoctorByEmail(string doctorEmail);

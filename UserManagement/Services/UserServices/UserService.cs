@@ -9,7 +9,7 @@ using UserManagement.Utils;
 
 namespace UserManagement.Services.UserServices
 {
-    public class UserService<T> : MongoDBService where T : User
+    public class UserService<T> : MongoDBService, IUserService where T : User
     {
         protected readonly IMongoCollection<T> _collection;
         protected readonly IFileService _fileService;
@@ -22,7 +22,7 @@ namespace UserManagement.Services.UserServices
         }
 
         //USD refers to the Usage DTO of a user
-        protected async Task<(int, string, USD?)> UploadProfile<USD>(string userId, IFormFile? image)
+        public async Task<(int, string, USD?)> UploadProfilePic<USD>(string userId, IFormFile? image)
         {
             var filter = Builders<T>.Filter.Eq(user => user.Id, userId);
             try

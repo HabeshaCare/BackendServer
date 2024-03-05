@@ -84,7 +84,7 @@ namespace UserManagement.Services
                     {
                         return (status, message, null);
                     }
-                case UserRole.Admin:
+                case UserRole.SuperAdmin:
                     //TODO: This should be implemented for the different admins too.
                     return (0, "Not implemented", null);
                 default:

@@ -17,9 +17,14 @@ namespace UserManagement.Services.UserServices
         {
         }
 
-        public async Task<(int, string, UsagePatientDTO?)> AddPatient(Patient user)
+        public async Task<(int, string, UsagePatientDTO?)> AddPatient(Patient patient)
         {
-            return await AddUser<UsagePatientDTO>(user);
+            return await AddUser<UsagePatientDTO>(patient);
+        }
+
+        public async Task<(int, string?, UsagePatientDTO?)> GetPatientByEmail(string patientEmail)
+        {
+            return await GetUserByEmail<UsagePatientDTO>(patientEmail);
         }
 
         public async Task<(int, string?, UsagePatientDTO?)> GetPatientById(string patientId)
