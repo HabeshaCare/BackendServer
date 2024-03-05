@@ -178,6 +178,11 @@ namespace UserManagement.Services.UserServices
         {
             try
             {
+                var (status, message, foundUser) = await GetUser(user.Id!);
+
+                if (status == 1 && foundUser != null)
+                    return (0, "User already exists", default(USD));
+
                 await _collection.InsertOneAsync(user);
                 USD createdUser = _mapper.Map<USD>(user);
 
