@@ -82,7 +82,7 @@ namespace UserManagement.Services.UserServices
             }
         }
 
-        public async Task<(int, string, UsageDoctorDTO?)> AddUser(Doctor user)
+        public async Task<(int, string, UsageDoctorDTO?)> AddDoctor(Doctor user)
         {
             return await AddUser<UsageDoctorDTO>(user);
         }
