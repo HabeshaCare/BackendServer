@@ -14,7 +14,6 @@ namespace UserManagement.Models.DTOs
     {
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string? Phonenumber { get; set; }
-        public string? Profession { get; set; }
         [Required(ErrorMessage = "This is a required field")]
         public required string Password { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
