@@ -76,7 +76,7 @@ namespace UserManagement.Services.UserServices
         }
 
         // USD refers to the Usage DTO of a user
-        public async Task<(int, string?, USD?)> GetUserById<USD>(string userId)
+        protected async Task<(int, string?, USD?)> GetUserById<USD>(string userId)
         {
             var (status, message, user) = await GetUser(userId);
             if (status == 1 && user != null)
@@ -89,7 +89,7 @@ namespace UserManagement.Services.UserServices
         }
 
         // USD refers to the Usage DTO of a user
-        public async Task<(int, string?, USD?)> GetUserByEmail<USD>(string email)
+        protected async Task<(int, string?, USD?)> GetUserByEmail<USD>(string email)
         {
             try
             {
@@ -107,7 +107,7 @@ namespace UserManagement.Services.UserServices
 
 
         // USD refers to the Usage DTO of a user
-        public async Task<(int, string?, USD[])> GetUsers<USD>(FilterDefinition<T> filterDefinition, int page, int size)
+        protected async Task<(int, string?, USD[])> GetUsers<USD>(FilterDefinition<T> filterDefinition, int page, int size)
         {
             int skip = (page - 1) * size;
             try
@@ -133,7 +133,7 @@ namespace UserManagement.Services.UserServices
 
         // UD refers to the Update DTO of a user
         // USD refers to the Usage DTO of a user
-        public async Task<(int, string, USD?)> UpdateUser<UD, USD>(UD userDTO, string userId)
+        protected async Task<(int, string, USD?)> UpdateUser<UD, USD>(UD userDTO, string userId)
         {
             try
             {
@@ -174,7 +174,7 @@ namespace UserManagement.Services.UserServices
 
         // AD refers to the Registration DTO of a user
         // USD refers to the Usage DTO of a user
-        public async Task<(int, string, USD?)> AddUser<USD>(T user)
+        protected async Task<(int, string, USD?)> AddUser<USD>(T user)
         {
             try
             {
