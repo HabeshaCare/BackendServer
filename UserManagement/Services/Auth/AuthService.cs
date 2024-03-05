@@ -31,7 +31,7 @@ namespace UserManagement.Services
         {
 
             // Extracts user information and verifies the password.
-            var doctorTask = _doctorService.GetUserByEmail<Doctor>(model.Email);
+            var doctorTask = _doctorService.GetDoctorByEmail(model.Email);
             //Todo: Add the user service to get the user by email.
 
             await Task.WhenAll(doctorTask);

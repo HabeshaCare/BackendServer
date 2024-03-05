@@ -13,8 +13,6 @@ namespace UserManagement.Models.DTOs.UserDTOs
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string? Phonenumber { get; set; }
         public string? Fullname { get; set; }
-        public DateTime? DateOfBirth { get; set; } = null;
-
         public string? ImageUrl { get; set; }
     }
 }

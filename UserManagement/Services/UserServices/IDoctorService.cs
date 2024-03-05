@@ -8,9 +8,10 @@ using UserManagement.Models.DTOs.UserDTOs;
 
 namespace UserManagement.Services.UserServices
 {
-    public interface IDoctorService : IUserService<Doctor>
+    public interface IDoctorService
     {
         Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId);
+        Task<(int, string?, UsageDoctorDTO?)> GetDoctorByEmail(string doctorEmail);
         Task<(int, string?, UsageDoctorDTO[])> GetDoctors(FilterDTO filterOptions, int page, int size);
         Task<(int, string, UsageDoctorDTO?)> AddDoctor(Doctor user);
 

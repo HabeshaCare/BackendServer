@@ -158,5 +158,9 @@ namespace UserManagement.Services.UserServices
             }
         }
 
+        public async Task<(int, string?, UsageDoctorDTO?)> GetDoctorByEmail(string doctorEmail)
+        {
+            return await GetUserByEmail<UsageDoctorDTO>(doctorEmail);
+        }
     }
 }
