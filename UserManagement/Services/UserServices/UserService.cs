@@ -129,6 +129,8 @@ namespace UserManagement.Services.UserServices
             }
         }
 
+
+
         // UD refers to the Update DTO of a user
         // USD refers to the Usage DTO of a user
         public async Task<(int, string, USD?)> UpdateUser<UD, USD>(UD userDTO, string userId)
@@ -170,6 +172,22 @@ namespace UserManagement.Services.UserServices
             }
         }
 
+        // AD refers to the Registration DTO of a user
+        // USD refers to the Usage DTO of a user
+        public async Task<(int, string, USD?)> AddUser<USD>(T user)
+        {
+            try
+            {
+                await _collection.InsertOneAsync(user);
+                USD createdUser = _mapper.Map<USD>(user);
+
+                return (1, "User created successfully", createdUser);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, default(USD));
+            }
+        }
 
         // private async Task<(int, string?, User)> GetUser(string id)
         // {

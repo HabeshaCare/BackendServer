@@ -13,18 +13,13 @@ using UserManagement.Utils;
 
 namespace UserManagement.Services
 {
-    public class AuthService : MongoDBService, IAuthService
+    public class AuthService : IAuthService
     {
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
-        private readonly IMongoCollection<User> _collection;
         private readonly IDoctorService _doctorService;
 
-
-        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration, IMapper mapper, IDoctorService doctorService) : base(options)
+        public AuthService(IMapper mapper, IDoctorService doctorService)
         {
-            _collection = GetCollection<User>("Users");
-            _configuration = configuration;
             _doctorService = doctorService;
             _mapper = mapper;
         }
@@ -32,25 +27,17 @@ namespace UserManagement.Services
 
         public async Task<(int, string, dynamic?)> Login(LoginDTO model)
         {
-            var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
-            var projection = Builders<User>.Projection
-                .Include(u => u.Id)
-                .Include(u => u.Age)
-                .Include(u => u.Role)
-                .Include(u => u.City)
-                .Include(u => u.Email)
-                .Include(u => u.Gender)
-                .Include(u => u.Fullname)
-                .Include(u => u.ImageUrl)
-                .Include(u => u.Password)
-                .Include(u => u.Phonenumber);
-            User user = await _collection.Find(filterCondition).Project<User>(projection).FirstOrDefaultAsync();
 
             // Extracts user information and verifies the password.
-            bool result = user != null && VerifyHashedPassword(model.Password, user.Password);
+            var doctorTask = _doctorService.GetUserByEmail<Doctor>(model.Email);
+            //Todo: Add the user service to get the user by email.
+
+            await Task.WhenAll(doctorTask);
+
+            User user = _mapper.Map<User>(doctorTask.Result.Item3);
 
             bool ifUserNotFound = user == null;
-            bool ifInvalidPassword = !result;
+            bool ifInvalidPassword = VerifyHashedPassword(model.Password, user.Password ?? "");
 
             if (ifUserNotFound || ifInvalidPassword)
                 return (0, "Invalid Credentials", null);
@@ -72,41 +59,16 @@ namespace UserManagement.Services
         public async Task<(int, string, dynamic?)> Registration(RegistrationDTO model)
         {
 
-            var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
-            dynamic user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
-
-            if (user != null)
-            {
-                return (0, "User already exists", null);
-            }
-
-            user = _mapper.Map<User>(model);
-
-            //Register the user profile
-            try
-            {
-                await _collection.InsertOneAsync(user);
-            }
-            catch (Exception ex)
-            {
-
-                return (0, $"Database error creating the user: {ex.Message}", null);
-            }
-
-            //Update the role specific information in a different collection
             switch (model.Role)
             {
                 case UserRole.Normal:
-                    user = _mapper.Map<Patient>(model);
+                    // user = _mapper.Map<Patient>(model);
                     break;
                 case UserRole.Doctor:
+                    var (status, message, doctor) = await _doctorService.GetUserByEmail<Doctor>(model.Email!);
                     user = _mapper.Map<Doctor>(model);
-                    UpdateDoctorDTO doctorDTO = _mapper.Map<UpdateDoctorDTO>(user);
-                    var response = await _doctorService.UpdateDoctor(doctorDTO, user.Id);
-                    if (response.Item1 == 0)
-                    {
-                        return (0, response.Item2, null);
-                    }
+                    //Register the user profile
+                    var (status, message, resultUser) = await _doctorService.AddUser<UsageUserDTO, Doctor>(user);
                     break;
                 case UserRole.Admin:
                     user = _mapper.Map<Administrator>(model);
@@ -114,6 +76,12 @@ namespace UserManagement.Services
                 default:
                     return (0, "Invalid Role", null);
             }
+            if (user != null)
+            {
+                return (0, "User already exists", null);
+            }
+
+            //Update the role specific information in a different collection
 
             // Maps DTO to User model and hashes the password.
             var hashedPassword = HashPassword(model.Password);
