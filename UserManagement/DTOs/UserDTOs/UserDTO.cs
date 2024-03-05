@@ -10,6 +10,8 @@ namespace UserManagement.Models.DTOs.UserDTOs
     {
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string? Email { get; set; }
+        public string? Fullname { get; set; }
+        public string? Location { get; set; }
         public string? Gender { get; set; }
     }
 }
