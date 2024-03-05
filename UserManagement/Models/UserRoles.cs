@@ -12,7 +12,7 @@ namespace UserManagement.Models
         Normal,
         Doctor,
         SuperAdmin,
-        HospitalAdmin,
+        HealthCenterAdmin,
         PharmacyAdmin,
         LaboratoryAdmin,
         Reception

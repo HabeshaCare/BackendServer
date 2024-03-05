@@ -14,12 +14,9 @@ namespace UserManagement.Services.UserServices
         Task<(int, string?, UsageDoctorDTO?)> GetDoctorByEmail(string doctorEmail);
         Task<(int, string?, UsageDoctorDTO[])> GetDoctors(FilterDTO filterOptions, int page, int size);
         Task<(int, string, UsageDoctorDTO?)> AddDoctor(Doctor user);
-
         Task<(int, string, UsageDoctorDTO?)> VerifyDoctor(string doctorId);
         Task<(int, string, UsageDoctorDTO?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string id);
         Task<(int, string, UsageDoctorDTO?)> UploadLicense(IFormFile licenseInformation, string doctorId);
-
-
 
     }
 }
