@@ -12,8 +12,8 @@ namespace UserManagement.Models
     {
         [BsonRepresentation(BsonType.String)]
         public required string NationalId { get; set; }
-        public required DateTime DateOfBirth { get; set; }
         public required int Height { get; set; }
         public required int Weight { get; set; }
+        public DateTime? DateOfBirth { get; set; } = null;
     }
 }

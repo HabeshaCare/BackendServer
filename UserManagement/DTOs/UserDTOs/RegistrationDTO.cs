@@ -33,7 +33,7 @@ namespace UserManagement.Models.DTOs
 
         //Patient Specific Information
         public string? NationalId { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; } = null;
         public int Height { get; set; }
         public int Weight { get; set; }
 
