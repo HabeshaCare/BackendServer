@@ -82,6 +82,11 @@ namespace UserManagement.Services.UserServices
             }
         }
 
+        public async Task<(int, string, UsageDoctorDTO?)> AddUser(Doctor user)
+        {
+            return await AddUser<UsageDoctorDTO>(user);
+        }
+
         public async Task<(int, string, UsageDoctorDTO?)> VerifyDoctor(string doctorId)
         {
             var filter = Builders<Doctor>.Filter.And(
