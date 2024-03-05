@@ -25,11 +25,11 @@ namespace UserManagement.Controllers
     [Route("api/user")]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IUserService<User> _userService;
         private readonly IChatAIService _chatAIService;
         private readonly IScheduleService _scheduleService;
         private readonly ILogger<UserController> _logger;
-        public UserController(IUserService userService, IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
+        public UserController(IUserService<User> userService, IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
         {
             _userService = userService;
             _scheduleService = scheduleService;

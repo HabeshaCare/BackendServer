@@ -11,6 +11,7 @@ using UserManagement.Services.UserServices;
 using UserManagement.Utils;
 using System.Reflection;
 using System.Text;
+using UserManagement.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var DBConfig = builder.Configuration.GetSection("DB");
@@ -30,6 +31,7 @@ builder.Services.AddSwaggerGen(c =>
 
 //Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService<User>, UserService<User>>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IChatAIService, ChatAIService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
