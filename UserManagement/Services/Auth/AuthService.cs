@@ -37,9 +37,9 @@ namespace UserManagement.Services
         {
 
             // Checks if the user exists in the database from different collections.
-            var adminTask = _adminService.GetAdminByEmail(model.Email);
-            var doctorTask = _doctorService.GetDoctorByEmail(model.Email);
-            var patientTask = _patientService.GetPatientByEmail(model.Email);
+            var adminTask = _adminService.GetUserByEmail<Administrator>(model.Email);
+            var doctorTask = _doctorService.GetUserByEmail<Doctor>(model.Email);
+            var patientTask = _patientService.GetUserByEmail<Patient>(model.Email);
 
             // Used to call asynchronously and wait for all the tasks to complete which will be run in parallel.
             await Task.WhenAll(adminTask, doctorTask, patientTask);
@@ -52,9 +52,9 @@ namespace UserManagement.Services
             User user = admin as User ?? doctor as User ?? patient;
 
             bool ifUserNotFound = user == null;
-            bool ifInvalidPassword = VerifyHashedPassword(model.Password, ifUserNotFound ? "" : user!.Password ?? "");
+            bool ifValidPassword = VerifyHashedPassword(model.Password, ifUserNotFound ? "" : user!.Password ?? "");
 
-            if (ifUserNotFound || ifInvalidPassword)
+            if (ifUserNotFound || !ifValidPassword)
                 return (0, "Invalid Credentials", null);
 
             // Generates authentication claims and token.
@@ -73,27 +73,60 @@ namespace UserManagement.Services
 
         public async Task<(int, string, dynamic?)> Registration(RegistrationDTO model)
         {
+            // Checks if the user exists in the database from different collections.
+            var adminTask = _adminService.GetUserByEmail<Administrator>(model.Email);
+            var doctorTask = _doctorService.GetUserByEmail<Doctor>(model.Email);
+            var patientTask = _patientService.GetUserByEmail<Patient>(model.Email);
+
+            // Used to call asynchronously and wait for all the tasks to complete which will be run in parallel.
+            await Task.WhenAll(adminTask, doctorTask, patientTask);
+
+            Administrator _admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
+            Doctor _doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
+            Patient _patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+
+            //
+            User _user = _admin as User ?? _doctor as User ?? _patient;
+
+            bool ifUserFound = _user != null;
+
+            if (ifUserFound)
+                return (0, "User already exists", null);
+
             switch (model.Role)
             {
                 case UserRole.Normal:
-                    //TODO: This should be implemented for the Patients too.
                     Patient patient = _mapper.Map<Patient>(model);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
-                        var (status, message, resultUser) = await _patientService.AddPatient(patient);
-                        return CreateUser(resultUser!, model.Password, message, status);
+                        var resultUser = AddPassword(patient, model.Password);
+                        if (resultUser != null)
+                        {
+                            return await _patientService.AddPatient(resultUser);
+                        }
+                        else
+                        {
+                            return (0, "Error while password hashing", null);
+                        }
                     }
 
                 case UserRole.Doctor:
                     Doctor doctor = _mapper.Map<Doctor>(model);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
-                        var (status, message, resultUser) = await _doctorService.AddDoctor(doctor);
-                        return CreateUser(resultUser!, model.Password, message, status);
+                        var resultUser = AddPassword(doctor, model.Password);
+                        if (resultUser != null)
+                        {
+                            return await _doctorService.AddDoctor(resultUser);
+                        }
+                        else
+                        {
+                            return (0, "Error while password hashing", null);
+                        }
                     }
                 case UserRole.SuperAdmin:
                     return (0, "This role is not allowed to be created", null);
-                //TODO: This should be implemented for the different admins too.
+
                 case UserRole.HealthCenterAdmin:
                 case UserRole.LaboratoryAdmin:
                 case UserRole.PharmacyAdmin:
@@ -101,8 +134,15 @@ namespace UserManagement.Services
                     Administrator admin = _mapper.Map<Administrator>(model);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
-                        var (status, message, resultUser) = await _adminService.AddAdmin(admin);
-                        return CreateUser(resultUser!, model.Password, message, status);
+                        var resultUser = AddPassword(admin, model.Password);
+                        if (resultUser != null)
+                        {
+                            return await _adminService.AddAdmin(resultUser);
+                        }
+                        else
+                        {
+                            return (0, "Error while password hashing", null);
+                        }
                     }
                 default:
                     return (0, "Invalid Role", null);
@@ -137,26 +177,29 @@ namespace UserManagement.Services
 
         public bool VerifyHashedPassword(string providedPassword, string hashedPassword)
         {
-            return BCrypt.Net.BCrypt.Verify(providedPassword, hashedPassword);
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(providedPassword, hashedPassword);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
-        private (int, string, UsageUserDTO?) CreateUser<T>(T resultUser, string password, string errorMessage, int status) where T : UserDTO
+        private T? AddPassword<T>(T user, string password) where T : User
         {
-            User user = _mapper.Map<User>(resultUser);
-
-            if (status == 1 && resultUser != null)
+            if (user != null)
             {
                 // Maps DTO to User model and hashes the password.
                 var hashedPassword = HashPassword(password);
                 user.Password = hashedPassword;
 
-                UsageUserDTO createdUser = _mapper.Map<UsageUserDTO>(user);
-
-                return (1, "User created successfully", createdUser);
+                return user;
             }
             else
             {
-                return (status, errorMessage, null);
+                return null;
             }
         }
     }

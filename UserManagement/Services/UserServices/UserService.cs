@@ -60,7 +60,6 @@ namespace UserManagement.Services.UserServices
         }
 
 
-        // USD refers to the Usage DTO of a user
         protected async Task<(int, string?, T?)> GetUser(string userId)
         {
             try
@@ -76,7 +75,7 @@ namespace UserManagement.Services.UserServices
         }
 
         // USD refers to the Usage DTO of a user
-        protected async Task<(int, string?, USD?)> GetUserById<USD>(string userId)
+        public async Task<(int, string?, USD?)> GetUserById<USD>(string userId)
         {
             var (status, message, user) = await GetUser(userId);
             if (status == 1 && user != null)
@@ -89,7 +88,7 @@ namespace UserManagement.Services.UserServices
         }
 
         // USD refers to the Usage DTO of a user
-        protected async Task<(int, string?, USD?)> GetUserByEmail<USD>(string email)
+        public async Task<(int, string?, USD?)> GetUserByEmail<USD>(string email)
         {
             try
             {

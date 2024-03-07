@@ -7,6 +7,8 @@ namespace UserManagement.Services.UserServices
 {
     public interface IUserService
     {
+        Task<(int, string?, USD?)> GetUserById<USD>(string userId);
+        Task<(int, string?, USD?)> GetUserByEmail<USD>(string email);
         Task<(int, string, USD?)> UploadProfilePic<USD>(string userId, IFormFile? image);
     }
 }
