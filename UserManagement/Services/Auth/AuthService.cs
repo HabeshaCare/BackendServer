@@ -312,21 +312,21 @@ namespace UserManagement.Services
 
         private async Task<(int, string, UsageUserDTO?)> UpdateUser(User user, string successMessage = "User updated successfully")
         {
-            UpdateUserDTO updatedUser = _mapper.Map<UpdateUserDTO>(user);
-
 
             switch (user.Role)
             {
                 case UserRole.Normal:
                     {
-                        var (status, message, verifiedUser) = await _patientService.UpdatePatient((updatedUser as UpdatePatientDTO)!, user.Id!);
+                        UpdatePatientDTO updatedUser = _mapper.Map<UpdatePatientDTO>(user);
+                        var (status, message, verifiedUser) = await _patientService.UpdatePatient(updatedUser, user.Id!);
                         if (status == 1 && verifiedUser != null)
                             return (1, successMessage, verifiedUser);
                         return (0, message, null);
                     }
                 case UserRole.Doctor:
                     {
-                        var (status, message, verifiedUser) = await _doctorService.UpdateDoctor((updatedUser as UpdateDoctorDTO)!, user.Id!);
+                        UpdateDoctorDTO updatedUser = _mapper.Map<UpdateDoctorDTO>(user);
+                        var (status, message, verifiedUser) = await _doctorService.UpdateDoctor(updatedUser, user.Id!);
                         if (status == 1 && verifiedUser != null)
                             return (1, successMessage, verifiedUser);
                         return (0, message, null);
@@ -337,6 +337,7 @@ namespace UserManagement.Services
                 case UserRole.PharmacyAdmin:
                 case UserRole.Reception:
                     {
+                        UpdateAdminDTO updatedUser = _mapper.Map<UpdateAdminDTO>(user);
                         var (status, message, verifiedUser) = await _adminService.UpdateAdmin((updatedUser as UpdateAdminDTO)!, user.Id!);
                         if (status == 1 && verifiedUser != null)
                             return (1, successMessage, verifiedUser);
