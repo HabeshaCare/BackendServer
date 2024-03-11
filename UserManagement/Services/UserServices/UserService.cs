@@ -103,7 +103,43 @@ namespace UserManagement.Services.UserServices
             }
         }
 
+        // USD refers to the Usage DTO of a user
+        public async Task<(int, string?, USD?)> GetUserByVerificationToken<USD>(string token)
+        {
+            try
+            {
+                var filterCondition = Builders<T>.Filter.Eq("VerificationToken", token);
+                var foundUsers = await _collection.Find(filterCondition).ToListAsync();
+                if (foundUsers.Count == 0)
+                    return (0, "Invalid Token", default(USD));
 
+                USD user = _mapper.Map<USD[]>(foundUsers)[0];
+                return (1, "Found User", user);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, default(USD));
+            }
+        }
+
+        // USD refers to the Usage DTO of a user
+        public async Task<(int, string?, USD?)> GetUserByResetToken<USD>(string token)
+        {
+            try
+            {
+                var filterCondition = Builders<T>.Filter.Eq("PasswordResetToken", token);
+                var foundUsers = await _collection.Find(filterCondition).ToListAsync();
+                if (foundUsers.Count == 0)
+                    return (0, "Invalid Token", default(USD));
+
+                USD user = _mapper.Map<USD[]>(foundUsers)[0];
+                return (1, "Found User", user);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, default(USD));
+            }
+        }
 
         // USD refers to the Usage DTO of a user
         protected async Task<(int, string?, USD[])> GetUsers<USD>(FilterDefinition<T> filterDefinition, int page, int size)

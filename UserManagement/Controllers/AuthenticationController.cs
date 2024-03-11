@@ -89,6 +89,14 @@ namespace UserManagement.Controllers
             }
         }
 
+        [HttpPost("verify")]
+        public async Task<IActionResult> Verify(string token)
+        {
+            var (status, message, user) = await _authService.VerifyEmail(token);
+            if (status == 0)
+                return BadRequest(new { errors = message });
+            return Ok(new { message, user });
+        }
 
     }
 }

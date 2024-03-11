@@ -9,6 +9,8 @@ namespace UserManagement.Services.UserServices
     {
         Task<(int, string?, USD?)> GetUserById<USD>(string userId);
         Task<(int, string?, USD?)> GetUserByEmail<USD>(string email);
+        Task<(int, string?, USD?)> GetUserByVerificationToken<USD>(string token);
+        Task<(int, string?, USD?)> GetUserByResetToken<USD>(string token);
         Task<(int, string, USD?)> UploadProfilePic<USD>(string userId, IFormFile? image);
     }
 }

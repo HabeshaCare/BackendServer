@@ -14,5 +14,7 @@ namespace UserManagement.Models.DTOs.UserDTOs
         public string? Phonenumber { get; set; }
         public string? Fullname { get; set; }
         public string? ImageUrl { get; set; }
+        public string VerificationToken { get; set; } = string.Empty;
+        public DateTime? VerifiedAt { get; set; }
     }
 }

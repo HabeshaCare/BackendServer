@@ -1,10 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using UserManagement.DTOs.AdminDTOs;
+using UserManagement.DTOs.PatientDTOs;
+using UserManagement.DTOs.UserDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs;
 using UserManagement.Models.DTOs.UserDTOs;
@@ -33,7 +37,7 @@ namespace UserManagement.Services
         }
 
 
-        public async Task<(int, string, dynamic?)> Login(LoginDTO model)
+        public async Task<(int, string, UsageUserDTO?)> Login(LoginDTO model)
         {
 
             // Checks if the user exists in the database from different collections.
@@ -51,11 +55,15 @@ namespace UserManagement.Services
             //
             User user = admin as User ?? doctor as User ?? patient;
 
-            bool ifUserNotFound = user == null;
-            bool ifValidPassword = VerifyHashedPassword(model.Password, ifUserNotFound ? "" : user!.Password ?? "");
+            bool userNotFound = user == null;
+            bool validPassword = VerifyHashedPassword(model.Password, userNotFound ? "" : user!.Password ?? "");
+            bool userNotVerified = user?.VerifiedAt == null;
 
-            if (ifUserNotFound || !ifValidPassword)
+            if (userNotFound || !validPassword)
                 return (0, "Invalid Credentials", null);
+
+            if (userNotVerified)
+                return (0, "Account not verified", null);
 
             // Generates authentication claims and token.
             var authClaims = new List<Claim>
@@ -71,7 +79,7 @@ namespace UserManagement.Services
             return (1, token, foundUser);
         }
 
-        public async Task<(int, string, dynamic?)> Registration(RegistrationDTO model)
+        public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
         {
             // Checks if the user exists in the database from different collections.
             var adminTask = _adminService.GetUserByEmail<Administrator>(model.Email);
@@ -97,6 +105,7 @@ namespace UserManagement.Services
             {
                 case UserRole.Normal:
                     Patient patient = _mapper.Map<Patient>(model);
+                    patient.VerificationToken = CreateRandomToken();
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(patient, model.Password);
@@ -112,6 +121,7 @@ namespace UserManagement.Services
 
                 case UserRole.Doctor:
                     Doctor doctor = _mapper.Map<Doctor>(model);
+                    doctor.VerificationToken = CreateRandomToken();
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(doctor, model.Password);
@@ -132,6 +142,7 @@ namespace UserManagement.Services
                 case UserRole.PharmacyAdmin:
                 case UserRole.Reception:
                     Administrator admin = _mapper.Map<Administrator>(model);
+                    admin.VerificationToken = CreateRandomToken();
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(admin, model.Password);
@@ -147,6 +158,97 @@ namespace UserManagement.Services
                 default:
                     return (0, "Invalid Role", null);
             }
+        }
+
+        public async Task<(int, string, UsageUserDTO?)> VerifyEmail(string token)
+        {
+            try
+            {
+                var adminTask = _adminService.GetUserByVerificationToken<Administrator>(token);
+                var doctorTask = _doctorService.GetUserByVerificationToken<Doctor>(token);
+                var patientTask = _patientService.GetUserByVerificationToken<Patient>(token);
+
+                await Task.WhenAll(adminTask, doctorTask, patientTask);
+
+                Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
+                Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
+                Patient patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+
+                User user = admin as User ?? doctor as User ?? patient;
+
+                bool userNotFound = user == null;
+
+                if (userNotFound)
+                    return (0, "Invalid Token", null);
+
+                user!.VerifiedAt = DateTime.Now;
+                user.VerificationToken = string.Empty;
+
+                string successMessage = "User Verified";
+
+                return await UpdateUser(user, successMessage);
+
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, null);
+            }
+        }
+
+        public async Task<(int, string, UsageUserDTO?)> ForgotPassword(string email)
+        {
+            var adminTask = _adminService.GetUserByEmail<Administrator>(email);
+            var doctorTask = _doctorService.GetUserByEmail<Doctor>(email);
+            var patientTask = _patientService.GetUserByEmail<Patient>(email);
+
+            await Task.WhenAll(adminTask, doctorTask, patientTask);
+
+            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
+            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
+            Patient patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+
+            User user = admin as User ?? doctor as User ?? patient;
+
+            if (user == null)
+            {
+                return (0, "User not found.", null);
+            }
+
+            user.PasswordResetToken = CreateRandomToken();
+            user.ResetTokenExpires = DateTime.Now.AddDays(1);
+
+            string successMessage = "Password reset link sent";
+            return await UpdateUser(user, successMessage);
+
+        }
+
+        public async Task<(int, string, UsageUserDTO?)> ResetPassword(UserResetPasswordDTO request)
+        {
+            var adminTask = _adminService.GetUserByResetToken<Administrator>(request.Token);
+            var doctorTask = _doctorService.GetUserByResetToken<Doctor>(request.Token);
+            var patientTask = _patientService.GetUserByResetToken<Patient>(request.Token);
+
+            await Task.WhenAll(adminTask, doctorTask, patientTask);
+
+            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
+            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
+            Patient patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+
+            User user = admin as User ?? doctor as User ?? patient;
+
+            if (user == null || user.ResetTokenExpires < DateTime.Now)
+            {
+                return (0, "Invalid token.", null);
+            }
+
+            user.Password = HashPassword(request.Password);
+
+            user.PasswordResetToken = string.Empty;
+            user.ResetTokenExpires = null;
+
+            string successMessage = "Password reset link sent";
+            return await UpdateUser(user, successMessage);
+
         }
 
         //Generates a JWT authentication token based on provided claims.
@@ -168,6 +270,11 @@ namespace UserManagement.Services
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        private static string CreateRandomToken()
+        {
+            return Convert.ToHexString(RandomNumberGenerator.GetBytes(64));
         }
 
         public string HashPassword(string password)
@@ -200,6 +307,43 @@ namespace UserManagement.Services
             else
             {
                 return null;
+            }
+        }
+
+        private async Task<(int, string, UsageUserDTO?)> UpdateUser(User user, string successMessage = "User updated successfully")
+        {
+            UpdateUserDTO updatedUser = _mapper.Map<UpdateUserDTO>(user);
+
+
+            switch (user.Role)
+            {
+                case UserRole.Normal:
+                    {
+                        var (status, message, verifiedUser) = await _patientService.UpdatePatient((updatedUser as UpdatePatientDTO)!, user.Id!);
+                        if (status == 1 && verifiedUser != null)
+                            return (1, successMessage, verifiedUser);
+                        return (0, message, null);
+                    }
+                case UserRole.Doctor:
+                    {
+                        var (status, message, verifiedUser) = await _doctorService.UpdateDoctor((updatedUser as UpdateDoctorDTO)!, user.Id!);
+                        if (status == 1 && verifiedUser != null)
+                            return (1, successMessage, verifiedUser);
+                        return (0, message, null);
+                    }
+                case UserRole.SuperAdmin:
+                case UserRole.HealthCenterAdmin:
+                case UserRole.LaboratoryAdmin:
+                case UserRole.PharmacyAdmin:
+                case UserRole.Reception:
+                    {
+                        var (status, message, verifiedUser) = await _adminService.UpdateAdmin((updatedUser as UpdateAdminDTO)!, user.Id!);
+                        if (status == 1 && verifiedUser != null)
+                            return (1, successMessage, verifiedUser);
+                        return (0, message, null);
+                    }
+                default:
+                    return (0, "Invalid Role", null);
             }
         }
     }
