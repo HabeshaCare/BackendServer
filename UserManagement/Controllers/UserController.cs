@@ -15,8 +15,6 @@ using UserManagement.Utils;
 
 namespace UserManagement.Controllers
 {
-    //# TODO: This will be refactored as only methods that are not role specific. The user specific methods will be moved to their own respective controllers.
-
     /// <summary>
     /// Controller responsible for handling user-related operations. user can be any one in our system.
     /// </summary>
