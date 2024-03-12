@@ -303,8 +303,7 @@ namespace UserManagement.Services
             user.PasswordResetToken = string.Empty;
             user.ResetTokenExpires = null;
 
-            string successMessage = "Password reset Successfully";
-            return await UpdatePassword(user, successMessage);
+            return await UpdatePassword(user);
         }
 
         //Generates a JWT authentication token based on provided claims.
@@ -407,7 +406,7 @@ namespace UserManagement.Services
                     return (0, "Invalid Role", null);
             }
         }
-        private async Task<(int, string)> UpdatePassword(User user, string successMessage = "User updated successfully")
+        private async Task<(int, string)> UpdatePassword(User user)
         {
 
             switch (user.Role)
@@ -415,18 +414,13 @@ namespace UserManagement.Services
                 case UserRole.Normal:
                     {
                         var (status, message) = await _patientService.UpdatePassword<Patient>(user.Id!, user.Password);
-
-                        if (status == 1)
-                            return (1, successMessage);
-                        return (0, message);
+                        return (status, message);
                     }
                 case UserRole.Doctor:
                     {
                         var (status, message) = await _doctorService.UpdatePassword<Doctor>(user.Id!, user.Password);
 
-                        if (status == 1)
-                            return (1, successMessage);
-                        return (0, message);
+                        return (status, message);
                     }
                 case UserRole.SuperAdmin:
                 case UserRole.HealthCenterAdmin:
@@ -436,9 +430,7 @@ namespace UserManagement.Services
                     {
                         var (status, message) = await _adminService.UpdatePassword<Administrator>(user.Id!, user.Password);
 
-                        if (status == 1)
-                            return (1, successMessage);
-                        return (0, message);
+                        return (status, message);
                     }
                 default:
                     return (0, "Invalid Role");

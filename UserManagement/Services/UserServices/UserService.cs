@@ -236,13 +236,13 @@ namespace UserManagement.Services.UserServices
         {
             try
             {
-                var filter = Builders<T>.Filter.Eq("_id", id);
+                var filter = Builders<T>.Filter.Eq("id", id);
                 var update = Builders<T>.Update.Set("Password", newHashedPassword);
 
                 var result = await _collection.UpdateOneAsync(filter, update);
 
                 if (result.ModifiedCount > 0)
-                    return (1, "User created successfully");
+                    return (1, "Password Reset successfully");
                 else
                     return (0, "User doesn't exist");
             }
