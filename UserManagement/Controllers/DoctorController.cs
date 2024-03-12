@@ -41,7 +41,7 @@ namespace UserManagement.Controllers
             return Ok(new { users = doctors });
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}/profile")]
         [Authorize(Roles = "Normal, Doctor, Admin")]
 
         public async Task<IActionResult> GetDoctorById(string id)
@@ -51,7 +51,7 @@ namespace UserManagement.Controllers
             {
                 return NotFound(new { error = message });
             }
-            return Ok(new { success = true });
+            return Ok(new { success = true, user = doctor });
         }
 
         /// <summary>
