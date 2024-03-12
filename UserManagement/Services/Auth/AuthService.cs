@@ -101,7 +101,7 @@ namespace UserManagement.Services
             User _user = _admin as User ?? _doctor as User ?? _patient;
 
             bool ifUserFound = _user != null;
-            (int, string?, UsageUserDTO?) result;
+            (int, string?, User?) result;
 
             if (ifUserFound)
                 return (0, "User already exists", null);
@@ -169,6 +169,7 @@ namespace UserManagement.Services
 
             var user = result.Item3;
             bool registrationSuccessful = user?.VerificationToken != string.Empty;
+            var updatedUser = _mapper.Map<UsageUserDTO>(user);
 
             if (registrationSuccessful)
             {
@@ -184,11 +185,11 @@ namespace UserManagement.Services
 
                 if (emailSent)
                 {
-                    return (1, "Registration Complete. Check email for verification link to verify your account.", user);
+                    return (1, "Registration Complete. Check email for verification link to verify your account.", updatedUser);
                 }
                 else
                 {
-                    return (1, "Registration Complete but couldn't sent verification email ", user);
+                    return (1, "Registration Complete but couldn't sent verification email ", updatedUser);
                 }
             }
             else
@@ -254,8 +255,27 @@ namespace UserManagement.Services
             user.PasswordResetToken = CreateRandomToken();
             user.ResetTokenExpires = DateTime.Now.AddDays(1);
 
+            string verificationUrl = $"https://localhost:5072/resetPassword/?token={user.PasswordResetToken}";
+
+            EmailDTO emailRequest = new()
+            {
+                To = user.Email ?? "",
+                Subject = "Email Verification",
+                Body = $"Please visit the following url to verify your email.{verificationUrl}"
+            };
+
             string successMessage = "Password reset link sent";
-            return await UpdateUser(user, successMessage);
+            (int status, string message, UsageUserDTO? updatedUser) = await UpdateUser(user, successMessage);
+            bool emailSent = _emailService.SendEmail(emailRequest);
+            if (emailSent && status == 1 && updatedUser != null)
+            {
+                return (1, "Check email for password reset link.", updatedUser);
+            }
+            else
+            {
+                return (1, message, null);
+            }
+
 
         }
 
@@ -355,7 +375,9 @@ namespace UserManagement.Services
                 case UserRole.Normal:
                     {
                         UpdatePatientDTO updatedUser = _mapper.Map<UpdatePatientDTO>(user);
-                        var (status, message, verifiedUser) = await _patientService.UpdatePatient(updatedUser, user.Id!);
+                        var (status, message, rawUser) = await _patientService.UpdatePatient(updatedUser, user.Id!);
+                        var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
+
                         if (status == 1 && verifiedUser != null)
                             return (1, successMessage, verifiedUser);
                         return (0, message, null);
@@ -363,7 +385,8 @@ namespace UserManagement.Services
                 case UserRole.Doctor:
                     {
                         UpdateDoctorDTO updatedUser = _mapper.Map<UpdateDoctorDTO>(user);
-                        var (status, message, verifiedUser) = await _doctorService.UpdateDoctor(updatedUser, user.Id!);
+                        var (status, message, rawUser) = await _doctorService.UpdateDoctor(updatedUser, user.Id!);
+                        var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
                         if (status == 1 && verifiedUser != null)
                             return (1, successMessage, verifiedUser);
                         return (0, message, null);
@@ -375,7 +398,8 @@ namespace UserManagement.Services
                 case UserRole.Reception:
                     {
                         UpdateAdminDTO updatedUser = _mapper.Map<UpdateAdminDTO>(user);
-                        var (status, message, verifiedUser) = await _adminService.UpdateAdmin((updatedUser as UpdateAdminDTO)!, user.Id!);
+                        var (status, message, rawUser) = await _adminService.UpdateAdmin((updatedUser as UpdateAdminDTO)!, user.Id!);
+                        var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
                         if (status == 1 && verifiedUser != null)
                             return (1, successMessage, verifiedUser);
                         return (0, message, null);

@@ -17,9 +17,9 @@ namespace UserManagement.Services.UserServices
         {
         }
 
-        public async Task<(int, string, UsageAdminDTO?)> AddAdmin(Administrator admin)
+        public async Task<(int, string, Administrator?)> AddAdmin(Administrator admin)
         {
-            return await AddUser<UsageAdminDTO>(admin);
+            return await AddUser<Administrator>(admin);
         }
 
         public async Task<(int, string?, UsageAdminDTO?)> GetAdminByEmail(string adminEmail)
@@ -32,9 +32,9 @@ namespace UserManagement.Services.UserServices
             return await GetUserById<UsageAdminDTO>(adminId);
         }
 
-        public async Task<(int, string, UsageAdminDTO?)> UpdateAdmin(UpdateAdminDTO adminDTO, string id)
+        public async Task<(int, string, Administrator?)> UpdateAdmin(UpdateAdminDTO adminDTO, string id)
         {
-            return await UpdateUser<UpdateAdminDTO, UsageAdminDTO>(adminDTO, id);
+            return await UpdateUser<UpdateAdminDTO, Administrator>(adminDTO, id);
         }
     }
 }
