@@ -12,6 +12,7 @@ using UserManagement.Utils;
 using System.Reflection;
 using System.Text;
 using UserManagement.Models;
+using UserManagement.Services.EmailService;
 
 var builder = WebApplication.CreateBuilder(args);
 var DBConfig = builder.Configuration.GetSection("DB");
@@ -32,6 +33,7 @@ builder.Services.AddSwaggerGen(c =>
 
 //Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService<User>>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IPatientService, PatientService>();

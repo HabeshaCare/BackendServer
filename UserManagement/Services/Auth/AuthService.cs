@@ -6,12 +6,14 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using UserManagement.DTOs;
 using UserManagement.DTOs.AdminDTOs;
 using UserManagement.DTOs.PatientDTOs;
 using UserManagement.DTOs.UserDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs;
 using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Services.EmailService;
 using UserManagement.Services.UserServices;
 using UserManagement.Utils;
 
@@ -23,15 +25,17 @@ namespace UserManagement.Services
         private readonly IDoctorService _doctorService;
         private readonly IAdminService _adminService;
         private readonly IPatientService _patientService;
+        private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IMapper mapper, IDoctorService doctorService, IPatientService patientService, IAdminService adminService, IConfiguration configuration)
+        public AuthService(IMapper mapper, IDoctorService doctorService, IPatientService patientService, IAdminService adminService, IEmailService emailService, IConfiguration configuration)
         {
             _configuration = configuration;
 
             _adminService = adminService;
             _doctorService = doctorService;
             _patientService = patientService;
+            _emailService = emailService;
 
             _mapper = mapper;
         }
@@ -97,6 +101,7 @@ namespace UserManagement.Services
             User _user = _admin as User ?? _doctor as User ?? _patient;
 
             bool ifUserFound = _user != null;
+            (int, string?, UsageUserDTO?) result;
 
             if (ifUserFound)
                 return (0, "User already exists", null);
@@ -111,7 +116,8 @@ namespace UserManagement.Services
                         var resultUser = AddPassword(patient, model.Password);
                         if (resultUser != null)
                         {
-                            return await _patientService.AddPatient(resultUser);
+                            result = await _patientService.AddPatient(resultUser);
+                            break;
                         }
                         else
                         {
@@ -127,7 +133,8 @@ namespace UserManagement.Services
                         var resultUser = AddPassword(doctor, model.Password);
                         if (resultUser != null)
                         {
-                            return await _doctorService.AddDoctor(resultUser);
+                            result = await _doctorService.AddDoctor(resultUser);
+                            break;
                         }
                         else
                         {
@@ -148,7 +155,8 @@ namespace UserManagement.Services
                         var resultUser = AddPassword(admin, model.Password);
                         if (resultUser != null)
                         {
-                            return await _adminService.AddAdmin(resultUser);
+                            result = await _adminService.AddAdmin(resultUser);
+                            break;
                         }
                         else
                         {
@@ -157,6 +165,35 @@ namespace UserManagement.Services
                     }
                 default:
                     return (0, "Invalid Role", null);
+            }
+
+            var user = result.Item3;
+            bool registrationSuccessful = user?.VerificationToken != string.Empty;
+
+            if (registrationSuccessful)
+            {
+                string verificationUrl = $"https://localhost:5072/verifyEmail/?token={user?.VerificationToken}";
+
+                EmailDTO email = new()
+                {
+                    To = model.Email,
+                    Subject = "Email Verification",
+                    Body = $"Please visit the following url to verify your email.{verificationUrl}"
+                };
+                bool emailSent = _emailService.SendEmail(email);
+
+                if (emailSent)
+                {
+                    return (1, "Registration Complete. Check email for verification link to verify your account.", user);
+                }
+                else
+                {
+                    return (1, "Registration Complete but couldn't sent verification email ", user);
+                }
+            }
+            else
+            {
+                return (0, "Something went wrong on registration", null);
             }
         }
 
