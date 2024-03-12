@@ -299,11 +299,8 @@ namespace UserManagement.Services
             user.PasswordResetToken = string.Empty;
             user.ResetTokenExpires = null;
 
-            var updatePasswordTask = UpdatePassword(user);
-            var updateUserTask = UpdateUser(user);
-
-            await Task.WhenAll(updatePasswordTask, updateUserTask);
-            return updatePasswordTask.Result;
+            await UpdateUser(user);
+            return await UpdatePassword(user);
         }
 
         //Generates a JWT authentication token based on provided claims.
