@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.DTOs.AdminDTOs;
+using UserManagement.Models;
 using UserManagement.Services.UserServices;
 
 namespace UserManagement.Controllers
@@ -39,6 +40,23 @@ namespace UserManagement.Controllers
                 return BadRequest(new { error = message });
 
             return Ok(new { message, user = admin });
+        }
+
+        [HttpPost("{id}/profile/upload-picture")]
+        public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
+        {
+            try
+            {
+                var (status, message, user) = await _adminService.UploadProfilePic<Administrator>(id, image);
+
+                if (status == 0 || user == null)
+                    return BadRequest(new { error = message });
+                return Ok(new { message, user });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
+            }
         }
     }
 }

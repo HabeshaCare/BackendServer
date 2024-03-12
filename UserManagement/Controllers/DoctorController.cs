@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.Services.UserServices;
@@ -80,10 +81,27 @@ namespace UserManagement.Controllers
             return Ok(new { message, user = doctor });
         }
 
+        [HttpPost("{id}/profile/upload-picture")]
+        public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
+        {
+            try
+            {
+                var (status, message, user) = await _doctorService.UploadProfilePic<Doctor>(id, image);
+
+                if (status == 0 || user == null)
+                    return BadRequest(new { error = message });
+                return Ok(new { message, user });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
+            }
+        }
+
         /// <summary>
         /// Upload a license for a doctor.
         /// </summary>
-        [HttpPost("{id}/license")]
+        [HttpPost("{id}/profile/upload-license")]
         [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {

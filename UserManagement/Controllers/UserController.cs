@@ -25,16 +25,12 @@ namespace UserManagement.Controllers
     [Route("api/user")]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
         private readonly IChatAIService _chatAIService;
         private readonly IScheduleService _scheduleService;
-        private readonly ILogger<UserController> _logger;
-        public UserController(IUserService userService, IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
+        public UserController(IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
         {
-            _userService = userService;
             _scheduleService = scheduleService;
             _chatAIService = chatAIService;
-            _logger = logger;
         }
 
         /// <summary>
@@ -132,26 +128,6 @@ namespace UserManagement.Controllers
                 return StatusCode(500, new { errors = message });
             return Ok(new { message, success = true });
         }
-
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO model)
-        // {
-        //     try
-        //     {
-        //         var (status, message, user) = await _userService.UpdateUser(model, id);
-
-        //         if (status == 0 || user == null)
-        //             return BadRequest(new { error = message });
-
-        //         return Ok(new { message = "User updated successfully", user });
-
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex.Message);
-        //         return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
-        //     }
-        // }
 
         // [HttpPost("{id}/picture/")]
         // public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
