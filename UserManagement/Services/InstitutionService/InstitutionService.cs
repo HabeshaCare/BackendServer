@@ -40,7 +40,7 @@ namespace UserManagement.Services.InstitutionService
                     return (0, "No matching institutions found", Array.Empty<USD>());
 
                 USD[] institutions = _mapper.Map<USD[]>(foundInstitutions);
-                return (1, $"Found {foundInstitutions.Count} matching users", institutions);
+                return (1, $"Found {foundInstitutions.Count} matching institutions", institutions);
             }
             catch (Exception ex)
             {
@@ -62,7 +62,7 @@ namespace UserManagement.Services.InstitutionService
             }
         }
 
-        // USD refers to the Usage DTO of a user
+        // USD refers to the Usage DTO of a institution
         public async Task<(int, string?, USD?)> GetInstitutionById<USD>(string id)
         {
             var (status, message, institution) = await GetInstitution(id);
@@ -84,7 +84,7 @@ namespace UserManagement.Services.InstitutionService
                 var (status, message, foundInstitution) = await GetInstitutionById<T>(institution.Id ?? "");
 
                 if (status == 1 && foundInstitution != null)
-                    return (0, "User already exists", default(USD));
+                    return (0, "Institution already exists", default(USD));
 
                 await _collection.InsertOneAsync(institution);
                 USD createdInstitution = _mapper.Map<USD>(institution);
@@ -164,10 +164,10 @@ namespace UserManagement.Services.InstitutionService
                     ReturnDocument = ReturnDocument.After
                 };
 
-                var rawUser = await _collection.FindOneAndReplaceAsync(filter, institution, options);
+                var rawInstitution = await _collection.FindOneAndReplaceAsync(filter, institution, options);
 
-                USD updatedUser = _mapper.Map<USD>(rawUser);
-                return (1, "License information Uploaded Successfully", updatedUser);
+                USD updatedInstitution = _mapper.Map<USD>(rawInstitution);
+                return (1, "License information Uploaded Successfully", updatedInstitution);
             }
             catch (Exception ex)
             {
