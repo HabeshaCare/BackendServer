@@ -81,7 +81,7 @@ namespace UserManagement.Controllers
                 if (status == 0)
                     return BadRequest(new { errors = message });
 
-                return CreatedAtAction(nameof(Register), user);
+                return CreatedAtAction(nameof(Register), new { message, user });
             }
             catch (Exception ex)
             {

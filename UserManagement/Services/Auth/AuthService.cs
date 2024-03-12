@@ -255,13 +255,13 @@ namespace UserManagement.Services
             user.PasswordResetToken = CreateRandomToken();
             user.ResetTokenExpires = DateTime.Now.AddDays(1);
 
-            string verificationUrl = $"https://localhost:5072/resetPassword/?token={user.PasswordResetToken}";
+            string resetUrl = $"https://localhost:5072/resetPassword/?token={user.PasswordResetToken}";
 
             EmailDTO emailRequest = new()
             {
                 To = user.Email ?? "",
-                Subject = "Email Verification",
-                Body = $"Please visit the following url to verify your email.{verificationUrl}"
+                Subject = "Password Reset",
+                Body = $"Please visit the following url to reset your password.{resetUrl}"
             };
 
             string successMessage = "Password reset link sent";
