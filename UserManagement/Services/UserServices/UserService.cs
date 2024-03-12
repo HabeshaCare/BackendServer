@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.UserDTOs;
@@ -103,7 +104,43 @@ namespace UserManagement.Services.UserServices
             }
         }
 
+        // USD refers to the Usage DTO of a user
+        public async Task<(int, string?, USD?)> GetUserByVerificationToken<USD>(string token)
+        {
+            try
+            {
+                var filterCondition = Builders<T>.Filter.Eq("VerificationToken", token);
+                var foundUsers = await _collection.Find(filterCondition).ToListAsync();
+                if (foundUsers.Count == 0)
+                    return (0, "Invalid Token", default(USD));
 
+                USD user = _mapper.Map<USD[]>(foundUsers)[0];
+                return (1, "Found User", user);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, default(USD));
+            }
+        }
+
+        // USD refers to the Usage DTO of a user
+        public async Task<(int, string?, USD?)> GetUserByResetToken<USD>(string token)
+        {
+            try
+            {
+                var filterCondition = Builders<T>.Filter.Eq("PasswordResetToken", token);
+                var foundUsers = await _collection.Find(filterCondition).ToListAsync();
+                if (foundUsers.Count == 0)
+                    return (0, "Invalid Token", default(USD));
+
+                USD user = _mapper.Map<USD[]>(foundUsers)[0];
+                return (1, "Found User", user);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, default(USD));
+            }
+        }
 
         // USD refers to the Usage DTO of a user
         protected async Task<(int, string?, USD[])> GetUsers<USD>(FilterDefinition<T> filterDefinition, int page, int size)
@@ -190,6 +227,28 @@ namespace UserManagement.Services.UserServices
             catch (Exception ex)
             {
                 return (0, ex.Message, default(USD));
+            }
+        }
+
+        // AD refers to the Registration DTO of a user
+        // USD refers to the Usage DTO of a user
+        public async Task<(int, string)> UpdatePassword<USD>(string id, string newHashedPassword)
+        {
+            try
+            {
+                var filter = Builders<T>.Filter.Eq("_id", ObjectId.Parse(id));
+                var update = Builders<T>.Update.Set("Password", newHashedPassword);
+
+                var result = await _collection.UpdateOneAsync(filter, update);
+
+                if (result.ModifiedCount > 0)
+                    return (1, "Password Reset successfully");
+                else
+                    return (0, "User doesn't exist");
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message);
             }
         }
 

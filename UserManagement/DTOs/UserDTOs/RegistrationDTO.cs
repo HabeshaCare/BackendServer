@@ -14,7 +14,7 @@ namespace UserManagement.Models.DTOs
     {
         [Phone]
         public string? Phonenumber { get; set; }
-        [Required, MinLength(8)]
+        [Required, MinLength(6)]
         public required string Password { get; set; }
         [Required, Compare("Password")]
         public required string ConfirmPassword { get; set; }

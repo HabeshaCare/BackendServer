@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using UserManagement.DTOs.UserDTOs;
 using UserManagement.Models.DTOs;
 using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.Services;
@@ -80,7 +81,7 @@ namespace UserManagement.Controllers
                 if (status == 0)
                     return BadRequest(new { errors = message });
 
-                return CreatedAtAction(nameof(Register), user);
+                return CreatedAtAction(nameof(Register), new { message, user });
             }
             catch (Exception ex)
             {
@@ -89,6 +90,32 @@ namespace UserManagement.Controllers
             }
         }
 
+        [HttpPost("verify")]
+        public async Task<IActionResult> Verify(string token)
+        {
+            var (status, message, user) = await _authService.VerifyEmail(token);
+            if (status == 0)
+                return BadRequest(new { errors = message });
+            return Ok(new { message, user });
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromQuery] string email)
+        {
+            var (status, message, user) = await _authService.ForgotPassword(email);
+            if (status == 0)
+                return BadRequest(new { errors = message });
+            return Ok(new { message, user });
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] UserResetPasswordDTO request)
+        {
+            var (status, message) = await _authService.ResetPassword(request);
+            if (status == 0)
+                return BadRequest(new { errors = message });
+            return Ok(new { message });
+        }
 
     }
 }

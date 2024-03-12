@@ -12,9 +12,11 @@ using UserManagement.Utils;
 using System.Reflection;
 using System.Text;
 using UserManagement.Models;
+using UserManagement.Services.EmailService;
 
 var builder = WebApplication.CreateBuilder(args);
 var DBConfig = builder.Configuration.GetSection("DB");
+var EmailConfig = builder.Configuration.GetSection("EmailCredential");
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -31,6 +33,7 @@ builder.Services.AddSwaggerGen(c =>
 
 //Custom Services
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService<User>>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
@@ -39,10 +42,12 @@ builder.Services.AddScoped<IChatAIService, ChatAIService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IFileService, FileService>();
 
-//Database Configuration
+//AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
-//Automapper
+
+//System Configuration
 builder.Services.Configure<MongoDBSettings>(DBConfig);
+builder.Services.Configure<EmailSettings>(EmailConfig);
 
 var config = builder.Configuration;
 
