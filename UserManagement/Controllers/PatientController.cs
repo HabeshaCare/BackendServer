@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.DTOs.PatientDTOs;
 using UserManagement.Services.UserServices;
 
 namespace UserManagement.Controllers
@@ -28,6 +29,17 @@ namespace UserManagement.Controllers
                 return NotFound(new { error = message });
             }
             return Ok(new { success = true, user = patient });
+        }
+
+        [HttpPut("{id}/profile")]
+        public async Task<IActionResult> UpdatePatient(string id, [FromBody] UpdatePatientDTO patientDTO)
+        {
+            var (status, message, patient) = await _patientService.UpdatePatient(patientDTO, id);
+
+            if (status == 0 || patient == null)
+                return BadRequest(new { error = message });
+
+            return Ok(new { message, user = patient });
         }
     }
 }

@@ -68,7 +68,7 @@ namespace UserManagement.Controllers
             return Ok(new { message, user = doctor });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}/profile")]
         [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> UpdateDoctor(string id, [FromBody] UpdateDoctorDTO doctorDTO)
         {
