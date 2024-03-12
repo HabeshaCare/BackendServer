@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.UserDTOs;
@@ -226,6 +227,28 @@ namespace UserManagement.Services.UserServices
             catch (Exception ex)
             {
                 return (0, ex.Message, default(USD));
+            }
+        }
+
+        // AD refers to the Registration DTO of a user
+        // USD refers to the Usage DTO of a user
+        public async Task<(int, string)> UpdatePassword<USD>(string id, string newHashedPassword)
+        {
+            try
+            {
+                var filter = Builders<T>.Filter.Eq("_id", id);
+                var update = Builders<T>.Update.Set("Password", newHashedPassword);
+
+                var result = await _collection.UpdateOneAsync(filter, update);
+
+                if (result.ModifiedCount > 0)
+                    return (1, "User created successfully");
+                else
+                    return (0, "User doesn't exist");
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message);
             }
         }
 

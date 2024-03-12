@@ -17,7 +17,7 @@ namespace UserManagement.Services
         Task<(int, string, UsageUserDTO?)> Login(LoginDTO model);
         Task<(int, string, UsageUserDTO?)> VerifyEmail(string token);
         Task<(int, string, UsageUserDTO?)> ForgotPassword(string email);
-        Task<(int, string, UsageUserDTO?)> ResetPassword(UserResetPasswordDTO request);
+        Task<(int, string)> ResetPassword(UserResetPasswordDTO request);
         string HashPassword(string password);
         bool VerifyHashedPassword(string hashedPassword, string providedPassword);
     }

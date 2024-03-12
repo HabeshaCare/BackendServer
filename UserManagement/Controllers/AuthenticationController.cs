@@ -111,10 +111,10 @@ namespace UserManagement.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] UserResetPasswordDTO request)
         {
-            var (status, message, user) = await _authService.ResetPassword(request);
+            var (status, message) = await _authService.ResetPassword(request);
             if (status == 0)
                 return BadRequest(new { errors = message });
-            return Ok(new { message, user });
+            return Ok(new { message });
         }
 
     }

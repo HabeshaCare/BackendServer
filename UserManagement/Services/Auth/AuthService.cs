@@ -279,7 +279,7 @@ namespace UserManagement.Services
 
         }
 
-        public async Task<(int, string, UsageUserDTO?)> ResetPassword(UserResetPasswordDTO request)
+        public async Task<(int, string)> ResetPassword(UserResetPasswordDTO request)
         {
             var adminTask = _adminService.GetUserByResetToken<Administrator>(request.Token);
             var doctorTask = _doctorService.GetUserByResetToken<Doctor>(request.Token);
@@ -295,7 +295,7 @@ namespace UserManagement.Services
 
             if (user == null || user.ResetTokenExpires < DateTime.Now)
             {
-                return (0, "Invalid token.", null);
+                return (0, "Invalid token.");
             }
 
             user.Password = HashPassword(request.Password);
@@ -303,9 +303,8 @@ namespace UserManagement.Services
             user.PasswordResetToken = string.Empty;
             user.ResetTokenExpires = null;
 
-            string successMessage = "Password reset link sent";
-            return await UpdateUser(user, successMessage);
-
+            string successMessage = "Password reset Successfully";
+            return await UpdatePassword(user, successMessage);
         }
 
         //Generates a JWT authentication token based on provided claims.
@@ -406,6 +405,43 @@ namespace UserManagement.Services
                     }
                 default:
                     return (0, "Invalid Role", null);
+            }
+        }
+        private async Task<(int, string)> UpdatePassword(User user, string successMessage = "User updated successfully")
+        {
+
+            switch (user.Role)
+            {
+                case UserRole.Normal:
+                    {
+                        var (status, message) = await _patientService.UpdatePassword<Patient>(user.Id!, user.Password);
+
+                        if (status == 1)
+                            return (1, successMessage);
+                        return (0, message);
+                    }
+                case UserRole.Doctor:
+                    {
+                        var (status, message) = await _doctorService.UpdatePassword<Doctor>(user.Id!, user.Password);
+
+                        if (status == 1)
+                            return (1, successMessage);
+                        return (0, message);
+                    }
+                case UserRole.SuperAdmin:
+                case UserRole.HealthCenterAdmin:
+                case UserRole.LaboratoryAdmin:
+                case UserRole.PharmacyAdmin:
+                case UserRole.Reception:
+                    {
+                        var (status, message) = await _adminService.UpdatePassword<Administrator>(user.Id!, user.Password);
+
+                        if (status == 1)
+                            return (1, successMessage);
+                        return (0, message);
+                    }
+                default:
+                    return (0, "Invalid Role");
             }
         }
     }
