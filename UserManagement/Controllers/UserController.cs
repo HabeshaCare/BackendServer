@@ -129,26 +129,6 @@ namespace UserManagement.Controllers
             return Ok(new { message, success = true });
         }
 
-        // [HttpPost("{id}/picture/")]
-        // public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
-        // {
-        //     try
-        //     {
-        //         var (status, message, user) = await _userService.UploadProfile(id, image);
-
-        //         if (status == 0 || user == null)
-        //             return BadRequest(new { error = message });
-
-        //         return Ok(new { message, user });
-
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex.Message);
-        //         return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
-        //     }
-        // }
-
         [HttpGet("{id}/chat/")]
         public async Task<IActionResult> GetUserMessages(string id)
         {
