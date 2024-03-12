@@ -236,7 +236,7 @@ namespace UserManagement.Services.UserServices
         {
             try
             {
-                var filter = Builders<T>.Filter.Eq("id", id);
+                var filter = Builders<T>.Filter.Eq("_id", ObjectId.Parse(id));
                 var update = Builders<T>.Update.Set("Password", newHashedPassword);
 
                 var result = await _collection.UpdateOneAsync(filter, update);
