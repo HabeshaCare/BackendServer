@@ -222,10 +222,7 @@ namespace UserManagement.Services
                 user!.VerifiedAt = DateTime.Now;
                 user.VerificationToken = string.Empty;
 
-                string successMessage = "User Verified";
-
-                return await UpdateUser(user, successMessage);
-
+                return await UpdateUser(user);
             }
             catch (Exception ex)
             {
@@ -264,8 +261,7 @@ namespace UserManagement.Services
                 Body = $"Please visit the following url to reset your password.{resetUrl}"
             };
 
-            string successMessage = "Password reset link sent";
-            (int status, string message, UsageUserDTO? updatedUser) = await UpdateUser(user, successMessage);
+            (int status, string message, UsageUserDTO? updatedUser) = await UpdateUser(user);
             bool emailSent = _emailService.SendEmail(emailRequest);
             if (emailSent && status == 1 && updatedUser != null)
             {
@@ -303,7 +299,11 @@ namespace UserManagement.Services
             user.PasswordResetToken = string.Empty;
             user.ResetTokenExpires = null;
 
-            return await UpdatePassword(user);
+            var updatePasswordTask = UpdatePassword(user);
+            var updateUserTask = UpdateUser(user);
+
+            await Task.WhenAll(updatePasswordTask, updateUserTask);
+            return updatePasswordTask.Result;
         }
 
         //Generates a JWT authentication token based on provided claims.
@@ -365,7 +365,7 @@ namespace UserManagement.Services
             }
         }
 
-        private async Task<(int, string, UsageUserDTO?)> UpdateUser(User user, string successMessage = "User updated successfully")
+        private async Task<(int, string, UsageUserDTO?)> UpdateUser(User user)
         {
 
             switch (user.Role)
@@ -376,18 +376,15 @@ namespace UserManagement.Services
                         var (status, message, rawUser) = await _patientService.UpdatePatient(updatedUser, user.Id!);
                         var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
 
-                        if (status == 1 && verifiedUser != null)
-                            return (1, successMessage, verifiedUser);
-                        return (0, message, null);
+                        return (status, message, verifiedUser);
                     }
                 case UserRole.Doctor:
                     {
                         UpdateDoctorDTO updatedUser = _mapper.Map<UpdateDoctorDTO>(user);
                         var (status, message, rawUser) = await _doctorService.UpdateDoctor(updatedUser, user.Id!);
                         var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
-                        if (status == 1 && verifiedUser != null)
-                            return (1, successMessage, verifiedUser);
-                        return (0, message, null);
+
+                        return (status, message, verifiedUser);
                     }
                 case UserRole.SuperAdmin:
                 case UserRole.HealthCenterAdmin:
@@ -398,9 +395,8 @@ namespace UserManagement.Services
                         UpdateAdminDTO updatedUser = _mapper.Map<UpdateAdminDTO>(user);
                         var (status, message, rawUser) = await _adminService.UpdateAdmin((updatedUser as UpdateAdminDTO)!, user.Id!);
                         var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
-                        if (status == 1 && verifiedUser != null)
-                            return (1, successMessage, verifiedUser);
-                        return (0, message, null);
+
+                        return (status, message, verifiedUser);
                     }
                 default:
                     return (0, "Invalid Role", null);
