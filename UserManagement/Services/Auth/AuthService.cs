@@ -222,7 +222,12 @@ namespace UserManagement.Services
                 user!.VerifiedAt = DateTime.Now;
                 user.VerificationToken = string.Empty;
 
-                return await UpdateUser(user);
+                var (status, message, createdUser) = await UpdateUser(user);
+                if (status == 1 && createdUser != null)
+                {
+                    return (1, "Email verified", createdUser);
+                }
+                return (0, message, null);
             }
             catch (Exception ex)
             {
