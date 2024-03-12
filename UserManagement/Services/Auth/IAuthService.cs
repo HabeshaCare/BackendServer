@@ -12,8 +12,8 @@ namespace UserManagement.Services
 {
     public interface IAuthService
     {
-        Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model);
-        Task<(int, string, UsageUserDTO?)> Login(LoginDTO model);
+        Task<(int, string, dynamic?)> Registration(RegistrationDTO model);
+        Task<(int, string, dynamic?)> Login(LoginDTO model);
         string HashPassword(string password);
         bool VerifyHashedPassword(string hashedPassword, string providedPassword);
     }

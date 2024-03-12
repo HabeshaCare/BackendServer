@@ -2,14 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using UserManagement.Models.DTOs.UserDTOs;
 
-namespace UserManagement.Models
+namespace UserManagement.DTOs.AdminDTOs
 {
-    public class Administrator : User
+    public class UpdateAdminDTO : UpdateUserDTO
     {
         /* 
         Currently, this class is only needed to keep because 

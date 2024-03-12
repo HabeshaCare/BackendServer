@@ -8,55 +8,59 @@ using MongoDB.Driver;
 using UserManagement.Models;
 using UserManagement.Models.DTOs;
 using UserManagement.Models.DTOs.UserDTOs;
+using UserManagement.Services.UserServices;
 using UserManagement.Utils;
 
 namespace UserManagement.Services
 {
-    public class AuthService : MongoDBService, IAuthService
+    public class AuthService : IAuthService
     {
-        private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
-        private IMongoCollection<User> _collection;
+        private readonly IDoctorService _doctorService;
+        private readonly IAdminService _adminService;
+        private readonly IPatientService _patientService;
+        private readonly IConfiguration _configuration;
 
-
-        public AuthService(IOptions<MongoDBSettings> options, IConfiguration configuration, IMapper mapper) : base(options)
+        public AuthService(IMapper mapper, IDoctorService doctorService, IPatientService patientService, IAdminService adminService, IConfiguration configuration)
         {
-            _collection = GetCollection<User>("Users");
             _configuration = configuration;
+
+            _adminService = adminService;
+            _doctorService = doctorService;
+            _patientService = patientService;
+
             _mapper = mapper;
         }
 
 
-        public async Task<(int, string, UsageUserDTO?)> Login(LoginDTO model)
+        public async Task<(int, string, dynamic?)> Login(LoginDTO model)
         {
-            var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
-            var projection = Builders<User>.Projection
-                .Include(u => u.Id)
-                .Include(u => u.Age)
-                .Include(u => u.Role)
-                .Include(u => u.City)
-                .Include(u => u.Email)
-                .Include(u => u.Gender)
-                .Include(u => u.Fullname)
-                .Include(u => u.ImageUrl)
-                .Include(u => u.Password)
-                .Include(u => u.Profession)
-                .Include(u => u.Phonenumber);
-            User user = await _collection.Find(filterCondition).Project<User>(projection).FirstOrDefaultAsync();
 
-            // Extracts user information and verifies the password.
-            bool result = user != null && VerifyHashedPassword(model.Password, user.Password);
+            // Checks if the user exists in the database from different collections.
+            var adminTask = _adminService.GetUserByEmail<Administrator>(model.Email);
+            var doctorTask = _doctorService.GetUserByEmail<Doctor>(model.Email);
+            var patientTask = _patientService.GetUserByEmail<Patient>(model.Email);
+
+            // Used to call asynchronously and wait for all the tasks to complete which will be run in parallel.
+            await Task.WhenAll(adminTask, doctorTask, patientTask);
+
+            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
+            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
+            Patient patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+
+            //
+            User user = admin as User ?? doctor as User ?? patient;
 
             bool ifUserNotFound = user == null;
-            bool ifInvalidPassword = !result;
+            bool ifValidPassword = VerifyHashedPassword(model.Password, ifUserNotFound ? "" : user!.Password ?? "");
 
-            if (ifUserNotFound || ifInvalidPassword)
+            if (ifUserNotFound || !ifValidPassword)
                 return (0, "Invalid Credentials", null);
 
             // Generates authentication claims and token.
             var authClaims = new List<Claim>
             {
-                new(ClaimTypes.Email, user!.Email),
+                new(ClaimTypes.Email, user!.Email!),
                 new(ClaimTypes.NameIdentifier, user!.Id!),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(ClaimTypes.Role, user.Role.ToString())
@@ -67,48 +71,82 @@ namespace UserManagement.Services
             return (1, token, foundUser);
         }
 
-        public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
+        public async Task<(int, string, dynamic?)> Registration(RegistrationDTO model)
         {
+            // Checks if the user exists in the database from different collections.
+            var adminTask = _adminService.GetUserByEmail<Administrator>(model.Email);
+            var doctorTask = _doctorService.GetUserByEmail<Doctor>(model.Email);
+            var patientTask = _patientService.GetUserByEmail<Patient>(model.Email);
 
-            var filterCondition = Builders<User>.Filter.Eq("Email", model.Email);
-            dynamic user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
+            // Used to call asynchronously and wait for all the tasks to complete which will be run in parallel.
+            await Task.WhenAll(adminTask, doctorTask, patientTask);
 
-            if (user != null)
-            {
+            Administrator _admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
+            Doctor _doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
+            Patient _patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+
+            //
+            User _user = _admin as User ?? _doctor as User ?? _patient;
+
+            bool ifUserFound = _user != null;
+
+            if (ifUserFound)
                 return (0, "User already exists", null);
-            }
 
             switch (model.Role)
             {
                 case UserRole.Normal:
-                    user = _mapper.Map<Patient>(model);
-                    break;
+                    Patient patient = _mapper.Map<Patient>(model);
+                    {
+                        //The curly braces are used to limit the scope of the variable declaration
+                        var resultUser = AddPassword(patient, model.Password);
+                        if (resultUser != null)
+                        {
+                            return await _patientService.AddPatient(resultUser);
+                        }
+                        else
+                        {
+                            return (0, "Error while password hashing", null);
+                        }
+                    }
+
                 case UserRole.Doctor:
-                    user = _mapper.Map<Doctor>(model);
-                    break;
-                case UserRole.Admin:
-                    user = _mapper.Map<Administrator>(model);
-                    break;
+                    Doctor doctor = _mapper.Map<Doctor>(model);
+                    {
+                        //The curly braces are used to limit the scope of the variable declaration
+                        var resultUser = AddPassword(doctor, model.Password);
+                        if (resultUser != null)
+                        {
+                            return await _doctorService.AddDoctor(resultUser);
+                        }
+                        else
+                        {
+                            return (0, "Error while password hashing", null);
+                        }
+                    }
+                case UserRole.SuperAdmin:
+                    return (0, "This role is not allowed to be created", null);
+
+                case UserRole.HealthCenterAdmin:
+                case UserRole.LaboratoryAdmin:
+                case UserRole.PharmacyAdmin:
+                case UserRole.Reception:
+                    Administrator admin = _mapper.Map<Administrator>(model);
+                    {
+                        //The curly braces are used to limit the scope of the variable declaration
+                        var resultUser = AddPassword(admin, model.Password);
+                        if (resultUser != null)
+                        {
+                            return await _adminService.AddAdmin(resultUser);
+                        }
+                        else
+                        {
+                            return (0, "Error while password hashing", null);
+                        }
+                    }
                 default:
                     return (0, "Invalid Role", null);
             }
-
-            // Maps DTO to User model and hashes the password.
-            var hashedPassword = HashPassword(model.Password);
-            user.Password = hashedPassword;
-
-            try
-            {
-                await _collection.InsertOneAsync(user);
-            }
-            catch (Exception ex)
-            {
-
-                return (0, $"Database error creating the user: {ex.Message}", null);
-            }
-            UsageUserDTO createdUser = _mapper.Map<UsageUserDTO>(user);
-
-            return (1, "User created successfully", createdUser);
         }
 
         //Generates a JWT authentication token based on provided claims.
@@ -139,7 +177,30 @@ namespace UserManagement.Services
 
         public bool VerifyHashedPassword(string providedPassword, string hashedPassword)
         {
-            return BCrypt.Net.BCrypt.Verify(providedPassword, hashedPassword);
+            try
+            {
+                return BCrypt.Net.BCrypt.Verify(providedPassword, hashedPassword);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private T? AddPassword<T>(T user, string password) where T : User
+        {
+            if (user != null)
+            {
+                // Maps DTO to User model and hashes the password.
+                var hashedPassword = HashPassword(password);
+                user.Password = hashedPassword;
+
+                return user;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

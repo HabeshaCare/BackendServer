@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UserManagement.Models;
+using UserManagement.Models.DTOs.OptionsDTO;
+using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.Utils;
 
 namespace UserManagement.Services
@@ -24,5 +27,7 @@ namespace UserManagement.Services
         {
             return database.GetCollection<T>(collectionName);
         }
+
+
     }
 }

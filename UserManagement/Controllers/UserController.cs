@@ -15,6 +15,8 @@ using UserManagement.Utils;
 
 namespace UserManagement.Controllers
 {
+    //# TODO: This will be refactored as only methods that are not role specific. The user specific methods will be moved to their own respective controllers.
+
     /// <summary>
     /// Controller responsible for handling user-related operations. user can be any one in our system.
     /// </summary>
@@ -131,45 +133,45 @@ namespace UserManagement.Controllers
             return Ok(new { message, success = true });
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO model)
-        {
-            try
-            {
-                var (status, message, user) = await _userService.UpdateUser(model, id);
+        // [HttpPut("{id}")]
+        // public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO model)
+        // {
+        //     try
+        //     {
+        //         var (status, message, user) = await _userService.UpdateUser(model, id);
 
-                if (status == 0 || user == null)
-                    return BadRequest(new { error = message });
+        //         if (status == 0 || user == null)
+        //             return BadRequest(new { error = message });
 
-                return Ok(new { message = "User updated successfully", user });
+        //         return Ok(new { message = "User updated successfully", user });
 
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
-            }
-        }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex.Message);
+        //         return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
+        //     }
+        // }
 
-        [HttpPost("{id}/picture/")]
-        public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
-        {
-            try
-            {
-                var (status, message, user) = await _userService.UploadProfile(id, image);
+        // [HttpPost("{id}/picture/")]
+        // public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
+        // {
+        //     try
+        //     {
+        //         var (status, message, user) = await _userService.UploadProfile(id, image);
 
-                if (status == 0 || user == null)
-                    return BadRequest(new { error = message });
+        //         if (status == 0 || user == null)
+        //             return BadRequest(new { error = message });
 
-                return Ok(new { message, user });
+        //         return Ok(new { message, user });
 
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
-            }
-        }
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex.Message);
+        //         return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
+        //     }
+        // }
 
         [HttpGet("{id}/chat/")]
         public async Task<IActionResult> GetUserMessages(string id)

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace UserManagement.Models.DTOs.OptionsDTO
 {
-    public class DoctorFilterDTO
+    public class FilterDTO
     {
         public int? MinYearExperience { get; set; }
         public int? MaxYearExperience { get; set; }

@@ -9,8 +9,12 @@ namespace UserManagement.Models
 {
     public enum UserRole
     {
-        Admin,
         Normal,
-        Doctor
+        Doctor,
+        SuperAdmin,
+        HealthCenterAdmin,
+        PharmacyAdmin,
+        LaboratoryAdmin,
+        Reception
     }
 }

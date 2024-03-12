@@ -33,7 +33,7 @@ namespace UserManagement.Controllers
         /// <returns>ActionResult containing the list of doctors.</returns>
         [HttpGet]
         [Authorize(Roles = "Normal, Doctor, Admin")]
-        public async Task<IActionResult> GetDoctors([FromQuery] DoctorFilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
+        public async Task<IActionResult> GetDoctors([FromQuery] FilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             var (status, message, doctors) = await _doctorService.GetDoctors(filterOptions!, page, size);
             if (status == 0 || doctors == null)
@@ -52,7 +52,6 @@ namespace UserManagement.Controllers
                 return NotFound(new { error = message });
             }
             return Ok(new { success = true });
-
         }
 
         /// <summary>
@@ -88,7 +87,7 @@ namespace UserManagement.Controllers
         [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
-            var (status, message, doctor) = await _doctorService.UploadLiscense(license, id);
+            var (status, message, doctor) = await _doctorService.UploadLicense(license, id);
 
             if (status == 0 || doctor == null)
                 return BadRequest(new { error = message });
