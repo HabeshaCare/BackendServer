@@ -16,6 +16,12 @@ namespace UserManagement.Controllers
         {
             _chatAIService = chatAIService;
         }
+
+        /// <summary>
+        /// Get a list of messages between the user and the Chat bot. This implementation doesn't have different conversation but stores all messages in a single collection.
+        /// </summary>
+        /// <param name="id">The id of the user.</param>
+        /// <returns>ActionResult containing the list of messages.</returns>
         [HttpGet("{id}/chat/")]
         public async Task<IActionResult> GetUserMessages(string id)
         {
