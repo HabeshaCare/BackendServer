@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UserManagement.DTOs.LaboratoryDTOs;
 using UserManagement.Models;
+using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
 using UserManagement.Utils;
 
@@ -18,9 +19,9 @@ namespace UserManagement.Services.InstitutionService
         {
         }
 
-        public async Task<(int, string?, LaboratoryDTO[])> GetLaboratories(FilterDefinition<Laboratory> filterDefinition, int page, int size)
+        public async Task<(int, string?, LaboratoryDTO[])> GetLaboratories(FilterDTO? filterOption, int page, int size)
         {
-            return await GetInstitutions<LaboratoryDTO>(filterDefinition, page, size);
+            return await GetInstitutions<LaboratoryDTO>(filterOption!, page, size);
         }
 
         public async Task<(int, string?, Laboratory?)> GetLaboratory(string id)

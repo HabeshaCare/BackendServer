@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UserManagement.DTOs.HealthCenterDTOs;
 using UserManagement.Models;
+using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
 using UserManagement.Utils;
 
@@ -18,9 +19,9 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
         {
         }
 
-        public async Task<(int, string?, HealthCenterDTO[])> GetHealthCenters(FilterDefinition<HealthCenter> filterDefinition, int page, int size)
+        public async Task<(int, string?, HealthCenterDTO[])> GetHealthCenters(FilterDTO? filterOption, int page, int size)
         {
-            return await GetInstitutions<HealthCenterDTO>(filterDefinition, page, size);
+            return await GetInstitutions<HealthCenterDTO>(filterOption!, page, size);
         }
 
         public async Task<(int, string?, HealthCenter?)> GetHealthCenter(string id)

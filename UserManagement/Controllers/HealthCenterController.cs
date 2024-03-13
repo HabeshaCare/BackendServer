@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Models.DTOs.OptionsDTO;
+using UserManagement.Services.InstitutionService.HealthCenterService;
 
 namespace UserManagement.Controllers
 {
@@ -22,5 +24,20 @@ namespace UserManagement.Controllers
          - Update institution
          - Delete institution   
         */
+
+        private readonly IHealthCenterService _healthCenterService;
+        public HealthCenterController(IHealthCenterService healthCenterService)
+        {
+            _healthCenterService = healthCenterService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetHealthCenters([FromQuery] FilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
+        {
+            var (status, message, healthCenter) = await _healthCenterService.GetHealthCenters(filterOptions, page, size);
+            if (status == 0 || healthCenter == null)
+                NotFound(new { errors = message });
+            return Ok(new { success = true, message, institution = healthCenter });
+        }
     }
 }

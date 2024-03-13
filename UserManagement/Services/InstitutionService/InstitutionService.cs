@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using UserManagement.Models;
+using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
 using UserManagement.Utils;
 
@@ -26,8 +27,14 @@ namespace UserManagement.Services.InstitutionService
         }
 
         // USD refers to the Usage DTO of an institution
-        protected async Task<(int, string?, USD[])> GetInstitutions<USD>(FilterDefinition<T> filterDefinition, int page, int size)
+        protected async Task<(int, string?, USD[])> GetInstitutions<USD>(FilterDTO filterOptions, int page, int size)
         {
+            var filterBuilder = Builders<T>.Filter;
+            var filterDefinition = filterBuilder.Empty;
+
+            if (filterOptions.Verified.HasValue)
+                filterDefinition &= filterBuilder.Gte("Verified", filterOptions.Verified);
+
             int skip = (page - 1) * size;
             try
             {
