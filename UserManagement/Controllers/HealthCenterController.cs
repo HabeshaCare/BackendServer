@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.DTOs.HealthCenterDTOs;
+using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.InstitutionService.HealthCenterService;
 
@@ -68,6 +69,24 @@ namespace UserManagement.Controllers
                 return BadRequest(new { errors = message });
 
             return Ok(new { success = true, message, institution = updatedHealthCenter });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateHealthCenterVerification([FromQuery] bool verified, string id)
+        {
+            var (status, message, healthCenter) = await _healthCenterService.UpdateInstitutionVerification<HealthCenter>(id, verified);
+            if (status == 0 || healthCenter == null)
+                return BadRequest(new { errors = message });
+            return Ok(new { success = true, message, institution = healthCenter });
+        }
+
+        [HttpPost("{id}/upload-license")]
+        public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
+        {
+            var (status, message, healthCenter) = await _healthCenterService.UploadLicense<HealthCenter>(id, license);
+            if (status == 0 || healthCenter == null)
+                return BadRequest(new { errors = message });
+            return Ok(new { success = true, message, institution = healthCenter });
         }
     }
 }
