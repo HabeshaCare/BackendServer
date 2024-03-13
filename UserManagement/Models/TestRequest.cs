@@ -20,6 +20,7 @@ namespace UserManagement.Models
 
         [JsonConverter(typeof(StringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
-        public required RequestStatus Status { get; set; }
+        public RequestStatus Status { get; set; } = RequestStatus.Pending;
+
     }
 }
