@@ -13,7 +13,7 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
     {
         Task<(int, string?, HealthCenterDTO[])> GetHealthCenters(FilterDTO? filterDefinition, int page, int size);
         Task<(int, string?, HealthCenter?)> GetHealthCenter(string id);
-        Task<(int, string, HealthCenterDTO?)> AddHealthCenter(HealthCenter healthCenter);
-        Task<(int, string, HealthCenterDTO?)> UpdateHealthCenter(HealthCenterDTO healthCenterDTO, string healthCenterId);
+        Task<(int, string, HealthCenterDTO?)> AddHealthCenter(HealthCenterDTO healthCenter);
+        Task<(int, string, HealthCenterDTO?)> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId);
     }
 }

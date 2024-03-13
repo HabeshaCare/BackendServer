@@ -29,14 +29,15 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
             return await GetInstitutionById<HealthCenter>(id);
         }
 
-        public async Task<(int, string, HealthCenterDTO?)> AddHealthCenter(HealthCenter healthCenter)
+        public async Task<(int, string, HealthCenterDTO?)> AddHealthCenter(HealthCenterDTO healthCenter)
         {
-            return await AddInstitution<HealthCenterDTO>(healthCenter);
+            HealthCenter _healthCenter = _mapper.Map<HealthCenter>(healthCenter);
+            return await AddInstitution<HealthCenterDTO>(_healthCenter);
         }
 
-        public async Task<(int, string, HealthCenterDTO?)> UpdateHealthCenter(HealthCenterDTO healthCenterDTO, string healthCenterId)
+        public async Task<(int, string, HealthCenterDTO?)> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId)
         {
-            return await UpdateInstitution<HealthCenterDTO, HealthCenterDTO>(healthCenterDTO, healthCenterId);
+            return await UpdateInstitution<UpdateHealthCenterDTO, HealthCenterDTO>(healthCenterDTO, healthCenterId);
         }
 
     }
