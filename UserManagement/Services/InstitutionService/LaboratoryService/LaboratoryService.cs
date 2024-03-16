@@ -29,14 +29,15 @@ namespace UserManagement.Services.InstitutionService
             return await GetInstitutionById<Laboratory>(id);
         }
 
-        public async Task<(int, string, LaboratoryDTO?)> AddLaboratory(Laboratory laboratory)
+        public async Task<(int, string, LaboratoryDTO?)> AddLaboratory(LaboratoryDTO laboratory)
         {
-            return await AddInstitution<LaboratoryDTO>(laboratory);
+            Laboratory _laboratory = _mapper.Map<Laboratory>(laboratory);
+            return await AddInstitution<LaboratoryDTO>(_laboratory);
         }
 
-        public async Task<(int, string, LaboratoryDTO?)> UpdateLaboratory(LaboratoryDTO laboratoryDTO, string laboratoryId)
+        public async Task<(int, string, LaboratoryDTO?)> UpdateLaboratory(UpdateLaboratoryDTO laboratoryDTO, string laboratoryId)
         {
-            return await UpdateInstitution<LaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId);
+            return await UpdateInstitution<UpdateLaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId);
         }
     }
 }

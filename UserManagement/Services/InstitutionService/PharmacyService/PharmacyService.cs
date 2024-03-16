@@ -19,12 +19,13 @@ namespace UserManagement.Services.InstitutionService
         {
         }
 
-        public async Task<(int, string, PharmacyDTO?)> AddPharmacy(Pharmacy pharmacy)
+        public async Task<(int, string, PharmacyDTO?)> AddPharmacy(PharmacyDTO pharmacyDTO)
         {
+            Pharmacy pharmacy = _mapper.Map<Pharmacy>(pharmacyDTO);
             return await AddInstitution<PharmacyDTO>(pharmacy);
         }
 
-        public async Task<(int, string?, PharmacyDTO[])> GetLaboratories(FilterDTO? filterOption, int page, int size)
+        public async Task<(int, string?, PharmacyDTO[])> GetPharmacies(FilterDTO? filterOption, int page, int size)
         {
             return await GetInstitutions<PharmacyDTO>(filterOption!, page, size);
 

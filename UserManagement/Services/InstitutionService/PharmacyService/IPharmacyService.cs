@@ -11,9 +11,9 @@ namespace UserManagement.Services.InstitutionService
 {
     public interface IPharmacyService : IInstitutionService
     {
-        Task<(int, string?, PharmacyDTO[])> GetLaboratories(FilterDTO? filterOption, int page, int size);
+        Task<(int, string?, PharmacyDTO[])> GetPharmacies(FilterDTO? filterOption, int page, int size);
         Task<(int, string?, Pharmacy?)> GetPharmacy(string id);
-        Task<(int, string, PharmacyDTO?)> AddPharmacy(Pharmacy pharmacy);
+        Task<(int, string, PharmacyDTO?)> AddPharmacy(PharmacyDTO pharmacyDTO);
         Task<(int, string, PharmacyDTO?)> UpdatePharmacy(PharmacyDTO pharmacyDTO, string pharmacyId);
     }
 }
