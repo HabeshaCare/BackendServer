@@ -58,7 +58,7 @@ namespace UserManagement.Controllers
             return Ok(new { success = true, message, institution = updatedLaboratory });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}/verify")]
         public async Task<IActionResult> UpdateLaboratoryVerification([FromQuery] bool verified, string id)
         {
             var (status, message, laboratory) = await _laboratoryService.UpdateInstitutionVerification<Laboratory>(id, verified);

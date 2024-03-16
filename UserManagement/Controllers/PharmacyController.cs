@@ -70,7 +70,7 @@ Todo:
             return Ok(new { success = true, message, institution = updatedPharmacy });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}/verify")]
         public async Task<IActionResult> UpdatePharmacyVerification([FromQuery] bool verified, string id)
         {
             var (status, message, pharmacy) = await _pharmacyService.UpdateInstitutionVerification<Pharmacy>(id, verified);

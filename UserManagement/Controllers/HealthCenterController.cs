@@ -63,7 +63,7 @@ namespace UserManagement.Controllers
             return Ok(new { success = true, message, institution = updatedHealthCenter });
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{id}/verify")]
         public async Task<IActionResult> UpdateHealthCenterVerification([FromQuery] bool verified, string id)
         {
             var (status, message, healthCenter) = await _healthCenterService.UpdateInstitutionVerification<HealthCenter>(id, verified);
