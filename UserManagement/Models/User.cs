@@ -26,7 +26,7 @@ namespace UserManagement.Models
 
         [JsonConverter(typeof(StringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
-        public UserRole Role { get; set; } = UserRole.Normal;
+        public UserRole Role { get; set; } = UserRole.Patient;
         [Required(ErrorMessage = "This is a required field")]
         public required string Password { get; set; }
         public string VerificationToken { get; set; } = string.Empty;

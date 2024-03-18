@@ -23,7 +23,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpGet("{id}/profile")]
-        [Authorize(Roles = "Normal, Doctor")]
+        [Authorize(Roles = "Patient, Doctor")]
         public async Task<IActionResult> GetPatientById(string id)
         {
             var (status, message, admin) = await _adminService.GetAdminById(id);

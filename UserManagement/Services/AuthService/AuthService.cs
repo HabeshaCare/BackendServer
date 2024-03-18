@@ -109,7 +109,7 @@ namespace UserManagement.Services
 
             switch (model.Role)
             {
-                case UserRole.Normal:
+                case UserRole.Patient:
                     Patient patient = _mapper.Map<Patient>(model);
                     patient.VerificationToken = CreateRandomToken();
                     {
@@ -373,7 +373,7 @@ namespace UserManagement.Services
 
             switch (user.Role)
             {
-                case UserRole.Normal:
+                case UserRole.Patient:
                     {
                         UpdatePatientDTO updatedUser = _mapper.Map<UpdatePatientDTO>(user);
                         var (status, message, rawUser) = await _patientService.UpdatePatient(updatedUser, user.Id!);
@@ -410,7 +410,7 @@ namespace UserManagement.Services
 
             switch (user.Role)
             {
-                case UserRole.Normal:
+                case UserRole.Patient:
                     {
                         var (status, message) = await _patientService.UpdatePassword<Patient>(user.Id!, user.Password);
                         return (status, message);

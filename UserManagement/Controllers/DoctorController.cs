@@ -34,7 +34,7 @@ namespace UserManagement.Controllers
         /// <param name="size">Number of items per page (default is 10).</param>
         /// <returns>ActionResult containing the list of doctors.</returns>
         [HttpGet]
-        [Authorize(Roles = "Normal, Doctor, Admin")]
+        [Authorize(Roles = "Patient, Doctor, SuperAdmin, HealthCenterAdmin, PharmacyAdmin, LaboratoryAdmin, Reception")]
         public async Task<IActionResult> GetDoctors([FromQuery] FilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             var (status, message, doctors) = await _doctorService.GetDoctors(filterOptions!, page, size);
@@ -44,7 +44,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpGet("{id}/profile")]
-        [Authorize(Roles = "Normal, Doctor, Admin")]
+        [Authorize(Roles = "Patient, Doctor, SuperAdmin, HealthCenterAdmin, PharmacyAdmin, LaboratoryAdmin, Reception")]
         public async Task<IActionResult> GetDoctorById(string id)
         {
             var (status, message, doctor) = await _doctorService.GetDoctorById(id);
@@ -59,7 +59,7 @@ namespace UserManagement.Controllers
         /// Verify a doctor's credentials by an admin.
         /// </summary>
         [HttpPut("{id}/verify/")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "HealthCenterAdmin")]
         public async Task<IActionResult> VerifyDoctor(string id)
         {
             var (status, message, doctor) = await _doctorService.VerifyDoctor(id);
