@@ -13,7 +13,7 @@ namespace UserManagement.DTOs.InstitutionDTOs
         public string? Id { get; set; }
         public required string Name { get; set; }
         public required string Location { get; set; }
-        public required string LicensePath { get; set; }
+        public string LicensePath { get; set; } = string.Empty;
         public bool Verified { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]

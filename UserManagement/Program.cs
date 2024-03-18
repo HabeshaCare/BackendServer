@@ -13,6 +13,8 @@ using System.Reflection;
 using System.Text;
 using UserManagement.Models;
 using UserManagement.Services.EmailService;
+using UserManagement.Services.InstitutionService.HealthCenterService;
+using UserManagement.Services.InstitutionService;
 
 var builder = WebApplication.CreateBuilder(args);
 var DBConfig = builder.Configuration.GetSection("DB");
@@ -41,6 +43,9 @@ builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IChatAIService, ChatAIService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
 builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IHealthCenterService, HealthCenterService>();
+builder.Services.AddScoped<IPharmacyService, PharmacyService>();
+builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
