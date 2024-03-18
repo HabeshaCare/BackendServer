@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Attributes;
 using UserManagement.DTOs.PharmacyDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
@@ -51,7 +52,8 @@ Todo:
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddLaboratory([FromBody] PharmacyDTO pharmacy)
+        [AuthorizeInstitutionAccess]
+        public async Task<IActionResult> AddPharmacy([FromBody] PharmacyDTO pharmacy)
         {
             var (status, message, createdPharmacy) = await _pharmacyService.AddPharmacy(pharmacy);
             if (status == 0 || createdPharmacy == null)
@@ -61,7 +63,8 @@ Todo:
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateLaboratoryInfo([FromBody] PharmacyDTO pharmacyDTO, string id)
+        [AuthorizeInstitutionAccess]
+        public async Task<IActionResult> UpdatePharmacyInfo([FromBody] PharmacyDTO pharmacyDTO, string id)
         {
             var (status, message, updatedPharmacy) = await _pharmacyService.UpdatePharmacy(pharmacyDTO, id);
             if (status == 0 || updatedPharmacy == null)
@@ -80,6 +83,7 @@ Todo:
         }
 
         [HttpPost("{id}/upload-license")]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
             var (status, message, pharmacy) = await _pharmacyService.UploadLicense<Pharmacy>(id, license);

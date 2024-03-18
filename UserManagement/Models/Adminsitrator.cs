@@ -16,5 +16,7 @@ namespace UserManagement.Models
         administrators are kept in a separate collection and 
         a different type is need to handle it
         */
+        //The institution id managed by the administrator
+        public string InstitutionId { get; set; } = string.Empty;
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using UserManagement.Attributes;
 using UserManagement.DTOs.ScheduleDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.UserDTOs;
@@ -38,6 +39,7 @@ namespace UserManagement.Controllers
         /// <param name="size">Number of items per page (default is 10).</param>
         /// <returns>ActionResult containing the list of schedules.</returns>
         [HttpGet("schedule/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> GetSchedules([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             string? userId = HttpContext.Items["UserId"]?.ToString();
@@ -56,6 +58,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpGet("schedule/{id}")]
+        [AuthorizeAccess]
         public async Task<IActionResult> GetSchedule(string id)
         {
             var (status, message, schedule) = await _scheduleService.GetScheduleById(id);
@@ -67,6 +70,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("schedule/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleDTO schedule)
         {
             string? userId = HttpContext.Items["UserId"]?.ToString();
@@ -88,6 +92,7 @@ namespace UserManagement.Controllers
         /// Update the schedule time for a specific schedule.
         /// </summary>
         [HttpPut("schedule/{scheduleId}")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UpdateSchedule([FromBody] DateTime dateTime, string scheduleId)
         {
             bool scheduler = HttpContext.Items["Role"]?.ToString() != UserRole.Doctor.ToString();
@@ -103,6 +108,7 @@ namespace UserManagement.Controllers
         /// </summary>
 
         [HttpPut("schedule/{scheduleId}/status")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UpdateScheduleStatus(string scheduleId, [FromBody] bool scheduleStatus)
         {
             string? role = HttpContext.Items["Role"]?.ToString();
@@ -118,6 +124,7 @@ namespace UserManagement.Controllers
 
 
         [HttpDelete("schedule/{scheduleId}")]
+        [AuthorizeAccess]
         public async Task<IActionResult> DeleteSchedule(string scheduleId)
         {
             var (status, message) = await _scheduleService.DeleteSchedule(scheduleId);
@@ -128,6 +135,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpGet("{id}/chat/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> GetUserMessages(string id)
         {
             var (status, message, messages) = await _chatAIService.GetMessages(id);
@@ -138,6 +146,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("{id}/chat/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> AskAI([FromBody] string message, string id)
         {
             var (status, statusMessage, response) = await _chatAIService.AskAI(id, message);

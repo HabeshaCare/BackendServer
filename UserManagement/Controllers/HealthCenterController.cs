@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Attributes;
 using UserManagement.DTOs.HealthCenterDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
@@ -44,6 +46,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> AddHealthCenter([FromBody] HealthCenterDTO healthCenter)
         {
             var (status, message, createdHealthCenter) = await _healthCenterService.AddHealthCenter(healthCenter);
@@ -54,6 +57,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPut("{id}")]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UpdateHealthCenterInfo([FromBody] UpdateHealthCenterDTO healthCenter, string id)
         {
             var (status, message, updatedHealthCenter) = await _healthCenterService.UpdateHealthCenter(healthCenter, id);
@@ -73,6 +77,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("{id}/upload-license")]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
             var (status, message, healthCenter) = await _healthCenterService.UploadLicense<HealthCenter>(id, license);

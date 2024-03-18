@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Attributes;
 using UserManagement.Services.ChatServices;
 
 namespace UserManagement.Controllers
@@ -23,6 +25,7 @@ namespace UserManagement.Controllers
         /// <param name="id">The id of the user.</param>
         /// <returns>ActionResult containing the list of messages.</returns>
         [HttpGet("{id}/chat/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> GetUserMessages(string id)
         {
             var (status, message, messages) = await _chatAIService.GetMessages(id);
@@ -33,6 +36,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("{id}/chat/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> AskAI([FromBody] string message, string id)
         {
             var (status, statusMessage, response) = await _chatAIService.AskAI(id, message);

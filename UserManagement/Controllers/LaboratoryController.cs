@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Attributes;
 using UserManagement.DTOs.LaboratoryDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
@@ -39,6 +41,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> AddLaboratory([FromBody] LaboratoryDTO laboratory)
         {
             var (status, message, createdLaboratory) = await _laboratoryService.AddLaboratory(laboratory);
@@ -49,6 +52,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPut("{id}")]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UpdateLaboratoryInfo([FromBody] UpdateLaboratoryDTO laboratory, string id)
         {
             var (status, message, updatedLaboratory) = await _laboratoryService.UpdateLaboratory(laboratory, id);
@@ -68,6 +72,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("{id}/upload-license")]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
             var (status, message, laboratory) = await _laboratoryService.UploadLicense<Laboratory>(id, license);

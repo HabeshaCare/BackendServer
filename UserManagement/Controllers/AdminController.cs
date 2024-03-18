@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Attributes;
 using UserManagement.DTOs.AdminDTOs;
 using UserManagement.Models;
 using UserManagement.Services.UserServices;
@@ -21,6 +23,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpGet("{id}/profile")]
+        [Authorize(Roles = "Normal, Doctor")]
         public async Task<IActionResult> GetPatientById(string id)
         {
             var (status, message, admin) = await _adminService.GetAdminById(id);
@@ -32,6 +35,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPut("{id}/profile")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UpdateAdmin(string id, [FromBody] UpdateAdminDTO adminDTO)
         {
             var (status, message, admin) = await _adminService.UpdateAdmin(adminDTO, id);
@@ -43,6 +47,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("{id}/profile/upload-picture")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
         {
             try

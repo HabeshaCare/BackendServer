@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using UserManagement.Attributes;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Models.DTOs.UserDTOs;
@@ -44,7 +45,6 @@ namespace UserManagement.Controllers
 
         [HttpGet("{id}/profile")]
         [Authorize(Roles = "Normal, Doctor, Admin")]
-
         public async Task<IActionResult> GetDoctorById(string id)
         {
             var (status, message, doctor) = await _doctorService.GetDoctorById(id);
@@ -71,6 +71,7 @@ namespace UserManagement.Controllers
 
         [HttpPut("{id}/profile")]
         [Authorize(Roles = "Doctor")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UpdateDoctor(string id, [FromBody] UpdateDoctorDTO doctorDTO)
         {
             var (status, message, doctor) = await _doctorService.UpdateDoctor(doctorDTO, id);
@@ -82,6 +83,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("{id}/profile/upload-picture")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
         {
             try
@@ -103,6 +105,7 @@ namespace UserManagement.Controllers
         /// </summary>
         [HttpPost("{id}/profile/upload-license")]
         [Authorize(Roles = "Doctor")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
             var (status, message, doctor) = await _doctorService.UploadLicense(license, id);
