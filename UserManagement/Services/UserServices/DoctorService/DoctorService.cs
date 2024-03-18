@@ -57,7 +57,18 @@ namespace UserManagement.Services.UserServices
                 var (status, message, doctor) = await GetDoctor(doctorId);
                 if (status == 1 && doctor != null)
                 {
-                    doctorDTO.Verified = false;
+
+                    bool changedCriticalInformation =
+                        doctorDTO.Fullname != doctor.Fullname ||
+                        doctorDTO.Gender != doctor.Gender ||
+                        doctorDTO.LicensePath != doctor.LicensePath ||
+                        doctorDTO.Specialization != doctor.Specialization ||
+                        doctorDTO.YearOfExperience != doctor.YearOfExperience;
+
+
+                    if (changedCriticalInformation)
+                        doctorDTO.Verified = false;
+
                     _mapper.Map(doctorDTO, doctor);
 
                     var filter = Builders<Doctor>.Filter.And(

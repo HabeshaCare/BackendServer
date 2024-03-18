@@ -196,10 +196,10 @@ namespace UserManagement.Services.UserServices
                         return (0, "Error updating user", default(USD));
                     }
 
-                    return (1, "user profile updated successfully. Status set to unverified until approved by Admin", updatedUserDTO);
+                    return (1, "User profile updated successfully.", updatedUserDTO);
                 }
 
-                return (0, "user not found", default(USD));
+                return (0, "User not found", default(USD));
 
             }
             catch (Exception ex)
