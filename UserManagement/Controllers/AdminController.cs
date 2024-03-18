@@ -53,7 +53,7 @@ namespace UserManagement.Controllers
         {
             try
             {
-                var (status, message, user) = await _adminService.UploadProfilePic<Administrator>(id, image);
+                var (status, message, user) = await _adminService.UploadProfilePic<UsageAdminDTO>(id, image);
 
                 if (status == 0 || user == null)
                     return BadRequest(new { error = message });
