@@ -32,9 +32,9 @@ namespace UserManagement.Services.UserServices
             return await GetUserById<UsagePatientDTO>(patientId);
         }
 
-        public async Task<(int, string, Patient?)> UpdatePatient(UpdatePatientDTO patientDTO, string id)
+        public async Task<(int, string, UsagePatientDTO?)> UpdatePatient(UpdatePatientDTO patientDTO, string id)
         {
-            return await UpdateUser<UpdatePatientDTO, Patient>(patientDTO, id);
+            return await UpdateUser<UpdatePatientDTO, UsagePatientDTO>(patientDTO, id);
         }
     }
 }
