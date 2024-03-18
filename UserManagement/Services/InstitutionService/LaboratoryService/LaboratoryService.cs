@@ -32,6 +32,7 @@ namespace UserManagement.Services.InstitutionService
         public async Task<(int, string, LaboratoryDTO?)> AddLaboratory(LaboratoryDTO laboratory)
         {
             Laboratory _laboratory = _mapper.Map<Laboratory>(laboratory);
+            _laboratory.Type = InstitutionType.Laboratory;
             return await AddInstitution<LaboratoryDTO>(_laboratory);
         }
 

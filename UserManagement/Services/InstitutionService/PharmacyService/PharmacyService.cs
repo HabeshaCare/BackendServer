@@ -22,6 +22,7 @@ namespace UserManagement.Services.InstitutionService
         public async Task<(int, string, PharmacyDTO?)> AddPharmacy(PharmacyDTO pharmacyDTO)
         {
             Pharmacy pharmacy = _mapper.Map<Pharmacy>(pharmacyDTO);
+            pharmacy.Type = InstitutionType.Pharmacy;
             return await AddInstitution<PharmacyDTO>(pharmacy);
         }
 
