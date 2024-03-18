@@ -13,6 +13,6 @@ namespace UserManagement.Models.DTOs.OptionsDTO
         public string? Specialization { get; set; }
 
         //InstitutionFilter
-        public bool? Verified = null;
+        public bool? Verified { get; set; } = null;
     }
 }
