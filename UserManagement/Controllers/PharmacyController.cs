@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Attributes;
 using UserManagement.DTOs.PharmacyDTOs;
@@ -12,6 +13,7 @@ using UserManagement.Services.InstitutionService;
 namespace UserManagement.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class PharmacyController : ControllerBase
     {

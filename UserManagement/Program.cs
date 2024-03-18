@@ -107,7 +107,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseCors();
 app.UseMiddleware<JWTMiddleware>();
-
 app.MapControllers();
 
 app.Run();

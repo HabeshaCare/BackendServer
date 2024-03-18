@@ -10,6 +10,7 @@ using UserManagement.Services.ChatServices;
 namespace UserManagement.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/conversation")]
     public class ConversationController : ControllerBase
     {

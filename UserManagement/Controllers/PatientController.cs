@@ -12,6 +12,7 @@ using UserManagement.Services.UserServices;
 namespace UserManagement.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/patient")]
     public class PatientController : ControllerBase
     {

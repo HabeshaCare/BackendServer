@@ -13,6 +13,7 @@ using UserManagement.Services.InstitutionService;
 namespace UserManagement.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class LaboratoryController : ControllerBase
     {

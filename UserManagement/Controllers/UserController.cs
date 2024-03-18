@@ -20,6 +20,7 @@ namespace UserManagement.Controllers
     /// Controller responsible for handling user-related operations. user can be any one in our system.
     /// </summary>
     [ApiController]
+    [Authorize]
     [Route("api/user")]
     public class UserController : ControllerBase
     {

@@ -17,6 +17,7 @@ namespace UserManagement.Controllers
     /// Controller responsible for handling doctor-related operations.
     /// </summary>
     [ApiController]
+    [Authorize]
     [Route("api/doctor")]
     public class DoctorController : ControllerBase
     {

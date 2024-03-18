@@ -203,9 +203,9 @@ namespace UserManagement.Services
         {
             try
             {
-                var adminTask = _adminService.GetUserByVerificationToken<Administrator>(token);
-                var doctorTask = _doctorService.GetUserByVerificationToken<Doctor>(token);
-                var patientTask = _patientService.GetUserByVerificationToken<Patient>(token);
+                var adminTask = _adminService.GetUserByVerificationToken<UsageAdminDTO>(token);
+                var doctorTask = _doctorService.GetUserByVerificationToken<UsageDoctorDTO>(token);
+                var patientTask = _patientService.GetUserByVerificationToken<UsagePatientDTO>(token);
 
                 await Task.WhenAll(adminTask, doctorTask, patientTask);
 

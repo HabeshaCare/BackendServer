@@ -208,7 +208,6 @@ namespace UserManagement.Services.UserServices
             }
         }
 
-        // AD refers to the Registration DTO of a user
         // USD refers to the Usage DTO of a user
         protected async Task<(int, string, USD?)> AddUser<USD>(T user)
         {
