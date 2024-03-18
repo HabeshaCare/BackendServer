@@ -52,7 +52,7 @@ namespace UserManagement.Controllers
         {
             try
             {
-                var (status, message, user) = await _patientService.UploadProfilePic<Patient>(id, image);
+                var (status, message, user) = await _patientService.UploadProfilePic<UsagePatientDTO>(id, image);
 
                 if (status == 0 || user == null)
                     return BadRequest(new { error = message });
