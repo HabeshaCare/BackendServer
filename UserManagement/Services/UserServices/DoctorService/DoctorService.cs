@@ -50,7 +50,7 @@ namespace UserManagement.Services.UserServices
             return await GetUsers<UsageDoctorDTO>(filterDefinition, page, size);
         }
 
-        public async Task<(int, string, Doctor?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
+        public async Task<(int, string, UsageDoctorDTO?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
         {
             try
             {
@@ -74,7 +74,7 @@ namespace UserManagement.Services.UserServices
                     var filter = Builders<Doctor>.Filter.And(
                         Builders<Doctor>.Filter.Eq(u => u.Id, doctorId));
 
-                    var (updateStatus, updateMessage, updatedDoctorDTO) = await UpdateUser<UpdateDoctorDTO, Doctor>(doctorDTO, doctorId);
+                    var (updateStatus, updateMessage, updatedDoctorDTO) = await UpdateUser<UpdateDoctorDTO, UsageDoctorDTO>(doctorDTO, doctorId);
 
 
                     if (updateStatus == 0 || updatedDoctorDTO == null)
