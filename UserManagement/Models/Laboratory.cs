@@ -9,5 +9,6 @@ namespace UserManagement.Models
     {
         public LabTest[] AvailableTests { get; set; } = Array.Empty<LabTest>();
         public TestRequest[] LabRequests { get; set; } = Array.Empty<TestRequest>();
+        public new required string HealthCenterId { get; set; } = string.Empty;
     }
 }

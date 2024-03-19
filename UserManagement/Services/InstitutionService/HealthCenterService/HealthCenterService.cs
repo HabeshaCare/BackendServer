@@ -24,9 +24,14 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
             return await GetInstitutions<HealthCenterDTO>(filterOption!, page, size);
         }
 
-        public async Task<(int, string?, HealthCenter?)> GetHealthCenter(string id)
+        public async Task<(int, string?, HealthCenterDTO?)> GetHealthCenter(string id)
         {
-            return await GetInstitutionById<HealthCenter>(id);
+            return await GetInstitutionById<HealthCenterDTO>(id);
+        }
+
+        public async Task<(int, string?, HealthCenterDTO?)> GetHealthCenterByName(string name)
+        {
+            return await GetInstitutionByName<HealthCenterDTO>(name);
         }
 
         public async Task<(int, string, HealthCenterDTO?)> AddHealthCenter(HealthCenterDTO healthCenter)

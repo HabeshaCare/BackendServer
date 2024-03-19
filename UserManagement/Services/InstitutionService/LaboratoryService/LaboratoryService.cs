@@ -9,14 +9,19 @@ using UserManagement.DTOs.LaboratoryDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
+using UserManagement.Services.InstitutionService.HealthCenterService;
 using UserManagement.Utils;
 
 namespace UserManagement.Services.InstitutionService
 {
     public class LaboratoryService : InstitutionService<Laboratory>, ILaboratoryService
     {
-        public LaboratoryService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options, fileService, mapper)
+        private readonly IHealthCenterService _healthCenterService;
+
+        public LaboratoryService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService) : base(options, fileService, mapper)
         {
+            _healthCenterService = healthCenterService;
+
         }
 
         public async Task<(int, string?, LaboratoryDTO[])> GetLaboratories(FilterDTO? filterOption, int page, int size)
@@ -31,14 +36,39 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<(int, string, LaboratoryDTO?)> AddLaboratory(LaboratoryDTO laboratory)
         {
+
+            string healthCenterId = await HealthCenterExists(laboratory.HealthCenterName);
+            if (laboratory.HealthCenterName == string.Empty || healthCenterId == string.Empty)
+                return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
+
             Laboratory _laboratory = _mapper.Map<Laboratory>(laboratory);
             _laboratory.Type = InstitutionType.Laboratory;
+            _laboratory.HealthCenterId = healthCenterId;
             return await AddInstitution<LaboratoryDTO>(_laboratory);
         }
 
         public async Task<(int, string, LaboratoryDTO?)> UpdateLaboratory(UpdateLaboratoryDTO laboratoryDTO, string laboratoryId)
         {
-            return await UpdateInstitution<UpdateLaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId);
+            string healthCenterId = "";
+            if (laboratoryDTO.HealthCenterName != string.Empty)
+            {
+                healthCenterId = await HealthCenterExists(laboratoryDTO.HealthCenterName);
+
+                if (healthCenterId == string.Empty)
+                    return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
+            }
+
+            return await UpdateInstitution<UpdateLaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId, healthCenterId);
+        }
+
+        private async Task<string> HealthCenterExists(string healthCenterName)
+        {
+            //Check if the health center exists
+
+            var (_, _, healthCenter) = await _healthCenterService.GetHealthCenterByName(healthCenterName);
+            string healthCenterId = healthCenter?.Id ?? string.Empty;
+
+            return healthCenterId;
         }
     }
 }

@@ -59,7 +59,7 @@ namespace UserManagement.Services.InstitutionService
         {
             try
             {
-                var result = await _collection.FindAsync(d => d.Id == id);
+                var result = await _collection.FindAsync(I => I.Id == id);
                 T? institution = (await result.ToListAsync()).FirstOrDefault();
                 return (1, null, institution);
             }
@@ -80,6 +80,22 @@ namespace UserManagement.Services.InstitutionService
             }
 
             return (status, message, default(USD));
+        }
+
+        protected async Task<(int, string?, USD?)> GetInstitutionByName<USD>(string name)
+        {
+            try
+            {
+                var result = await _collection.FindAsync(I => I.Name == name);
+                T? institution = (await result.ToListAsync()).FirstOrDefault();
+                USD? foundInstitution = _mapper.Map<USD>(institution);
+
+                return (1, null, foundInstitution);
+            }
+            catch (Exception ex)
+            {
+                return (0, ex.Message, default(USD));
+            }
         }
 
         // AD refers to the Registration DTO of an institution
@@ -106,7 +122,7 @@ namespace UserManagement.Services.InstitutionService
 
         // UD refers to the Update DTO of a institution
         // USD refers to the Usage DTO of a institution
-        protected async Task<(int, string, USD?)> UpdateInstitution<UD, USD>(UD institutionDTO, string institutionId)
+        protected async Task<(int, string, USD?)> UpdateInstitution<UD, USD>(UD institutionDTO, string institutionId, string healthCenterId = "")
         {
             try
             {
@@ -114,6 +130,11 @@ namespace UserManagement.Services.InstitutionService
                 if (status == 1 && institution != null)
                 {
                     _mapper.Map(institutionDTO, institution);
+
+                    institution.Verified = false;
+
+                    if (healthCenterId != "")
+                        institution.HealthCenterId = healthCenterId;
 
                     var filter = Builders<T>.Filter.And(
                         Builders<T>.Filter.Eq(u => u.Id, institutionId));

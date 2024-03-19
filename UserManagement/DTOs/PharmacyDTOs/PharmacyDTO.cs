@@ -9,5 +9,6 @@ namespace UserManagement.DTOs.PharmacyDTOs
     public class PharmacyDTO : InstitutionDTO
     {
         public required string WorkingHours { get; set; }
+        public string HealthCenterName { get; set; } = string.Empty;
     }
 }
