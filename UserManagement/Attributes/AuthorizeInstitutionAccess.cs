@@ -24,8 +24,9 @@ namespace UserManagement.Attributes
 
             bool isSameAdmin = userIdFromToken == resourceId;
             bool isSuperAdmin = userRole == UserRole.SuperAdmin.ToString();
+            bool isHealthCenterAdmin = userRole == UserRole.HealthCenterAdmin.ToString();
 
-            if (isSameAdmin || isSuperAdmin)
+            if (isSameAdmin || isHealthCenterAdmin || isSuperAdmin)
             {
                 await next();
                 return;
