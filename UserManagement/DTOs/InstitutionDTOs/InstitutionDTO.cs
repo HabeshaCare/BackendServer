@@ -18,5 +18,6 @@ namespace UserManagement.DTOs.InstitutionDTOs
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public required InstitutionType Type { get; set; }
+        public string HealthCenterId { get; set; } = string.Empty;
     }
 }

@@ -11,7 +11,5 @@ namespace UserManagement.DTOs.LaboratoryDTOs
     {
         public LabTest[] AvailableTests { get; set; } = Array.Empty<LabTest>();
         public TestRequest[] LabRequests { get; set; } = Array.Empty<TestRequest>();
-        public string HealthCenterName { get; set; } = string.Empty;
-
     }
 }
