@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using UserManagement.DTOs.HealthCenterDTOs;
 using UserManagement.DTOs.PharmacyDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
@@ -24,7 +25,9 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<(int, string, PharmacyDTO?)> AddPharmacy(PharmacyDTO pharmacyDTO)
         {
-            string healthCenterId = await HealthCenterExists(pharmacyDTO.HealthCenterName);
+            HealthCenterDTO? healthCenter = await HealthCenterExists(pharmacyDTO.HealthCenterName);
+            string healthCenterId = healthCenter?.Id ?? string.Empty;
+
             bool healthCenterAddedButNotFound = pharmacyDTO.HealthCenterName != string.Empty && healthCenterId == string.Empty;
 
             // We don't care for the healthCenter existence if there is none given in the case of pharmacy
@@ -35,7 +38,12 @@ namespace UserManagement.Services.InstitutionService
             pharmacy.Type = InstitutionType.Pharmacy;
             pharmacy.HealthCenterId = healthCenterId;
 
-            return await AddInstitution<PharmacyDTO>(pharmacy);
+            var (status, message, createdPharmacy) = await AddInstitution<PharmacyDTO>(pharmacy);
+
+            if (status == 1 && createdPharmacy != null)
+                createdPharmacy.HealthCenterName = pharmacyDTO.HealthCenterName;
+
+            return (status, message, createdPharmacy);
         }
 
         public async Task<(int, string?, PharmacyDTO[])> GetPharmacies(FilterDTO? filterOption, int page, int size)
@@ -51,12 +59,14 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<(int, string, PharmacyDTO?)> UpdatePharmacy(PharmacyDTO pharmacyDTO, string pharmacyId)
         {
-            string healthCenterId = "";
+            HealthCenterDTO? healthCenter;
+            string healthCenterId = string.Empty;
 
             // We don't care for the healthCenter existence if there is none given in the case of pharmacy
             if (pharmacyDTO.HealthCenterName != string.Empty)
             {
-                healthCenterId = await HealthCenterExists(pharmacyDTO.HealthCenterName);
+                healthCenter = await HealthCenterExists(pharmacyDTO.HealthCenterName);
+                healthCenterId = healthCenter?.Id ?? string.Empty;
 
                 if (healthCenterId == string.Empty)
                     return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
@@ -69,14 +79,12 @@ namespace UserManagement.Services.InstitutionService
             return (status, message, pharmacy);
         }
 
-        private async Task<string> HealthCenterExists(string healthCenterName)
+        private async Task<HealthCenterDTO?> HealthCenterExists(string healthCenterName)
         {
             //Check if the health center exists
 
             var (_, _, healthCenter) = await _healthCenterService.GetHealthCenterByName(healthCenterName);
-            string healthCenterId = healthCenter?.Id ?? string.Empty;
-
-            return healthCenterId;
+            return _mapper.Map<HealthCenterDTO>(healthCenter);
         }
     }
 }

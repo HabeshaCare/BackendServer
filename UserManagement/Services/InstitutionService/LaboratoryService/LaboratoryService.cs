@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using UserManagement.DTOs.HealthCenterDTOs;
 using UserManagement.DTOs.LaboratoryDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
@@ -36,8 +37,9 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<(int, string, LaboratoryDTO?)> AddLaboratory(LaboratoryDTO laboratory)
         {
+            HealthCenterDTO? healthCenter = await HealthCenterExists(laboratory.HealthCenterName);
+            string healthCenterId = healthCenter?.Id ?? string.Empty;
 
-            string healthCenterId = await HealthCenterExists(laboratory.HealthCenterName);
             if (laboratory.HealthCenterName == string.Empty || healthCenterId == string.Empty)
                 return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
 
@@ -49,10 +51,13 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<(int, string, LaboratoryDTO?)> UpdateLaboratory(UpdateLaboratoryDTO laboratoryDTO, string laboratoryId)
         {
-            string healthCenterId = "";
+            HealthCenterDTO? healthCenter;
+            string healthCenterId = string.Empty;
+
             if (laboratoryDTO.HealthCenterName != string.Empty)
             {
-                healthCenterId = await HealthCenterExists(laboratoryDTO.HealthCenterName);
+                healthCenter = await HealthCenterExists(laboratoryDTO.HealthCenterName);
+                healthCenterId = healthCenter?.Id ?? string.Empty;
 
                 if (healthCenterId == string.Empty)
                     return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
@@ -61,17 +66,16 @@ namespace UserManagement.Services.InstitutionService
             var (status, message, laboratory) = await UpdateInstitution<UpdateLaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId, healthCenterId);
             if (status == 1 && laboratory != null)
                 laboratory.HealthCenterName = laboratoryDTO.HealthCenterName;
+
             return (status, message, laboratory);
         }
 
-        private async Task<string> HealthCenterExists(string healthCenterName)
+        private async Task<HealthCenterDTO?> HealthCenterExists(string healthCenterName)
         {
             //Check if the health center exists
 
             var (_, _, healthCenter) = await _healthCenterService.GetHealthCenterByName(healthCenterName);
-            string healthCenterId = healthCenter?.Id ?? string.Empty;
-
-            return healthCenterId;
+            return _mapper.Map<HealthCenterDTO>(healthCenter);
         }
     }
 }
