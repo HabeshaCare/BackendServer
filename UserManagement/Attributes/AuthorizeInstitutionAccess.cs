@@ -14,7 +14,7 @@ namespace UserManagement.Attributes
         /*This Attribute is responsible for only verifying if the update or access 
         to certain private methods are only being accessed by the user itself 
         and no other user with similar role. It, however, doesn't catch any unauthorized access 
-        by the super admin and that should be handled else where. */
+        by the super admin and healthCenter admin that should be handled else where. */
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {

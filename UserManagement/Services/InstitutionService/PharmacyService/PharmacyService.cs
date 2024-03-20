@@ -62,7 +62,11 @@ namespace UserManagement.Services.InstitutionService
                     return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
             }
 
-            return await UpdateInstitution<PharmacyDTO, PharmacyDTO>(pharmacyDTO, pharmacyId, healthCenterId);
+            var (status, message, pharmacy) = await UpdateInstitution<PharmacyDTO, PharmacyDTO>(pharmacyDTO, pharmacyId, healthCenterId);
+            if (status == 1 && pharmacy != null)
+                pharmacy.HealthCenterName = pharmacyDTO.HealthCenterName;
+
+            return (status, message, pharmacy);
         }
 
         private async Task<string> HealthCenterExists(string healthCenterName)

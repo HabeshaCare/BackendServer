@@ -64,6 +64,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPut("{id}/verify")]
+        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
         public async Task<IActionResult> UpdateLaboratoryVerification([FromQuery] bool verified, string id)
         {
             var (status, message, laboratory) = await _laboratoryService.UpdateInstitutionVerification<Laboratory>(id, verified);
