@@ -45,8 +45,8 @@ Todo:
             return Ok(new { success = true, message, institution = pharmacy });
         }
 
+        [Authorize(Roles = "PharmacyAdmin, HealthCenterAdmin, SuperAdmin")]
         [HttpPost]
-        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin, PharmacyAdmin")]
         public async Task<IActionResult> AddPharmacy([FromBody] PharmacyDTO pharmacy)
         {
             var (status, message, createdPharmacy) = await _pharmacyService.AddPharmacy(pharmacy);

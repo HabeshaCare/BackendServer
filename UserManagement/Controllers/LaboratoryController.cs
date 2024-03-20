@@ -42,7 +42,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin, LaboratoryAdmin")]
+        [Authorize(Roles = "LaboratoryAdmin, HealthCenter, SuperAdmin")]
         public async Task<IActionResult> AddLaboratory([FromBody] LaboratoryDTO laboratory)
         {
             var (status, message, createdLaboratory) = await _laboratoryService.AddLaboratory(laboratory);
