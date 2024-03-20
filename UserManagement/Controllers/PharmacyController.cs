@@ -58,7 +58,7 @@ Todo:
 
         [HttpPut("{id}")]
         [AuthorizeInstitutionAccess]
-        public async Task<IActionResult> UpdatePharmacyInfo([FromBody] PharmacyDTO pharmacyDTO, string id)
+        public async Task<IActionResult> UpdatePharmacyInfo([FromBody] UpdatePharmacyDTO pharmacyDTO, string id)
         {
             var (status, message, updatedPharmacy) = await _pharmacyService.UpdatePharmacy(pharmacyDTO, id);
             if (status == 0 || updatedPharmacy == null)

@@ -57,7 +57,7 @@ namespace UserManagement.Services.InstitutionService
             return await GetInstitutionById<Pharmacy>(id);
         }
 
-        public async Task<(int, string, PharmacyDTO?)> UpdatePharmacy(PharmacyDTO pharmacyDTO, string pharmacyId)
+        public async Task<(int, string, PharmacyDTO?)> UpdatePharmacy(UpdatePharmacyDTO pharmacyDTO, string pharmacyId)
         {
             HealthCenterDTO? healthCenter;
             string healthCenterId = string.Empty;
@@ -72,7 +72,7 @@ namespace UserManagement.Services.InstitutionService
                     return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
             }
 
-            var (status, message, pharmacy) = await UpdateInstitution<PharmacyDTO, PharmacyDTO>(pharmacyDTO, pharmacyId, healthCenterId);
+            var (status, message, pharmacy) = await UpdateInstitution<UpdatePharmacyDTO, PharmacyDTO>(pharmacyDTO, pharmacyId, healthCenterId);
             if (status == 1 && pharmacy != null)
                 pharmacy.HealthCenterName = pharmacyDTO.HealthCenterName;
 
