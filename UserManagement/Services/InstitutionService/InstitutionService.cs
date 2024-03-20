@@ -9,6 +9,7 @@ using MongoDB.Driver;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
+using UserManagement.Services.UserServices;
 using UserManagement.Utils;
 
 namespace UserManagement.Services.InstitutionService
@@ -18,11 +19,13 @@ namespace UserManagement.Services.InstitutionService
 
         protected readonly IMongoCollection<T> _collection;
         protected readonly IFileService _fileService;
+        protected readonly IAdminService _adminService;
         protected readonly IMapper _mapper;
-        public InstitutionService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
+        public InstitutionService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IAdminService adminService) : base(options)
         {
             _collection = GetCollection<T>($"{typeof(T).Name}s");
             _fileService = fileService;
+            _adminService = adminService;
             _mapper = mapper;
         }
 
@@ -104,6 +107,7 @@ namespace UserManagement.Services.InstitutionService
         {
             try
             {
+
                 var (status, message, foundInstitution) = await GetInstitutionByName<T>(institution.Name ?? "");
 
                 if (status == 1 && foundInstitution != null)
@@ -111,6 +115,9 @@ namespace UserManagement.Services.InstitutionService
 
                 await _collection.InsertOneAsync(institution);
                 USD createdInstitution = _mapper.Map<USD>(institution);
+
+                // #TODO: Add admin id here
+                var (adminStatus, adminMessage, _) = await _adminService.AddInstitutionAccess("", institution?.Id ?? string.Empty);
 
                 return (1, "Institution created successfully", createdInstitution);
             }
