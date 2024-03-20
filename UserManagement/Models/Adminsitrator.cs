@@ -17,6 +17,6 @@ namespace UserManagement.Models
         a different type is need to handle it
         */
         //The list of institution ids managed by the administrator
-        public string[] InstitutionsId { get; set; } = Array.Empty<string>();
+        public string InstitutionId { get; set; } = string.Empty;
     }
 }

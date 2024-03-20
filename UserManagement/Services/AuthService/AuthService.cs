@@ -3,9 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.DTOs.AdminDTOs;
 using UserManagement.DTOs.PatientDTOs;
@@ -15,7 +13,6 @@ using UserManagement.Models.DTOs;
 using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.Services.EmailService;
 using UserManagement.Services.UserServices;
-using UserManagement.Utils;
 
 namespace UserManagement.Services
 {

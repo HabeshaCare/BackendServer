@@ -19,13 +19,13 @@ namespace UserManagement.Services.InstitutionService
 
         protected readonly IMongoCollection<T> _collection;
         protected readonly IFileService _fileService;
-        protected readonly IAdminService _adminService;
+        // protected readonly IAdminService _adminService;
         protected readonly IMapper _mapper;
-        public InstitutionService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IAdminService adminService) : base(options)
+        public InstitutionService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
         {
             _collection = GetCollection<T>($"{typeof(T).Name}s");
             _fileService = fileService;
-            _adminService = adminService;
+            // _adminService = adminService;
             _mapper = mapper;
         }
 
@@ -117,7 +117,7 @@ namespace UserManagement.Services.InstitutionService
                 USD createdInstitution = _mapper.Map<USD>(institution);
 
                 // #TODO: Add admin id here
-                var (adminStatus, adminMessage, _) = await _adminService.AddInstitutionAccess("", institution?.Id ?? string.Empty);
+                // var (adminStatus, adminMessage, _) = await _adminService.AddInstitutionAccess("", institution?.Id ?? string.Empty);
 
                 return (1, "Institution created successfully", createdInstitution);
             }
