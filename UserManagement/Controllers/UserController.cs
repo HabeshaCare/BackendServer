@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using UserManagement.Attributes;
 using UserManagement.DTOs.ScheduleDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.UserDTOs;
@@ -15,26 +16,20 @@ using UserManagement.Utils;
 
 namespace UserManagement.Controllers
 {
-    //# TODO: This will be refactored as only methods that are not role specific. The user specific methods will be moved to their own respective controllers.
-
     /// <summary>
     /// Controller responsible for handling user-related operations. user can be any one in our system.
     /// </summary>
     [ApiController]
-    [Authorize(Roles = "Normal, Doctor, Admin")]
+    [Authorize]
     [Route("api/user")]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
         private readonly IChatAIService _chatAIService;
         private readonly IScheduleService _scheduleService;
-        private readonly ILogger<UserController> _logger;
-        public UserController(IUserService userService, IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
+        public UserController(IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
         {
-            _userService = userService;
             _scheduleService = scheduleService;
             _chatAIService = chatAIService;
-            _logger = logger;
         }
 
         /// <summary>
@@ -44,6 +39,7 @@ namespace UserManagement.Controllers
         /// <param name="size">Number of items per page (default is 10).</param>
         /// <returns>ActionResult containing the list of schedules.</returns>
         [HttpGet("schedule/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> GetSchedules([FromQuery] int page = 1, [FromQuery] int size = 10)
         {
             string? userId = HttpContext.Items["UserId"]?.ToString();
@@ -62,6 +58,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpGet("schedule/{id}")]
+        [AuthorizeAccess]
         public async Task<IActionResult> GetSchedule(string id)
         {
             var (status, message, schedule) = await _scheduleService.GetScheduleById(id);
@@ -73,6 +70,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("schedule/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> CreateSchedule([FromBody] CreateScheduleDTO schedule)
         {
             string? userId = HttpContext.Items["UserId"]?.ToString();
@@ -94,6 +92,7 @@ namespace UserManagement.Controllers
         /// Update the schedule time for a specific schedule.
         /// </summary>
         [HttpPut("schedule/{scheduleId}")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UpdateSchedule([FromBody] DateTime dateTime, string scheduleId)
         {
             bool scheduler = HttpContext.Items["Role"]?.ToString() != UserRole.Doctor.ToString();
@@ -109,6 +108,7 @@ namespace UserManagement.Controllers
         /// </summary>
 
         [HttpPut("schedule/{scheduleId}/status")]
+        [AuthorizeAccess]
         public async Task<IActionResult> UpdateScheduleStatus(string scheduleId, [FromBody] bool scheduleStatus)
         {
             string? role = HttpContext.Items["Role"]?.ToString();
@@ -124,6 +124,7 @@ namespace UserManagement.Controllers
 
 
         [HttpDelete("schedule/{scheduleId}")]
+        [AuthorizeAccess]
         public async Task<IActionResult> DeleteSchedule(string scheduleId)
         {
             var (status, message) = await _scheduleService.DeleteSchedule(scheduleId);
@@ -133,47 +134,8 @@ namespace UserManagement.Controllers
             return Ok(new { message, success = true });
         }
 
-        // [HttpPut("{id}")]
-        // public async Task<IActionResult> UpdateUser(string id, [FromBody] UpdateUserDTO model)
-        // {
-        //     try
-        //     {
-        //         var (status, message, user) = await _userService.UpdateUser(model, id);
-
-        //         if (status == 0 || user == null)
-        //             return BadRequest(new { error = message });
-
-        //         return Ok(new { message = "User updated successfully", user });
-
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex.Message);
-        //         return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
-        //     }
-        // }
-
-        // [HttpPost("{id}/picture/")]
-        // public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)
-        // {
-        //     try
-        //     {
-        //         var (status, message, user) = await _userService.UploadProfile(id, image);
-
-        //         if (status == 0 || user == null)
-        //             return BadRequest(new { error = message });
-
-        //         return Ok(new { message, user });
-
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         _logger.LogError(ex.Message);
-        //         return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
-        //     }
-        // }
-
         [HttpGet("{id}/chat/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> GetUserMessages(string id)
         {
             var (status, message, messages) = await _chatAIService.GetMessages(id);
@@ -184,6 +146,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("{id}/chat/")]
+        [AuthorizeAccess]
         public async Task<IActionResult> AskAI([FromBody] string message, string id)
         {
             var (status, statusMessage, response) = await _chatAIService.AskAI(id, message);

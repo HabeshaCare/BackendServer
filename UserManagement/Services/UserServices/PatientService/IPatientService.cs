@@ -12,6 +12,6 @@ namespace UserManagement.Services.UserServices
         Task<(int, string?, UsagePatientDTO?)> GetPatientById(string patientId);
         Task<(int, string?, UsagePatientDTO?)> GetPatientByEmail(string patientEmail);
         Task<(int, string, Patient?)> AddPatient(Patient patient);
-        Task<(int, string, Patient?)> UpdatePatient(UpdatePatientDTO patientDTO, string id);
+        Task<(int, string, UsagePatientDTO?)> UpdatePatient(UpdatePatientDTO patientDTO, string id);
     }
 }

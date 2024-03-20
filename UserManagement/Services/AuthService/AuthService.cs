@@ -3,9 +3,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using AutoMapper;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.DTOs.AdminDTOs;
 using UserManagement.DTOs.PatientDTOs;
@@ -15,7 +13,6 @@ using UserManagement.Models.DTOs;
 using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.Services.EmailService;
 using UserManagement.Services.UserServices;
-using UserManagement.Utils;
 
 namespace UserManagement.Services
 {
@@ -75,7 +72,8 @@ namespace UserManagement.Services
                 new(ClaimTypes.Email, user!.Email!),
                 new(ClaimTypes.NameIdentifier, user!.Id!),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new(ClaimTypes.Role, user.Role.ToString())
+                new(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("InstitutionId", admin?.InstitutionId.ToString() ?? string.Empty),
             };
 
             string token = GenerateToken(authClaims);
@@ -108,7 +106,7 @@ namespace UserManagement.Services
 
             switch (model.Role)
             {
-                case UserRole.Normal:
+                case UserRole.Patient:
                     Patient patient = _mapper.Map<Patient>(model);
                     patient.VerificationToken = CreateRandomToken();
                     {
@@ -202,9 +200,9 @@ namespace UserManagement.Services
         {
             try
             {
-                var adminTask = _adminService.GetUserByVerificationToken<Administrator>(token);
-                var doctorTask = _doctorService.GetUserByVerificationToken<Doctor>(token);
-                var patientTask = _patientService.GetUserByVerificationToken<Patient>(token);
+                var adminTask = _adminService.GetUserByVerificationToken<UsageAdminDTO>(token);
+                var doctorTask = _doctorService.GetUserByVerificationToken<UsageDoctorDTO>(token);
+                var patientTask = _patientService.GetUserByVerificationToken<UsagePatientDTO>(token);
 
                 await Task.WhenAll(adminTask, doctorTask, patientTask);
 
@@ -372,7 +370,7 @@ namespace UserManagement.Services
 
             switch (user.Role)
             {
-                case UserRole.Normal:
+                case UserRole.Patient:
                     {
                         UpdatePatientDTO updatedUser = _mapper.Map<UpdatePatientDTO>(user);
                         var (status, message, rawUser) = await _patientService.UpdatePatient(updatedUser, user.Id!);
@@ -409,7 +407,7 @@ namespace UserManagement.Services
 
             switch (user.Role)
             {
-                case UserRole.Normal:
+                case UserRole.Patient:
                     {
                         var (status, message) = await _patientService.UpdatePassword<Patient>(user.Id!, user.Password);
                         return (status, message);

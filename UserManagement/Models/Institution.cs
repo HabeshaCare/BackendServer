@@ -22,5 +22,7 @@ namespace UserManagement.Models
         [JsonConverter(typeof(StringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
         public required InstitutionType Type { get; set; }
+
+        public string HealthCenterId { get; set; } = string.Empty;
     }
 }

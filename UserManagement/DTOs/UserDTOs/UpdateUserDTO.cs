@@ -6,13 +6,11 @@ using UserManagement.Models.DTOs;
 
 namespace UserManagement.Models.DTOs.UserDTOs
 {
-    public class UpdateUserDTO : UserDTO
+    public class UpdateUserDTO
     {
-        [EmailAddress(ErrorMessage = "Invalid email address format")]
-        public new string? Email { get; set; }
-        [Phone(ErrorMessage = "Invalid phone number format")]
-        public string? Phonenumber { get; set; }
         public string? Fullname { get; set; }
+        public string? Gender { get; set; }
+        [Phone(ErrorMessage = "Invalid phone number format")]
         public string? ImageUrl { get; set; }
         public string VerificationToken { get; set; } = string.Empty;
         public DateTime? VerifiedAt { get; set; }

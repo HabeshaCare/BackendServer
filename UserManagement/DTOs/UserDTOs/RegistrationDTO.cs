@@ -19,7 +19,7 @@ namespace UserManagement.Models.DTOs
         [Required, Compare("Password")]
         public required string ConfirmPassword { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public UserRole Role { get; set; } = UserRole.Normal;
+        public UserRole Role { get; set; } = UserRole.Patient;
 
         //Patient Specific Information
         public string? NationalId { get; set; }

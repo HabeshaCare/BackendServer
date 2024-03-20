@@ -50,20 +50,31 @@ namespace UserManagement.Services.UserServices
             return await GetUsers<UsageDoctorDTO>(filterDefinition, page, size);
         }
 
-        public async Task<(int, string, Doctor?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
+        public async Task<(int, string, UsageDoctorDTO?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
         {
             try
             {
                 var (status, message, doctor) = await GetDoctor(doctorId);
                 if (status == 1 && doctor != null)
                 {
-                    doctorDTO.Verified = false;
+
+                    bool changedCriticalInformation =
+                        doctorDTO.Fullname != doctor.Fullname ||
+                        doctorDTO.Gender != doctor.Gender ||
+                        doctorDTO.LicensePath != doctor.LicensePath ||
+                        doctorDTO.Specialization != doctor.Specialization ||
+                        doctorDTO.YearOfExperience != doctor.YearOfExperience;
+
+
+                    if (changedCriticalInformation)
+                        doctorDTO.Verified = false;
+
                     _mapper.Map(doctorDTO, doctor);
 
                     var filter = Builders<Doctor>.Filter.And(
                         Builders<Doctor>.Filter.Eq(u => u.Id, doctorId));
 
-                    var (updateStatus, updateMessage, updatedDoctorDTO) = await UpdateUser<UpdateDoctorDTO, Doctor>(doctorDTO, doctorId);
+                    var (updateStatus, updateMessage, updatedDoctorDTO) = await UpdateUser<UpdateDoctorDTO, UsageDoctorDTO>(doctorDTO, doctorId);
 
 
                     if (updateStatus == 0 || updatedDoctorDTO == null)

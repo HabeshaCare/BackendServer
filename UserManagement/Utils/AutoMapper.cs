@@ -11,6 +11,10 @@ using UserManagement.Models.DTOs;
 using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.DTOs.PatientDTOs;
 using UserManagement.DTOs.AdminDTOs;
+using UserManagement.DTOs.InstitutionDTOs;
+using UserManagement.DTOs.HealthCenterDTOs;
+using UserManagement.DTOs.PharmacyDTOs;
+using UserManagement.DTOs.LaboratoryDTOs;
 
 namespace UserManagement.Utils
 {
@@ -39,9 +43,20 @@ namespace UserManagement.Utils
             CreateMap<Doctor, UsageDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Doctor, ScheduledDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Patient, UsagePatientDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
-            CreateMap<Patient, UpdatePatientDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Patient, UpdatePatientDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember, destMember) => srcMember != null));
             CreateMap<Schedule, ScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Schedule, CreateScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Institution, HealthCenter>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Institution, Pharmacy>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Institution, Laboratory>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Institution, InstitutionDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<HealthCenter, HealthCenterDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<HealthCenter, UpdateHealthCenterDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Administrator, UsageAdminDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Administrator, UpdateAdminDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Pharmacy, PharmacyDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Laboratory, LaboratoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<Laboratory, UpdateLaboratoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<Message, MessageDTO>().ReverseMap();
             CreateMap<Message, UsageMessageDTO>().ReverseMap();
         }
