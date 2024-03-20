@@ -18,15 +18,7 @@ namespace UserManagement.Controllers
     public class PharmacyController : ControllerBase
     {
         /*
-Todo: 
- - Get institution based on filter conditions from query. 
-    1. Using id
-    2. Using admin's id
-    3. Filter verified institutions only
-    4. Filter Unverified institutions only
-    5. Pagination should be implemented by default
- - Create institution
- - Update institution
+Todo:
  - Delete institution   
 */
         private readonly IPharmacyService _pharmacyService;
@@ -54,7 +46,7 @@ Todo:
         }
 
         [HttpPost]
-        [AuthorizeInstitutionAccess]
+        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin, PharmacyAdmin")]
         public async Task<IActionResult> AddPharmacy([FromBody] PharmacyDTO pharmacy)
         {
             var (status, message, createdPharmacy) = await _pharmacyService.AddPharmacy(pharmacy);

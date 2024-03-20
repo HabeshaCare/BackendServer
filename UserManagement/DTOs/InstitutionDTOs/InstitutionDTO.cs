@@ -17,7 +17,7 @@ namespace UserManagement.DTOs.InstitutionDTOs
         public bool Verified { get; set; }
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
-        public required InstitutionType Type { get; set; }
+        public InstitutionType Type { get; set; }
         public string HealthCenterId { get; set; } = string.Empty;
     }
 }

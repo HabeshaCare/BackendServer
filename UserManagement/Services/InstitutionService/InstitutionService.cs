@@ -104,10 +104,10 @@ namespace UserManagement.Services.InstitutionService
         {
             try
             {
-                var (status, message, foundInstitution) = await GetInstitutionById<T>(institution.Id ?? "");
+                var (status, message, foundInstitution) = await GetInstitutionByName<T>(institution.Name ?? "");
 
                 if (status == 1 && foundInstitution != null)
-                    return (0, "Institution already exists", default(USD));
+                    return (0, "Institution with this name already exists", default(USD));
 
                 await _collection.InsertOneAsync(institution);
                 USD createdInstitution = _mapper.Map<USD>(institution);
