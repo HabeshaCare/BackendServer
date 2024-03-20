@@ -47,7 +47,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost]
-        [AuthorizeInstitutionAccess]
+        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
         public async Task<IActionResult> AddHealthCenter([FromBody] HealthCenterDTO healthCenter)
         {
             var (status, message, createdHealthCenter) = await _healthCenterService.AddHealthCenter(healthCenter);
