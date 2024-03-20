@@ -13,6 +13,6 @@ namespace UserManagement.Services.UserServices
         Task<(int, string?, UsageAdminDTO?)> GetAdminByEmail(string adminEmail);
         Task<(int, string, Administrator?)> AddAdmin(Administrator admin);
         Task<(int, string, Administrator?)> UpdateAdmin(UpdateAdminDTO adminDTO, string id);
-        Task<(int, string, UsageAdminDTO?)> AddInstitutionAccess(string adminId, string institutionId);
+        // Task<(int, string, UsageAdminDTO?)> AddInstitutionAccess(string adminId, string institutionId);
     }
 }

@@ -37,29 +37,29 @@ namespace UserManagement.Services.UserServices
         {
             return await UpdateUser<UpdateAdminDTO, Administrator>(adminDTO, id);
         }
-        public async Task<(int, string, UsageAdminDTO?)> AddInstitutionAccess(string adminId, string institutionId)
-        {
-            try
-            {
-                var filter = Builders<Administrator>.Filter.Eq(a => a.Id, adminId);
-                var update = Builders<Administrator>.Update.Push(a => a.InstitutionsId, institutionId);
-                var result = await _collection.UpdateOneAsync(filter, update);
-                if (result.ModifiedCount > 0)
-                {
-                    return (1, "Institution access added successfully", null);
-                }
-                else
-                {
-                    return (0, "Failed to add institution access", null);
-                }
+        // public async Task<(int, string, UsageAdminDTO?)> AddInstitutionAccess(string adminId, string institutionId)
+        // {
+        //     try
+        //     {
+        //         var filter = Builders<Administrator>.Filter.Eq(a => a.Id, adminId);
+        //         var update = Builders<Administrator>.Update.Push(a => a.InstitutionId, institutionId);
+        //         var result = await _collection.UpdateOneAsync(filter, update);
+        //         if (result.ModifiedCount > 0)
+        //         {
+        //             return (1, "Institution access added successfully", null);
+        //         }
+        //         else
+        //         {
+        //             return (0, "Failed to add institution access", null);
+        //         }
 
-            }
-            catch (Exception ex)
-            {
+        //     }
+        //     catch (Exception ex)
+        //     {
 
-                return (0, ex.Message, null);
-            }
+        //         return (0, ex.Message, null);
+        //     }
 
-        }
+        // }
     }
 }
