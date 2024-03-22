@@ -113,8 +113,17 @@ namespace UserManagement.Services.InstitutionService
                 if (!response.Success)
                     return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
+                //Add test request Id to the laboratory
+                var laboratory = response.Data!;
                 var testRequest = _mapper.Map<TestRequest>(labTestRequest);
+
                 await _testRequestCollection.InsertOneAsync(testRequest);
+                _ = laboratory.TestRequestIds.Append(testRequest.Id);
+
+                var labUpdateResponse = await UpdateInstitution<Laboratory, LaboratoryDTO>(laboratory, laboratory.Id!);
+
+                if (!labUpdateResponse.Success)
+                    return new() { StatusCode = labUpdateResponse.StatusCode, Errors = labUpdateResponse.Errors };
 
                 var createdTestRequest = _mapper.Map<TestRequest>(labTestRequest);
 
