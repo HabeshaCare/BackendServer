@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.DTOs.HealthCenterDTOs;
+using UserManagement.DTOs.PatientDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
@@ -17,8 +18,10 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
 {
     public class HealthCenterService : InstitutionService<HealthCenter>, IHealthCenterService
     {
-        public HealthCenterService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IAdminService adminService) : base(options, fileService, mapper, adminService)
+        private readonly IPatientService _patientService;
+        public HealthCenterService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IAdminService adminService, IPatientService patientService) : base(options, fileService, mapper, adminService)
         {
+            _patientService = patientService;
         }
 
         public async Task<SResponseDTO<HealthCenterDTO[]>> GetHealthCenters(FilterDTO? filterOption, int page, int size)
@@ -40,6 +43,52 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
         {
             HealthCenter _healthCenter = _mapper.Map<HealthCenter>(healthCenter);
             return await AddInstitution<HealthCenterDTO>(_healthCenter, adminId);
+        }
+
+        public async Task<SResponseDTO<bool>> SharePatient(string healthCenterId, string patientId, TimeSpan duration)
+        {
+            //#TODO Configure OTP to ask the patient for confirmation before sharing the information
+
+            try
+            {
+                var sharedPatient = new SharedPatient { PatientId = patientId, ExpirationTime = DateTime.UtcNow.Add(duration) };
+                var filter = Builders<HealthCenter>.Filter.Eq(hc => hc.Id, healthCenterId);
+                var update = Builders<HealthCenter>.Update.Push(hc => hc.SharedPatients, sharedPatient);
+                await _collection.UpdateOneAsync(filter, update);
+                return new() { StatusCode = 200, Message = "Patient shared successfully", Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Message = ex.Message, Success = false };
+            }
+        }
+
+        public async Task<SResponseDTO<UsagePatientDTO[]>> GetSharedPatients(string healthCenterId, int page, int size)
+        {
+            try
+            {
+                var response = await GetHealthCenter(healthCenterId);
+                if (!response.Success)
+                    return new() { StatusCode = response.StatusCode, Errors = response.Errors };
+
+                var sharedPatients = response.Data!.SharedPatients;
+                var patients = Array.Empty<UsagePatientDTO>();
+                var tasks = sharedPatients.Select(async sharedPatient =>
+                    {
+                        var response = await _patientService.GetPatientById(sharedPatient.PatientId ?? string.Empty);
+
+                        if (response.Success)
+                            _ = patients.Append(response.Data!);
+                    });
+
+                await Task.WhenAll(tasks);
+
+                return new() { StatusCode = 200, Message = $"Found {patients.Length} shared Patients", Data = patients, Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Message = ex.Message, Success = false };
+            }
         }
 
         public async Task<SResponseDTO<HealthCenterDTO>> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId)

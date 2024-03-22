@@ -46,6 +46,7 @@ builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IHealthCenterService, HealthCenterService>();
 builder.Services.AddScoped<IPharmacyService, PharmacyService>();
 builder.Services.AddScoped<ILaboratoryService, LaboratoryService>();
+builder.Services.AddHostedService<SharedPatientCleanupService>();
 
 //AutoMapper
 builder.Services.AddAutoMapper(typeof(Program).Assembly);

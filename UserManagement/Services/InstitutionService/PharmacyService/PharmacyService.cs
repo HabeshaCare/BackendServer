@@ -51,7 +51,6 @@ namespace UserManagement.Services.InstitutionService
         public async Task<SResponseDTO<PharmacyDTO[]>> GetPharmacies(FilterDTO? filterOption, int page, int size)
         {
             return await GetInstitutions<PharmacyDTO>(filterOption!, page, size);
-
         }
 
         public async Task<SResponseDTO<Pharmacy>> GetPharmacy(string id)
