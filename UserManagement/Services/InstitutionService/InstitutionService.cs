@@ -23,11 +23,11 @@ namespace UserManagement.Services.InstitutionService
         protected readonly IFileService _fileService;
         protected readonly IAdminService _adminService;
         protected readonly IMapper _mapper;
-        public InstitutionService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
+        public InstitutionService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IAdminService adminService) : base(options)
         {
             _collection = GetCollection<T>($"{typeof(T).Name}s");
             _fileService = fileService;
-            // _adminService = adminService;
+            _adminService = adminService;
             _mapper = mapper;
         }
 
