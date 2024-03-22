@@ -48,12 +48,12 @@ namespace UserManagement.Services.UserServices
                 {
                     Doctor doctor = response.Data!;
                     bool changedCriticalInformation =
-                        doctorDTO.Fullname != doctor.Fullname ||
-                        doctorDTO.Gender != doctor.Gender ||
-                        doctorDTO.LicensePath != doctor.LicensePath ||
-                        doctorDTO.Specialization != doctor.Specialization ||
-                        doctorDTO.YearOfExperience != doctor.YearOfExperience;
-
+                        (!string.IsNullOrEmpty(doctorDTO.Fullname) && doctorDTO.Fullname != doctor.Fullname) ||
+                        (!string.IsNullOrEmpty(doctorDTO.Gender)) && doctorDTO.Gender != doctor.Gender ||
+                        (!string.IsNullOrEmpty(doctorDTO.LicensePath)) && doctorDTO.LicensePath != doctor.LicensePath ||
+                        (!string.IsNullOrEmpty(doctorDTO.Specialization)) && doctorDTO.Specialization != doctor.Specialization ||
+                        (!string.IsNullOrEmpty(doctorDTO.AssociatedHealthCenterId)) && doctorDTO.AssociatedHealthCenterId != doctor.AssociatedHealthCenterId ||
+                        (!(doctorDTO.YearOfExperience == null)) && doctorDTO.YearOfExperience != doctor.YearOfExperience;
 
                     if (changedCriticalInformation)
                         doctorDTO.Verified = false;
