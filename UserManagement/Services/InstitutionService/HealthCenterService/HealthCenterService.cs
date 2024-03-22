@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using UserManagement.DTOs;
 using UserManagement.DTOs.HealthCenterDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
@@ -19,28 +20,28 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
         {
         }
 
-        public async Task<(int, string?, HealthCenterDTO[])> GetHealthCenters(FilterDTO? filterOption, int page, int size)
+        public async Task<SResponseDTO<HealthCenterDTO[]>> GetHealthCenters(FilterDTO? filterOption, int page, int size)
         {
             return await GetInstitutions<HealthCenterDTO>(filterOption!, page, size);
         }
 
-        public async Task<(int, string?, HealthCenterDTO?)> GetHealthCenter(string id)
+        public async Task<SResponseDTO<HealthCenterDTO>> GetHealthCenter(string id)
         {
             return await GetInstitutionById<HealthCenterDTO>(id);
         }
 
-        public async Task<(int, string?, HealthCenterDTO?)> GetHealthCenterByName(string name)
+        public async Task<SResponseDTO<HealthCenterDTO>> GetHealthCenterByName(string name)
         {
             return await GetInstitutionByName<HealthCenterDTO>(name);
         }
 
-        public async Task<(int, string, HealthCenterDTO?)> AddHealthCenter(HealthCenterDTO healthCenter)
+        public async Task<SResponseDTO<HealthCenterDTO>> AddHealthCenter(HealthCenterDTO healthCenter)
         {
             HealthCenter _healthCenter = _mapper.Map<HealthCenter>(healthCenter);
             return await AddInstitution<HealthCenterDTO>(_healthCenter);
         }
 
-        public async Task<(int, string, HealthCenterDTO?)> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId)
+        public async Task<SResponseDTO<HealthCenterDTO>> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId)
         {
             return await UpdateInstitution<UpdateHealthCenterDTO, HealthCenterDTO>(healthCenterDTO, healthCenterId);
         }
