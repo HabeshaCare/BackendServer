@@ -104,11 +104,11 @@ namespace UserManagement.Services.InstitutionService
 
         }
 
-        public async Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO labTestRequest, string labId)
+        public async Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO labTestRequest, string laboratoryId)
         {
             try
             {
-                var response = await GetLaboratory(labId);
+                var response = await GetLaboratory(laboratoryId);
 
                 if (!response.Success)
                     return new() { StatusCode = response.StatusCode, Errors = response.Errors };
@@ -116,6 +116,7 @@ namespace UserManagement.Services.InstitutionService
                 //Add test request Id to the laboratory
                 var laboratory = response.Data!;
                 var testRequest = _mapper.Map<TestRequest>(labTestRequest);
+                testRequest.LaboratoryId = laboratoryId;
 
                 await _testRequestCollection.InsertOneAsync(testRequest);
                 _ = laboratory.TestRequestIds.Append(testRequest.Id);
