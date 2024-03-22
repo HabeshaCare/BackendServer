@@ -16,7 +16,7 @@ namespace UserManagement.DTOs.LaboratoryDTOs
         //This is the doctor Id
         public required string RequestorId { get; set; }
         //This is the laboratorian Id
-        public required string HandlerId { get; set; }
+        public string HandlerId { get; set; } = string.Empty;
         public required string LaboratoryId { get; set; }
         public DateTime RequestedDate { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]

@@ -10,11 +10,13 @@ namespace UserManagement.DTOs.LaboratoryDTOs
 {
     public class TestRequestDTO
     {
+        public string? Id { get; set; }
+
         //This is the doctor Id
         public required string DoctorName { get; set; }
 
         //This is the laboratorian Id
-        public required string LaboratorianName { get; set; }
+        public string LaboratorianName { get; set; } = string.Empty;
         public required string LaboratoryName { get; set; }
         public DateTime RequestedDate { get; set; }
 

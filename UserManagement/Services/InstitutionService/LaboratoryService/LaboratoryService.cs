@@ -40,6 +40,36 @@ namespace UserManagement.Services.InstitutionService
             return await GetInstitutionById<Laboratory>(id);
         }
 
+        public async Task<SResponseDTO<TestRequestDTO>> GetLabTestRequest(string labTestId)
+        {
+            try
+            {
+                var testRequest = await _testRequestCollection.Find(tr => tr.Id == labTestId).FirstOrDefaultAsync();
+                if (testRequest == null)
+                    return new() { StatusCode = 404, Errors = new[] { "Test request not found" } };
+
+                var testRequestDTO = _mapper.Map<TestRequestDTO>(testRequest);
+
+                var laboratoryTask = Task.Run(() => GetLaboratory(testRequest.LaboratoryId));
+                var doctorTask = Task.Run(() => _doctorService.GetDoctorById(testRequest.RequestorId));
+                var laboratorianTask = Task.Run(() => _adminService.GetAdminById(testRequest.HandlerId));
+
+                await Task.WhenAll(laboratoryTask, doctorTask, laboratorianTask);
+
+                testRequestDTO.LaboratoryName = laboratoryTask.Result.Data?.Name ?? string.Empty;
+                testRequestDTO.LaboratorianName = laboratorianTask.Result.Data?.Fullname ?? string.Empty;
+                testRequestDTO.DoctorName = doctorTask.Result.Data?.Fullname ?? string.Empty;
+
+                return new() { StatusCode = 200, Message = "Found test request", Data = testRequestDTO, Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+            }
+        }
+
+
+
         public async Task<SResponseDTO<TestRequestDTO[]>> GetLabTestRequests(string laboratoryId)
         {
             try
@@ -58,17 +88,9 @@ namespace UserManagement.Services.InstitutionService
 
                 var tasks = results.Select(async testRequest =>
                     {
-                        var testRequestDTO = _mapper.Map<TestRequestDTO>(testRequest);
-
-                        var laboratoryTask = Task.Run(() => _adminService.GetAdminById(testRequest.HandlerId));
-                        var doctorTask = Task.Run(() => _doctorService.GetDoctorById(testRequest.RequestorId));
-
-                        await Task.WhenAll(laboratoryTask, doctorTask);
-
-                        testRequestDTO.LaboratorianName = laboratoryTask.Result.Data?.Fullname ?? string.Empty;
-                        testRequestDTO.DoctorName = doctorTask.Result.Data?.Fullname ?? string.Empty;
-
-                        _ = testRequests.Append(testRequestDTO);
+                        var response = await GetLabTestRequest(testRequest.Id ?? string.Empty);
+                        if (response.Success)
+                            _ = testRequests.Append(response.Data!);
                     });
 
                 await Task.WhenAll(tasks);
@@ -82,9 +104,26 @@ namespace UserManagement.Services.InstitutionService
 
         }
 
-        public async Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO laboratoryId)
+        public async Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO labTestRequest)
         {
-            var
+            try
+            {
+                var response = await GetLaboratory(labTestRequest.LaboratoryId);
+
+                if (!response.Success)
+                    return new() { StatusCode = response.StatusCode, Errors = response.Errors };
+
+                var testRequest = _mapper.Map<TestRequest>(labTestRequest);
+                await _testRequestCollection.InsertOneAsync(testRequest);
+
+                var createdTestRequest = _mapper.Map<TestRequest>(labTestRequest);
+
+                return new() { StatusCode = 201, Message = "Test request created successfully", Data = null, Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+            }
         }
 
         public async Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory, string adminId)
