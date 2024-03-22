@@ -37,21 +37,16 @@ namespace UserManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> GetDoctors([FromQuery] FilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            var (status, message, doctors) = await _doctorService.GetDoctors(filterOptions!, page, size);
-            if (status == 0 || doctors == null)
-                return NotFound(new { error = message });
-            return Ok(new { users = doctors });
+            var response = await _doctorService.GetDoctors(filterOptions!, page, size);
+            return new ObjectResult(response);
         }
 
         [HttpGet("{id}/profile")]
         public async Task<IActionResult> GetDoctorById(string id)
         {
-            var (status, message, doctor) = await _doctorService.GetDoctorById(id);
-            if (status == 0 || doctor == null)
-            {
-                return NotFound(new { error = message });
-            }
-            return Ok(new { success = true, user = doctor });
+            var response = await _doctorService.GetDoctorById(id);
+            return new ObjectResult(response);
+
         }
 
         /// <summary>
@@ -61,11 +56,9 @@ namespace UserManagement.Controllers
         [Authorize(Roles = "HealthCenterAdmin")]
         public async Task<IActionResult> VerifyDoctor(string id)
         {
-            var (status, message, doctor) = await _doctorService.VerifyDoctor(id);
-            if (status == 0 || doctor == null)
-                return BadRequest(new { errors = message });
+            var response = await _doctorService.VerifyDoctor(id);
+            return new ObjectResult(response);
 
-            return Ok(new { message, user = doctor });
         }
 
         [HttpPut("{id}/profile")]
@@ -73,12 +66,10 @@ namespace UserManagement.Controllers
         [AuthorizeAccess]
         public async Task<IActionResult> UpdateDoctor(string id, [FromBody] UpdateDoctorDTO doctorDTO)
         {
-            var (status, message, doctor) = await _doctorService.UpdateDoctor(doctorDTO, id);
+            var response = await _doctorService.UpdateDoctor(doctorDTO, id);
 
-            if (status == 0 || doctor == null)
-                return BadRequest(new { error = message });
+            return new ObjectResult(response);
 
-            return Ok(new { message, user = doctor });
         }
 
         [HttpPost("{id}/profile/upload-picture")]
@@ -87,11 +78,10 @@ namespace UserManagement.Controllers
         {
             try
             {
-                var (status, message, user) = await _doctorService.UploadProfilePic<UsageDoctorDTO>(id, image);
+                var response = await _doctorService.UploadProfilePic<UsageDoctorDTO>(id, image);
 
-                if (status == 0 || user == null)
-                    return BadRequest(new { error = message });
-                return Ok(new { message, user });
+                return new ObjectResult(response);
+
             }
             catch (Exception ex)
             {
@@ -107,12 +97,10 @@ namespace UserManagement.Controllers
         [AuthorizeAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
-            var (status, message, doctor) = await _doctorService.UploadLicense(license, id);
+            var response = await _doctorService.UploadLicense(license, id);
 
-            if (status == 0 || doctor == null)
-                return BadRequest(new { error = message });
+            return new ObjectResult(response);
 
-            return Ok(new { message, user = doctor });
         }
     }
 }

@@ -26,24 +26,17 @@ namespace UserManagement.Controllers
         [HttpGet("{id}/profile")]
         public async Task<IActionResult> GetPatientById(string id)
         {
-            var (status, message, admin) = await _adminService.GetAdminById(id);
-            if (status == 0 || admin == null)
-            {
-                return NotFound(new { error = message });
-            }
-            return Ok(new { success = true, user = admin });
+            var response = await _adminService.GetAdminById(id);
+            return new ObjectResult(response);
         }
 
         [HttpPut("{id}/profile")]
         [AuthorizeAccess]
         public async Task<IActionResult> UpdateAdmin(string id, [FromBody] UpdateAdminDTO adminDTO)
         {
-            var (status, message, admin) = await _adminService.UpdateAdmin(adminDTO, id);
+            var response = await _adminService.UpdateAdmin(adminDTO, id);
 
-            if (status == 0 || admin == null)
-                return BadRequest(new { error = message });
-
-            return Ok(new { message, user = admin });
+            return new ObjectResult(response);
         }
 
         [HttpPost("{id}/profile/upload-picture")]
@@ -52,11 +45,10 @@ namespace UserManagement.Controllers
         {
             try
             {
-                var (status, message, user) = await _adminService.UploadProfilePic<UsageAdminDTO>(id, image);
+                var response = await _adminService.UploadProfilePic<UsageAdminDTO>(id, image);
 
-                if (status == 0 || user == null)
-                    return BadRequest(new { error = message });
-                return Ok(new { message, user });
+                return new ObjectResult(response);
+
             }
             catch (Exception ex)
             {

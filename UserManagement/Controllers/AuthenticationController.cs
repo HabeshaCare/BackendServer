@@ -34,36 +34,12 @@ namespace UserManagement.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid payload");
-                var (status, tokenOrMessage, user) = await _authService.Login(model);
+                var response = await _authService.Login(model);
 
-                //Checking if the method executed successfully
-                if (status == 0 || user == null)
-                    return BadRequest(new { error = tokenOrMessage });
-
-                Response.Cookies.Append("token", tokenOrMessage, new CookieOptions
-                {
-                    HttpOnly = false,
-                    Secure = false,
-                    SameSite = SameSiteMode.None,
-                    MaxAge = TimeSpan.FromDays(1),
-
-                });
-
-                // Set authentication cookies.
-                Response.Cookies.Append("userId", user.Id, new CookieOptions
-                {
-                    HttpOnly = false,
-                    Secure = false,
-                    SameSite = SameSiteMode.None,
-                    MaxAge = TimeSpan.FromDays(1),
-
-                });
-
-                return Ok(new { token = tokenOrMessage, message = "Login successful", user });
+                return new ObjectResult(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
             }
         }
@@ -76,16 +52,11 @@ namespace UserManagement.Controllers
                 var request = Request;
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid Payload");
-                var (status, message, user) = await _authService.Registration(model);
-
-                if (status == 0)
-                    return BadRequest(new { errors = message });
-
-                return CreatedAtAction(nameof(Register), new { message, user });
+                var response = await _authService.Registration(model);
+                return new ObjectResult(response);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
                 return StatusCode(StatusCodes.Status500InternalServerError, new { errors = ex.Message });
             }
         }
@@ -93,28 +64,26 @@ namespace UserManagement.Controllers
         [HttpPost("verify")]
         public async Task<IActionResult> Verify(string token)
         {
-            var (status, message, user) = await _authService.VerifyEmail(token);
-            if (status == 0)
-                return BadRequest(new { errors = message });
-            return Ok(new { message, user });
+            var response = await _authService.VerifyEmail(token);
+
+            return new ObjectResult(response);
+
         }
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromQuery] string email)
         {
-            var (status, message, user) = await _authService.ForgotPassword(email);
-            if (status == 0)
-                return BadRequest(new { errors = message });
-            return Ok(new { message, user });
+            var response = await _authService.ForgotPassword(email);
+
+            return new ObjectResult(response);
         }
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] UserResetPasswordDTO request)
         {
-            var (status, message) = await _authService.ResetPassword(request);
-            if (status == 0)
-                return BadRequest(new { errors = message });
-            return Ok(new { message });
+            var response = await _authService.ResetPassword(request);
+
+            return new ObjectResult(response);
         }
 
     }

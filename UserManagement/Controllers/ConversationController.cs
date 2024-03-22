@@ -29,21 +29,16 @@ namespace UserManagement.Controllers
         [AuthorizeAccess]
         public async Task<IActionResult> GetUserMessages(string id)
         {
-            var (status, message, messages) = await _chatAIService.GetMessages(id);
-            if (status == 0)
-                return BadRequest(new { error = message });
-
-            return Ok(new { successMessage = message, messages });
+            var response = await _chatAIService.GetMessages(id);
+            return new ObjectResult(response);
         }
 
         [HttpPost("{id}/chat/")]
         [AuthorizeAccess]
         public async Task<IActionResult> AskAI([FromBody] string message, string id)
         {
-            var (status, statusMessage, response) = await _chatAIService.AskAI(id, message);
-            if (status == 0 || response == null)
-                return NotFound(new { error = "AI server not found" });
-            return Ok(new { response, message = statusMessage });
+            var response = await _chatAIService.AskAI(id, message);
+            return new ObjectResult(response);
         }
     }
 }
