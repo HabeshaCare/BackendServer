@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using UserManagement.DTOs;
 using UserManagement.DTOs.AdminDTOs;
 using UserManagement.Models;
 using UserManagement.Services.FileServices;
@@ -18,22 +19,22 @@ namespace UserManagement.Services.UserServices
         {
         }
 
-        public async Task<(int, string, Administrator?)> AddAdmin(Administrator admin)
+        public async Task<SResponseDTO<Administrator>> AddAdmin(Administrator admin)
         {
             return await AddUser<Administrator>(admin);
         }
 
-        public async Task<(int, string?, UsageAdminDTO?)> GetAdminByEmail(string adminEmail)
+        public async Task<SResponseDTO<UsageAdminDTO>> GetAdminByEmail(string adminEmail)
         {
             return await GetUserByEmail<UsageAdminDTO>(adminEmail);
         }
 
-        public async Task<(int, string?, UsageAdminDTO?)> GetAdminById(string adminId)
+        public async Task<SResponseDTO<UsageAdminDTO>> GetAdminById(string adminId)
         {
             return await GetUserById<UsageAdminDTO>(adminId);
         }
 
-        public async Task<(int, string, Administrator?)> UpdateAdmin(UpdateAdminDTO adminDTO, string id)
+        public async Task<SResponseDTO<Administrator>> UpdateAdmin(UpdateAdminDTO adminDTO, string id)
         {
             return await UpdateUser<UpdateAdminDTO, Administrator>(adminDTO, id);
         }
