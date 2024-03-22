@@ -30,7 +30,7 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> GetUserMessages(string id)
         {
             var response = await _chatAIService.GetMessages(id);
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPost("{id}/chat/")]
@@ -38,7 +38,7 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> AskAI([FromBody] string message, string id)
         {
             var response = await _chatAIService.AskAI(id, message);
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
     }
 }

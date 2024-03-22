@@ -24,12 +24,10 @@ namespace UserManagement.Controllers
     [Route("api/user")]
     public class UserController : ControllerBase
     {
-        private readonly IChatAIService _chatAIService;
         private readonly IScheduleService _scheduleService;
         public UserController(IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
         {
             _scheduleService = scheduleService;
-            _chatAIService = chatAIService;
         }
 
         /// <summary>
@@ -51,7 +49,7 @@ namespace UserManagement.Controllers
 
             var response = await _scheduleService.GetSchedules(userId!, scheduler, page, size);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -61,7 +59,7 @@ namespace UserManagement.Controllers
         {
             var response = await _scheduleService.GetScheduleById(id);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -78,7 +76,7 @@ namespace UserManagement.Controllers
 
             var response = await _scheduleService.CreateSchedule(schedule, userId!);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -92,7 +90,7 @@ namespace UserManagement.Controllers
             bool scheduler = HttpContext.Items["Role"]?.ToString() != UserRole.Doctor.ToString();
             var response = await _scheduleService.UpdateSchedule(dateTime, scheduleId, scheduler);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -110,7 +108,7 @@ namespace UserManagement.Controllers
 
             var response = await _scheduleService.UpdateScheduleStatus(scheduleId, scheduleStatus);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
 
@@ -120,7 +118,7 @@ namespace UserManagement.Controllers
         {
             var response = await _scheduleService.DeleteSchedule(scheduleId);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
     }

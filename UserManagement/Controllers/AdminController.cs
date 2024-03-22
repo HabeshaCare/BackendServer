@@ -27,7 +27,7 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> GetPatientById(string id)
         {
             var response = await _adminService.GetAdminById(id);
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPut("{id}/profile")]
@@ -36,7 +36,7 @@ namespace UserManagement.Controllers
         {
             var response = await _adminService.UpdateAdmin(adminDTO, id);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPost("{id}/profile/upload-picture")]
@@ -47,7 +47,7 @@ namespace UserManagement.Controllers
             {
                 var response = await _adminService.UploadProfilePic<UsageAdminDTO>(id, image);
 
-                return new ObjectResult(response);
+                return new ObjectResult(response) { StatusCode = response.StatusCode };
 
             }
             catch (Exception ex)

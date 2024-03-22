@@ -33,14 +33,14 @@ namespace UserManagement.Controllers
         {
             var response = await _healthCenterService.GetHealthCenters(filterOptions, page, size);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetHealthCenter(string id)
         {
             var response = await _healthCenterService.GetHealthCenter(id);
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -49,7 +49,7 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> AddHealthCenter([FromBody] HealthCenterDTO healthCenter)
         {
             var response = await _healthCenterService.AddHealthCenter(healthCenter);
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -58,7 +58,7 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> UpdateHealthCenterInfo([FromBody] UpdateHealthCenterDTO healthCenter, string id)
         {
             var response = await _healthCenterService.UpdateHealthCenter(healthCenter, id);
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -66,7 +66,7 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> UpdateHealthCenterVerification([FromQuery] bool verified, string id)
         {
             var response = await _healthCenterService.UpdateInstitutionVerification<HealthCenter>(id, verified);
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -75,7 +75,7 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
             var response = await _healthCenterService.UploadLicense<HealthCenter>(id, license);
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
     }

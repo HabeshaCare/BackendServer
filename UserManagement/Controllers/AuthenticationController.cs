@@ -36,7 +36,7 @@ namespace UserManagement.Controllers
                     return BadRequest("Invalid payload");
                 var response = await _authService.Login(model);
 
-                return new ObjectResult(response);
+                return new ObjectResult(response) { StatusCode = response.StatusCode };
             }
             catch (Exception ex)
             {
@@ -53,7 +53,7 @@ namespace UserManagement.Controllers
                 if (!ModelState.IsValid)
                     return BadRequest("Invalid Payload");
                 var response = await _authService.Registration(model);
-                return new ObjectResult(response);
+                return new ObjectResult(response) { StatusCode = response.StatusCode };
             }
             catch (Exception ex)
             {
@@ -66,7 +66,7 @@ namespace UserManagement.Controllers
         {
             var response = await _authService.VerifyEmail(token);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
 
@@ -75,7 +75,7 @@ namespace UserManagement.Controllers
         {
             var response = await _authService.ForgotPassword(email);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPost("reset-password")]
@@ -83,7 +83,7 @@ namespace UserManagement.Controllers
         {
             var response = await _authService.ResetPassword(request);
 
-            return new ObjectResult(response);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
     }
