@@ -42,9 +42,9 @@ namespace UserManagement.Controllers
         [Authorize(Roles = "LaboratoryAdmin, HealthCenter, SuperAdmin")]
         public async Task<IActionResult> AddLaboratory([FromBody] LaboratoryDTO laboratory)
         {
-            var response = await _laboratoryService.AddLaboratory(laboratory);
+            string adminId = HttpContext.Items["UserId"]?.ToString() ?? "";
+            var response = await _laboratoryService.AddLaboratory(laboratory, adminId);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
-
         }
 
         [HttpPut("{id}")]

@@ -7,17 +7,23 @@ using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.DTOs.AdminDTOs;
+using UserManagement.DTOs.HealthCenterDTOs;
+using UserManagement.DTOs.LaboratoryDTOs;
+using UserManagement.DTOs.PharmacyDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
+using UserManagement.Services.InstitutionService;
 using UserManagement.Utils;
 
 namespace UserManagement.Services.UserServices
 {
     public class AdminService : UserService<Administrator>, IAdminService
     {
-        public AdminService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options, fileService, mapper)
+        private readonly IInstitutionService _institutionService;
+        public AdminService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IInstitutionService institutionService) : base(options, fileService, mapper)
         {
+            _institutionService = institutionService;
         }
 
         public async Task<SResponseDTO<Administrator>> AddAdmin(Administrator admin)
@@ -45,6 +51,41 @@ namespace UserManagement.Services.UserServices
         public async Task<SResponseDTO<Administrator>> UpdateAdmin(UpdateAdminDTO adminDTO, string id)
         {
             return await UpdateUser<UpdateAdminDTO, Administrator>(adminDTO, id);
+        }
+
+        public async Task<SResponseDTO<UsageAdminDTO>> UpdateVerification(bool verified, string id)
+        {
+            try
+            {
+                var response = await GetAdminById(id);
+                UsageAdminDTO admin = response.Data!;
+                UpdateAdminDTO adminDTO = new() { Verified = verified };
+                var updateAdminTask = Task.Run(() => UpdateAdmin(adminDTO, id));
+
+                if (!verified)
+                {
+                    Task updateInstitutionVerificationTask = admin.Role switch
+                    {
+                        UserRole.HealthCenterAdmin => Task.Run(() => _institutionService.UpdateInstitutionVerification<HealthCenterDTO>(admin.InstitutionId, false)),
+                        UserRole.LaboratoryAdmin => Task.Run(() => _institutionService.UpdateInstitutionVerification<LaboratoryDTO>(admin.InstitutionId, false)),
+                        UserRole.PharmacyAdmin => Task.Run(() => _institutionService.UpdateInstitutionVerification<PharmacyDTO>(admin.InstitutionId, false)),
+                        _ => Task.Run(() => "Dummy task"),
+                    };
+
+                    await Task.WhenAll(updateAdminTask, updateInstitutionVerificationTask);
+                }
+                else
+                {
+                    await updateAdminTask;
+                }
+
+                var updatedAdmin = _mapper.Map<UsageAdminDTO>(updateAdminTask.Result.Data!);
+                return new() { StatusCode = updateAdminTask.Result.StatusCode, Message = updateAdminTask.Result.Message, Data = updatedAdmin, Success = updateAdminTask.Result.Success, Errors = updateAdminTask.Result.Errors };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+            }
         }
 
         public async Task<SResponseDTO<bool>> AddInstitutionAccess(string adminId, string institutionId)

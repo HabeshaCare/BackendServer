@@ -48,7 +48,8 @@ namespace UserManagement.Controllers
         [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
         public async Task<IActionResult> AddHealthCenter([FromBody] HealthCenterDTO healthCenter)
         {
-            var response = await _healthCenterService.AddHealthCenter(healthCenter);
+            string adminId = HttpContext.Items["UserId"]?.ToString() ?? "";
+            var response = await _healthCenterService.AddHealthCenter(healthCenter, adminId);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }

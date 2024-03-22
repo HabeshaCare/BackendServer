@@ -8,11 +8,8 @@ namespace UserManagement.DTOs.AdminDTOs
 {
     public class UpdateAdminDTO : UpdateUserDTO
     {
-        /* 
-        Currently, this class is only needed to keep because 
-        administrators are kept in a separate collection and 
-        a different type is need to handle it
-        */
+        public string InstitutionId { get; set; } = string.Empty;
         public string AssociatedHealthCenterId { get; set; } = string.Empty;
+        public bool Verified { get; set; }
     }
 }

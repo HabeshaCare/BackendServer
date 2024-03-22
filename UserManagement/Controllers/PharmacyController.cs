@@ -45,7 +45,8 @@ Todo:
         [HttpPost]
         public async Task<IActionResult> AddPharmacy([FromBody] PharmacyDTO pharmacy)
         {
-            var response = await _pharmacyService.AddPharmacy(pharmacy);
+            string adminId = HttpContext.Items["UserId"]?.ToString() ?? "";
+            var response = await _pharmacyService.AddPharmacy(pharmacy, adminId);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 

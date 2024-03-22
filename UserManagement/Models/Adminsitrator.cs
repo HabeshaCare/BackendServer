@@ -11,13 +11,9 @@ namespace UserManagement.Models
 {
     public class Administrator : User
     {
-        /* 
-        Currently, this class is only needed to keep because 
-        administrators are kept in a separate collection and 
-        a different type is need to handle it
-        */
-        //The list of institution id managed by the administrator
+        //The institution id managed by the administrator
         public string InstitutionId { get; set; } = string.Empty;
         public string AssociatedHealthCenterId { get; set; } = string.Empty;
+        public bool Verified { get; set; }
     }
 }
