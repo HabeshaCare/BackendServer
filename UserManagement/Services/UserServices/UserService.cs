@@ -100,8 +100,12 @@ namespace UserManagement.Services.UserServices
             {
                 var filterCondition = Builders<T>.Filter.Eq("Email", email);
                 T user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
+
+                if (user == null)
+                    return new() { StatusCode = 404, Errors = new[] { "User not found" } };
+
                 USD? foundUser = _mapper.Map<USD>(user);
-                return new() { StatusCode = 200, Message = "Found User", Data = foundUser, Success = true };
+                return new() { StatusCode = 200, Message = "User Found", Data = foundUser, Success = true };
             }
             catch (Exception)
             {
