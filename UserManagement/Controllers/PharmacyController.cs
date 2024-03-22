@@ -30,60 +30,46 @@ Todo:
         [HttpGet]
         public async Task<IActionResult> GetPharmacies([FromQuery] FilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            var (status, message, pharmacies) = await _pharmacyService.GetPharmacies(filterOptions, page, size);
-            if (status == 0 || pharmacies.Length > 0)
-                NotFound(new { errors = message });
-            return Ok(new { success = true, message, institutions = pharmacies });
+            var response = await _pharmacyService.GetPharmacies(filterOptions, page, size);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetPharmacy(string id)
         {
-            var (status, message, pharmacy) = await _pharmacyService.GetPharmacy(id);
-            if (status == 0 || pharmacy == null)
-                NotFound(new { errors = message });
-            return Ok(new { success = true, message, institution = pharmacy });
+            var response = await _pharmacyService.GetPharmacy(id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [Authorize(Roles = "PharmacyAdmin, HealthCenterAdmin, SuperAdmin")]
         [HttpPost]
         public async Task<IActionResult> AddPharmacy([FromBody] PharmacyDTO pharmacy)
         {
-            var (status, message, createdPharmacy) = await _pharmacyService.AddPharmacy(pharmacy);
-            if (status == 0 || createdPharmacy == null)
-                return BadRequest(new { errors = message });
-
-            return Ok(new { success = true, message, institution = createdPharmacy });
+            var response = await _pharmacyService.AddPharmacy(pharmacy);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPut("{id}")]
         [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UpdatePharmacyInfo([FromBody] UpdatePharmacyDTO pharmacyDTO, string id)
         {
-            var (status, message, updatedPharmacy) = await _pharmacyService.UpdatePharmacy(pharmacyDTO, id);
-            if (status == 0 || updatedPharmacy == null)
-                return BadRequest(new { errors = message });
-
-            return Ok(new { success = true, message, institution = updatedPharmacy });
+            var response = await _pharmacyService.UpdatePharmacy(pharmacyDTO, id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPut("{id}/verify")]
         public async Task<IActionResult> UpdatePharmacyVerification([FromQuery] bool verified, string id)
         {
-            var (status, message, pharmacy) = await _pharmacyService.UpdateInstitutionVerification<Pharmacy>(id, verified);
-            if (status == 0 || pharmacy == null)
-                return BadRequest(new { errors = message });
-            return Ok(new { success = true, message, institution = pharmacy });
+            var response = await _pharmacyService.UpdateInstitutionVerification<Pharmacy>(id, verified);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPost("{id}/upload-license")]
         [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
-            var (status, message, pharmacy) = await _pharmacyService.UploadLicense<Pharmacy>(id, license);
-            if (status == 0 || pharmacy == null)
-                return BadRequest(new { errors = message });
-            return Ok(new { success = true, message, institution = pharmacy });
+            var response = await _pharmacyService.UploadLicense<Pharmacy>(id, license);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
     }
 }

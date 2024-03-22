@@ -31,60 +31,52 @@ namespace UserManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> GetHealthCenters([FromQuery] FilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            var (status, message, healthCenters) = await _healthCenterService.GetHealthCenters(filterOptions, page, size);
-            if (status == 0 || healthCenters.Length > 0)
-                NotFound(new { errors = message });
-            return Ok(new { success = true, message, institutions = healthCenters });
+            var response = await _healthCenterService.GetHealthCenters(filterOptions, page, size);
+
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetHealthCenter(string id)
         {
-            var (status, message, healthCenter) = await _healthCenterService.GetHealthCenter(id);
-            if (status == 0 || healthCenter == null)
-                NotFound(new { errors = message });
-            return Ok(new { success = true, message, institution = healthCenter });
+            var response = await _healthCenterService.GetHealthCenter(id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+
         }
 
         [HttpPost]
         [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
         public async Task<IActionResult> AddHealthCenter([FromBody] HealthCenterDTO healthCenter)
         {
-            var (status, message, createdHealthCenter) = await _healthCenterService.AddHealthCenter(healthCenter);
-            if (status == 0 || createdHealthCenter == null)
-                return BadRequest(new { errors = message });
+            var response = await _healthCenterService.AddHealthCenter(healthCenter);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
-            return Ok(new { success = true, message, institution = createdHealthCenter });
         }
 
         [HttpPut("{id}")]
         [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UpdateHealthCenterInfo([FromBody] UpdateHealthCenterDTO healthCenter, string id)
         {
-            var (status, message, updatedHealthCenter) = await _healthCenterService.UpdateHealthCenter(healthCenter, id);
-            if (status == 0 || updatedHealthCenter == null)
-                return BadRequest(new { errors = message });
+            var response = await _healthCenterService.UpdateHealthCenter(healthCenter, id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
-            return Ok(new { success = true, message, institution = updatedHealthCenter });
         }
 
         [HttpPut("{id}/verify")]
         public async Task<IActionResult> UpdateHealthCenterVerification([FromQuery] bool verified, string id)
         {
-            var (status, message, healthCenter) = await _healthCenterService.UpdateInstitutionVerification<HealthCenter>(id, verified);
-            if (status == 0 || healthCenter == null)
-                return BadRequest(new { errors = message });
-            return Ok(new { success = true, message, institution = healthCenter });
+            var response = await _healthCenterService.UpdateInstitutionVerification<HealthCenter>(id, verified);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+
         }
 
         [HttpPost("{id}/upload-license")]
         [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
-            var (status, message, healthCenter) = await _healthCenterService.UploadLicense<HealthCenter>(id, license);
-            if (status == 0 || healthCenter == null)
-                return BadRequest(new { errors = message });
-            return Ok(new { success = true, message, institution = healthCenter });
+            var response = await _healthCenterService.UploadLicense<HealthCenter>(id, license);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+
         }
     }
 }

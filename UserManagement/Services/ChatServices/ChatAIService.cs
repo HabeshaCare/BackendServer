@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Newtonsoft.Json.Linq;
+using UserManagement.DTOs;
 using UserManagement.DTOs.MessageDTOs;
 using UserManagement.Models;
 using UserManagement.Utils;
@@ -25,13 +26,13 @@ namespace UserManagement.Services.ChatServices
             _configuration = configuration;
             _mapper = mapper;
         }
-        private async Task<(int, string?, UsageMessageDTO?)> AddMessage(string userId, string message, MessageType messageType = MessageType.Human)
+        private async Task<SResponseDTO<UsageMessageDTO>> AddMessage(string userId, string message, MessageType messageType = MessageType.Human)
         {
 
             //Guard to prevent null message from being sent
             if (userId == null || message == null)
             {
-                return (0, "Not all required fields are set", null);
+                return new() { StatusCode = 400, Errors = new[] { "Not all required fields are set" } };
             }
 
             Message newMessage = new() { UserId = userId, Type = messageType, Content = message };
@@ -39,17 +40,16 @@ namespace UserManagement.Services.ChatServices
             try
             {
                 await _messageCollection.InsertOneAsync(newMessage);
-                return (1, "Message added successfully", createdMessage);
+                return new() { StatusCode = 201, Message = "Message added successfully", Data = createdMessage, Success = true };
             }
             catch (Exception ex)
             {
-
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
         /// Sends an HTTP POST request to the AI server to ask a question.
-        private static async Task<(int, string?, string?)> HttpPostRequest(string question, string url = "http://localhost:5000/ask")
+        private static async Task<SResponseDTO<string>> HttpPostRequest(string question, string url = "http://localhost:5000/ask")
         {
             using HttpClient httpClient = new();
             try
@@ -67,52 +67,51 @@ namespace UserManagement.Services.ChatServices
                 string responseData = await response.Content.ReadAsStringAsync();
                 var answer = JObject.Parse(responseData)["Response"];
 
-                return (response.IsSuccessStatusCode ? 1 : 0, null, answer?.ToString());
+                return new() { StatusCode = response.IsSuccessStatusCode ? 200 : 503, Data = answer?.ToString(), Success = response.IsSuccessStatusCode };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
         /// Asks the AI a question and adds the user's and AI's messages to the chat log.
-        public async Task<(int, string?, UsageMessageDTO?)> AskAI(string userId, string message)
+        public async Task<SResponseDTO<UsageMessageDTO>> AskAI(string userId, string message)
         {
             try
             {
                 var addUserMessage = Task.Run(() => AddMessage(userId, message));
 
                 string llmUrl = _configuration["LLMUrl"]!;
-                var (status, statusMessage, answer) = await HttpPostRequest(message, llmUrl);
-                var addAiMessage = Task.Run(() => AddMessage(userId, answer ?? "", MessageType.AI));
+                var response = await HttpPostRequest(message, llmUrl);
+                var addAiMessage = Task.Run(() => AddMessage(userId, response.Data ?? "", MessageType.AI));
 
                 // Waits for both tasks to complete that are being executed in parallel.
                 var result = await Task.WhenAll(addUserMessage, addAiMessage);
-                UsageMessageDTO? aiMessage = result[1].Item3;
+                UsageMessageDTO? aiMessage = result[1].Data;
 
-                if (status == 1 && aiMessage != null)
-                    return (1, "Asking llm successful", aiMessage);
-                return (0, message, null);
+                if (response.Success && aiMessage != null)
+                    return new() { StatusCode = 200, Message = "Asking llm successful", Data = aiMessage, Success = true };
+                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
             }
             catch (Exception ex)
             {
-
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
         /// Retrieves all messages for a specific user from the chat log.
-        public async Task<(int, string?, UsageMessageDTO[])> GetMessages(string userId)
+        public async Task<SResponseDTO<UsageMessageDTO[]>> GetMessages(string userId)
         {
             try
             {
                 var result = await _messageCollection.Find(m => m.UserId == userId).ToListAsync();
                 UsageMessageDTO[] messages = _mapper.Map<UsageMessageDTO[]>(result);
-                return (1, "Found messages", messages);
+                return new() { StatusCode = 200, Message = "Found messages", Data = messages, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, Array.Empty<UsageMessageDTO>());
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
     }

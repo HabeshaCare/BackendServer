@@ -38,7 +38,7 @@ namespace UserManagement.Services
         }
 
 
-        public async Task<(int, string, UsageUserDTO?)> Login(LoginDTO model)
+        public async Task<SResponseDTO<UsageUserDTO>> Login(LoginDTO model)
         {
 
             // Checks if the user exists in the database from different collections.
@@ -49,9 +49,9 @@ namespace UserManagement.Services
             // Used to call asynchronously and wait for all the tasks to complete which will be run in parallel.
             await Task.WhenAll(adminTask, doctorTask, patientTask);
 
-            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
-            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
-            Patient patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Data);
+            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
+            Patient patient = _mapper.Map<Patient>(patientTask.Result.Data);
 
             //
             User user = admin as User ?? doctor as User ?? patient;
@@ -61,10 +61,10 @@ namespace UserManagement.Services
             bool userNotVerified = user?.VerifiedAt == null;
 
             if (userNotFound || !validPassword)
-                return (0, "Invalid Credentials", null);
+                return new() { StatusCode = 401, Errors = new[] { "Invalid Credentials" } };
 
             if (userNotVerified)
-                return (0, "Account not verified", null);
+                return new() { StatusCode = 401, Errors = new[] { "Account not verified" } };
 
             // Generates authentication claims and token.
             var authClaims = new List<Claim>
@@ -78,31 +78,12 @@ namespace UserManagement.Services
 
             string token = GenerateToken(authClaims);
             UsageUserDTO foundUser = _mapper.Map<UsageUserDTO>(user);
-            return (1, token, foundUser);
+            return new() { StatusCode = 200, Message = "Login successful", Data = foundUser, Token = token, Success = true };
         }
 
-        public async Task<(int, string, UsageUserDTO?)> Registration(RegistrationDTO model)
+        public async Task<SResponseDTO<UsageUserDTO>> Registration(RegistrationDTO model)
         {
-            // Checks if the user exists in the database from different collections.
-            var adminTask = _adminService.GetUserByEmail<Administrator>(model.Email);
-            var doctorTask = _doctorService.GetUserByEmail<Doctor>(model.Email);
-            var patientTask = _patientService.GetUserByEmail<Patient>(model.Email);
-
-            // Used to call asynchronously and wait for all the tasks to complete which will be run in parallel.
-            await Task.WhenAll(adminTask, doctorTask, patientTask);
-
-            Administrator _admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
-            Doctor _doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
-            Patient _patient = _mapper.Map<Patient>(patientTask.Result.Item3);
-
-            //
-            User _user = _admin as User ?? _doctor as User ?? _patient;
-
-            bool ifUserFound = _user != null;
-            (int, string?, User?) result;
-
-            if (ifUserFound)
-                return (0, "User already exists", null);
+            SResponseDTO<User> result;
 
             switch (model.Role)
             {
@@ -114,12 +95,13 @@ namespace UserManagement.Services
                         var resultUser = AddPassword(patient, model.Password);
                         if (resultUser != null)
                         {
-                            result = await _patientService.AddPatient(resultUser);
+                            var response = await _patientService.AddPatient(resultUser);
+                            result = new() { StatusCode = response.StatusCode, Message = response.Message, Data = response.Data, Errors = response.Errors, Success = response.Success };
                             break;
                         }
                         else
                         {
-                            return (0, "Error while password hashing", null);
+                            return new() { StatusCode = 500, Errors = new[] { "Error while password hashing" } };
                         }
                     }
 
@@ -131,16 +113,18 @@ namespace UserManagement.Services
                         var resultUser = AddPassword(doctor, model.Password);
                         if (resultUser != null)
                         {
-                            result = await _doctorService.AddDoctor(resultUser);
+                            var response = await _doctorService.AddDoctor(resultUser);
+                            result = new() { StatusCode = response.StatusCode, Message = response.Message, Data = response.Data, Errors = response.Errors, Success = response.Success };
                             break;
                         }
                         else
                         {
-                            return (0, "Error while password hashing", null);
+                            return new() { StatusCode = 500, Errors = new[] { "Error while hashing password" } };
                         }
                     }
                 case UserRole.SuperAdmin:
-                    return (0, "This role is not allowed to be created", null);
+                    return new() { StatusCode = 403, Errors = new[] { "This role is not allowed to be created" } };
+
 
                 case UserRole.HealthCenterAdmin:
                 case UserRole.LaboratoryAdmin:
@@ -153,29 +137,34 @@ namespace UserManagement.Services
                         var resultUser = AddPassword(admin, model.Password);
                         if (resultUser != null)
                         {
-                            result = await _adminService.AddAdmin(resultUser);
+                            var response = await _adminService.AddAdmin(resultUser);
+
+                            result = new() { StatusCode = response.StatusCode, Message = response.Message, Data = response.Data, Errors = response.Errors, Success = response.Success };
+
                             break;
                         }
                         else
                         {
-                            return (0, "Error while password hashing", null);
+                            return new() { StatusCode = 500, Errors = new[] { "Error while password hashing" } };
+
                         }
                     }
                 default:
-                    return (0, "Invalid Role", null);
+                    return new() { StatusCode = 400, Errors = new[] { "Invalid Role" } };
+
             }
 
-            var user = result.Item3;
-            bool registrationSuccessful = user?.VerificationToken != string.Empty;
+            var user = result.Data;
+            bool registrationSuccessful = result.Success;
             var updatedUser = _mapper.Map<UsageUserDTO>(user);
 
             if (registrationSuccessful)
             {
-                string verificationUrl = $"https://localhost:5072/verifyEmail/?token={user?.VerificationToken}";
+                string verificationUrl = $"{_configuration["VerificationUrl"]}/?token={user?.VerificationToken}";
 
                 EmailDTO email = new()
                 {
-                    To = model.Email,
+                    To = model.Email!,
                     Subject = "Email Verification",
                     Body = $"Please visit the following url to verify your email.{verificationUrl}"
                 };
@@ -183,20 +172,20 @@ namespace UserManagement.Services
 
                 if (emailSent)
                 {
-                    return (1, "Registration Complete. Check email for verification link to verify your account.", updatedUser);
+                    return new() { StatusCode = 201, Message = "Registration Complete. Check email for verification link to verify your account.", Data = updatedUser };
                 }
                 else
                 {
-                    return (1, "Registration Complete but couldn't sent verification email ", updatedUser);
+                    return new() { StatusCode = 201, Message = "Registration Complete but couldn't sent verification email.", Data = updatedUser };
                 }
             }
             else
             {
-                return (0, "Something went wrong on registration", null);
+                return new() { StatusCode = result.StatusCode, Errors = result.Errors };
             }
         }
 
-        public async Task<(int, string, UsageUserDTO?)> VerifyEmail(string token)
+        public async Task<SResponseDTO<UsageUserDTO>> VerifyEmail(string token)
         {
             try
             {
@@ -206,34 +195,34 @@ namespace UserManagement.Services
 
                 await Task.WhenAll(adminTask, doctorTask, patientTask);
 
-                Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
-                Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
-                Patient patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+                Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Data);
+                Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
+                Patient patient = _mapper.Map<Patient>(patientTask.Result.Data);
 
                 User user = admin as User ?? doctor as User ?? patient;
 
                 bool userNotFound = user == null;
 
                 if (userNotFound)
-                    return (0, "Invalid Token", null);
+                    return new() { StatusCode = 401, Errors = new[] { "Invalid Token" } };
 
                 user!.VerifiedAt = DateTime.Now;
                 user.VerificationToken = string.Empty;
 
-                var (status, message, createdUser) = await UpdateUser(user);
-                if (status == 1 && createdUser != null)
+                var response = await UpdateUser(user);
+                if (response.Success)
                 {
-                    return (1, "Email verified", createdUser);
+                    return new() { StatusCode = response.StatusCode, Message = "Email verified", Data = response.Data, Success = true };
                 }
-                return (0, message, null);
+                return new() { StatusCode = 400, Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string, UsageUserDTO?)> ForgotPassword(string email)
+        public async Task<SResponseDTO<UsageUserDTO>> ForgotPassword(string email)
         {
             var adminTask = _adminService.GetUserByEmail<Administrator>(email);
             var doctorTask = _doctorService.GetUserByEmail<Doctor>(email);
@@ -241,15 +230,15 @@ namespace UserManagement.Services
 
             await Task.WhenAll(adminTask, doctorTask, patientTask);
 
-            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
-            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
-            Patient patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Data);
+            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
+            Patient patient = _mapper.Map<Patient>(patientTask.Result.Data);
 
             User user = admin as User ?? doctor as User ?? patient;
 
             if (user == null)
             {
-                return (0, "User not found.", null);
+                return new() { StatusCode = 404, Errors = new[] { "User not found" } };
             }
 
             user.PasswordResetToken = CreateRandomToken();
@@ -264,21 +253,21 @@ namespace UserManagement.Services
                 Body = $"Please visit the following url to reset your password.{resetUrl}"
             };
 
-            (int status, string message, UsageUserDTO? updatedUser) = await UpdateUser(user);
+            var response = await UpdateUser(user);
             bool emailSent = _emailService.SendEmail(emailRequest);
-            if (emailSent && status == 1 && updatedUser != null)
+            if (emailSent && response.Success)
             {
-                return (1, "Check email for password reset link.", updatedUser);
+                return new() { StatusCode = 201, Message = "Check email for password reset link.", Data = response.Data };
             }
             else
             {
-                return (1, message, null);
+                return new() { StatusCode = 500, Errors = response.Errors };
             }
 
 
         }
 
-        public async Task<(int, string)> ResetPassword(UserResetPasswordDTO request)
+        public async Task<SResponseDTO<string>> ResetPassword(UserResetPasswordDTO request)
         {
             var adminTask = _adminService.GetUserByResetToken<Administrator>(request.Token);
             var doctorTask = _doctorService.GetUserByResetToken<Doctor>(request.Token);
@@ -286,15 +275,15 @@ namespace UserManagement.Services
 
             await Task.WhenAll(adminTask, doctorTask, patientTask);
 
-            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Item3);
-            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Item3);
-            Patient patient = _mapper.Map<Patient>(patientTask.Result.Item3);
+            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Data);
+            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
+            Patient patient = _mapper.Map<Patient>(patientTask.Result.Data);
 
             User user = admin as User ?? doctor as User ?? patient;
 
             if (user == null || user.ResetTokenExpires < DateTime.Now)
             {
-                return (0, "Invalid token.");
+                return new() { StatusCode = 401, Message = "Invalid token." };
             }
 
             user.Password = HashPassword(request.Password);
@@ -303,7 +292,9 @@ namespace UserManagement.Services
             user.ResetTokenExpires = null;
 
             await UpdateUser(user);
-            return await UpdatePassword(user);
+            var response = await UpdatePassword(user);
+
+            return new() { StatusCode = response.StatusCode, Message = response.Message, Errors = response.Errors, Success = response.Success };
         }
 
         //Generates a JWT authentication token based on provided claims.
@@ -365,7 +356,7 @@ namespace UserManagement.Services
             }
         }
 
-        private async Task<(int, string, UsageUserDTO?)> UpdateUser(User user)
+        private async Task<SResponseDTO<UsageUserDTO>> UpdateUser(User user)
         {
 
             switch (user.Role)
@@ -373,18 +364,18 @@ namespace UserManagement.Services
                 case UserRole.Patient:
                     {
                         UpdatePatientDTO updatedUser = _mapper.Map<UpdatePatientDTO>(user);
-                        var (status, message, rawUser) = await _patientService.UpdatePatient(updatedUser, user.Id!);
-                        var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
+                        var response = await _patientService.UpdatePatient(updatedUser, user.Id!);
+                        var verifiedUser = _mapper.Map<UsageUserDTO>(response.Data);
 
-                        return (status, message, verifiedUser);
+                        return new() { StatusCode = response.StatusCode, Message = response.Message, Data = verifiedUser, Errors = response.Errors, Success = response.Success };
                     }
                 case UserRole.Doctor:
                     {
                         UpdateDoctorDTO updatedUser = _mapper.Map<UpdateDoctorDTO>(user);
-                        var (status, message, rawUser) = await _doctorService.UpdateDoctor(updatedUser, user.Id!);
-                        var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
+                        var response = await _doctorService.UpdateDoctor(updatedUser, user.Id!);
+                        var verifiedUser = _mapper.Map<UsageUserDTO>(response.Data);
 
-                        return (status, message, verifiedUser);
+                        return new() { StatusCode = response.StatusCode, Message = response.Message, Data = verifiedUser, Errors = response.Errors, Success = response.Success };
                     }
                 case UserRole.SuperAdmin:
                 case UserRole.HealthCenterAdmin:
@@ -393,30 +384,30 @@ namespace UserManagement.Services
                 case UserRole.Reception:
                     {
                         UpdateAdminDTO updatedUser = _mapper.Map<UpdateAdminDTO>(user);
-                        var (status, message, rawUser) = await _adminService.UpdateAdmin((updatedUser as UpdateAdminDTO)!, user.Id!);
-                        var verifiedUser = _mapper.Map<UsageUserDTO>(rawUser);
+                        var response = await _adminService.UpdateAdmin((updatedUser as UpdateAdminDTO)!, user.Id!);
+                        var verifiedUser = _mapper.Map<UsageUserDTO>(response.Data);
 
-                        return (status, message, verifiedUser);
+                        return new() { StatusCode = response.StatusCode, Message = response.Message, Data = verifiedUser, Errors = response.Errors, Success = response.Success };
                     }
                 default:
-                    return (0, "Invalid Role", null);
+                    return new() { StatusCode = 400, Errors = new[] { "Invalid Role" } };
             }
         }
-        private async Task<(int, string)> UpdatePassword(User user)
+        private async Task<SResponseDTO<string>> UpdatePassword(User user)
         {
 
             switch (user.Role)
             {
                 case UserRole.Patient:
                     {
-                        var (status, message) = await _patientService.UpdatePassword<Patient>(user.Id!, user.Password);
-                        return (status, message);
+                        var response = await _patientService.UpdatePassword<Patient>(user.Id!, user.Password);
+                        return new() { StatusCode = response.StatusCode, Message = response.Message, Errors = response.Errors, Success = response.Success };
                     }
                 case UserRole.Doctor:
                     {
-                        var (status, message) = await _doctorService.UpdatePassword<Doctor>(user.Id!, user.Password);
+                        var response = await _doctorService.UpdatePassword<Doctor>(user.Id!, user.Password);
 
-                        return (status, message);
+                        return new() { StatusCode = response.StatusCode, Message = response.Message, Errors = response.Errors, Success = response.Success };
                     }
                 case UserRole.SuperAdmin:
                 case UserRole.HealthCenterAdmin:
@@ -424,12 +415,12 @@ namespace UserManagement.Services
                 case UserRole.PharmacyAdmin:
                 case UserRole.Reception:
                     {
-                        var (status, message) = await _adminService.UpdatePassword<Administrator>(user.Id!, user.Password);
+                        var response = await _adminService.UpdatePassword<Administrator>(user.Id!, user.Password);
 
-                        return (status, message);
+                        return new() { StatusCode = response.StatusCode, Message = response.Message, Errors = response.Errors, Success = response.Success };
                     }
                 default:
-                    return (0, "Invalid Role");
+                    return new() { StatusCode = 400, Errors = new[] { "Invalid Role" } };
             }
         }
     }

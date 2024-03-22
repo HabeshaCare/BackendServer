@@ -26,61 +26,52 @@ namespace UserManagement.Controllers
         [HttpGet]
         public async Task<IActionResult> GetLaboratories([FromQuery] FilterDTO? filterOptions = null, [FromQuery] int page = 1, [FromQuery] int size = 10)
         {
-            var (status, message, laboratories) = await _laboratoryService.GetLaboratories(filterOptions, page, size);
-            if (status == 0 || laboratories.Length > 0)
-                NotFound(new { errors = message });
-            return Ok(new { success = true, message, institutions = laboratories });
+            var response = await _laboratoryService.GetLaboratories(filterOptions, page, size);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetLaboratory(string id)
         {
-            var (status, message, laboratory) = await _laboratoryService.GetLaboratory(id);
-            if (status == 0 || laboratory == null)
-                NotFound(new { errors = message });
-            return Ok(new { success = true, message, institution = laboratory });
+            var response = await _laboratoryService.GetLaboratory(id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+
         }
 
         [HttpPost]
         [Authorize(Roles = "LaboratoryAdmin, HealthCenter, SuperAdmin")]
         public async Task<IActionResult> AddLaboratory([FromBody] LaboratoryDTO laboratory)
         {
-            var (status, message, createdLaboratory) = await _laboratoryService.AddLaboratory(laboratory);
-            if (status == 0 || createdLaboratory == null)
-                return BadRequest(new { errors = message });
+            var response = await _laboratoryService.AddLaboratory(laboratory);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
-            return Ok(new { success = true, message, institution = createdLaboratory });
         }
 
         [HttpPut("{id}")]
         [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UpdateLaboratoryInfo([FromBody] UpdateLaboratoryDTO laboratory, string id)
         {
-            var (status, message, updatedLaboratory) = await _laboratoryService.UpdateLaboratory(laboratory, id);
-            if (status == 0 || updatedLaboratory == null)
-                return BadRequest(new { errors = message });
+            var response = await _laboratoryService.UpdateLaboratory(laboratory, id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
-            return Ok(new { success = true, message, institution = updatedLaboratory });
         }
 
         [HttpPut("{id}/verify")]
         [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
         public async Task<IActionResult> UpdateLaboratoryVerification([FromQuery] bool verified, string id)
         {
-            var (status, message, laboratory) = await _laboratoryService.UpdateInstitutionVerification<Laboratory>(id, verified);
-            if (status == 0 || laboratory == null)
-                return BadRequest(new { errors = message });
-            return Ok(new { success = true, message, institution = laboratory });
+            var response = await _laboratoryService.UpdateInstitutionVerification<Laboratory>(id, verified);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+
         }
 
         [HttpPost("{id}/upload-license")]
         [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
         {
-            var (status, message, laboratory) = await _laboratoryService.UploadLicense<Laboratory>(id, license);
-            if (status == 0 || laboratory == null)
-                return BadRequest(new { errors = message });
-            return Ok(new { success = true, message, institution = laboratory });
+            var response = await _laboratoryService.UploadLicense<Laboratory>(id, license);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+
         }
     }
 }

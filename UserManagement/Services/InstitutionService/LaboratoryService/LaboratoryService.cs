@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using UserManagement.DTOs;
 using UserManagement.DTOs.HealthCenterDTOs;
 using UserManagement.DTOs.LaboratoryDTOs;
 using UserManagement.Models;
@@ -25,23 +26,23 @@ namespace UserManagement.Services.InstitutionService
 
         }
 
-        public async Task<(int, string?, LaboratoryDTO[])> GetLaboratories(FilterDTO? filterOption, int page, int size)
+        public async Task<SResponseDTO<LaboratoryDTO[]>> GetLaboratories(FilterDTO? filterOption, int page, int size)
         {
             return await GetInstitutions<LaboratoryDTO>(filterOption!, page, size);
         }
 
-        public async Task<(int, string?, Laboratory?)> GetLaboratory(string id)
+        public async Task<SResponseDTO<Laboratory>> GetLaboratory(string id)
         {
             return await GetInstitutionById<Laboratory>(id);
         }
 
-        public async Task<(int, string, LaboratoryDTO?)> AddLaboratory(LaboratoryDTO laboratory)
+        public async Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory)
         {
             HealthCenterDTO? healthCenter = await HealthCenterExists(laboratory.HealthCenterName);
             string healthCenterId = healthCenter?.Id ?? string.Empty;
 
             if (laboratory.HealthCenterName == string.Empty || healthCenterId == string.Empty)
-                return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
+                return new() { StatusCode = 404, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
 
             Laboratory _laboratory = _mapper.Map<Laboratory>(laboratory);
             _laboratory.Type = InstitutionType.Laboratory;
@@ -49,7 +50,7 @@ namespace UserManagement.Services.InstitutionService
             return await AddInstitution<LaboratoryDTO>(_laboratory);
         }
 
-        public async Task<(int, string, LaboratoryDTO?)> UpdateLaboratory(UpdateLaboratoryDTO laboratoryDTO, string laboratoryId)
+        public async Task<SResponseDTO<LaboratoryDTO>> UpdateLaboratory(UpdateLaboratoryDTO laboratoryDTO, string laboratoryId)
         {
             HealthCenterDTO? healthCenter;
             string healthCenterId = string.Empty;
@@ -60,22 +61,22 @@ namespace UserManagement.Services.InstitutionService
                 healthCenterId = healthCenter?.Id ?? string.Empty;
 
                 if (healthCenterId == string.Empty)
-                    return (0, "Health Center not found. Make sure you're sending an existing health center's name", null);
+                    return new() { StatusCode = 404, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
             }
 
-            var (status, message, laboratory) = await UpdateInstitution<UpdateLaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId, healthCenterId);
-            if (status == 1 && laboratory != null)
-                laboratory.HealthCenterName = laboratoryDTO.HealthCenterName;
+            var response = await UpdateInstitution<UpdateLaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId, healthCenterId);
+            if (response.Success)
+                response.Data!.HealthCenterName = laboratoryDTO.HealthCenterName;
 
-            return (status, message, laboratory);
+            return new() { StatusCode = response.StatusCode, Message = response.Message, Data = response.Data, Success = response.Success, Errors = response.Errors };
         }
 
         private async Task<HealthCenterDTO?> HealthCenterExists(string healthCenterName)
         {
             //Check if the health center exists
 
-            var (_, _, healthCenter) = await _healthCenterService.GetHealthCenterByName(healthCenterName);
-            return _mapper.Map<HealthCenterDTO>(healthCenter);
+            var response = await _healthCenterService.GetHealthCenterByName(healthCenterName);
+            return _mapper.Map<HealthCenterDTO>(response.Data);
         }
     }
 }

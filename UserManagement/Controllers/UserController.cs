@@ -24,12 +24,10 @@ namespace UserManagement.Controllers
     [Route("api/user")]
     public class UserController : ControllerBase
     {
-        private readonly IChatAIService _chatAIService;
         private readonly IScheduleService _scheduleService;
         public UserController(IScheduleService scheduleService, IChatAIService chatAIService, ILogger<UserController> logger)
         {
             _scheduleService = scheduleService;
-            _chatAIService = chatAIService;
         }
 
         /// <summary>
@@ -49,24 +47,20 @@ namespace UserManagement.Controllers
             role = role.IsNullOrEmpty() ? "" : role;
             bool scheduler = role != UserRole.Doctor.ToString();
 
-            var (status, message, schedule) = await _scheduleService.GetSchedules(userId!, scheduler, page, size);
+            var response = await _scheduleService.GetSchedules(userId!, scheduler, page, size);
 
-            if (status == 0 || schedule == null)
-                return NotFound(new { errors = message });
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
-            return Ok(new { message, schedule });
         }
 
         [HttpGet("schedule/{id}")]
         [AuthorizeAccess]
         public async Task<IActionResult> GetSchedule(string id)
         {
-            var (status, message, schedule) = await _scheduleService.GetScheduleById(id);
+            var response = await _scheduleService.GetScheduleById(id);
 
-            if (status == 0 || schedule == null)
-                return NotFound(new { errors = message });
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
-            return Ok(new { message, schedule });
         }
 
         [HttpPost("schedule/")]
@@ -80,12 +74,10 @@ namespace UserManagement.Controllers
             if (role == UserRole.Doctor.ToString())
                 return Forbid("Doctor can't create schedule");
 
-            var (status, message, createdSchedule) = await _scheduleService.CreateSchedule(schedule, userId!);
+            var response = await _scheduleService.CreateSchedule(schedule, userId!);
 
-            if (status == 0 || createdSchedule == null)
-                return StatusCode(500, new { errors = message });
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
-            return Ok(new { message, schedule = createdSchedule });
         }
 
         /// <summary>
@@ -96,11 +88,10 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> UpdateSchedule([FromBody] DateTime dateTime, string scheduleId)
         {
             bool scheduler = HttpContext.Items["Role"]?.ToString() != UserRole.Doctor.ToString();
-            var (status, message, updatedSchedule) = await _scheduleService.UpdateSchedule(dateTime, scheduleId, scheduler);
+            var response = await _scheduleService.UpdateSchedule(dateTime, scheduleId, scheduler);
 
-            if (status == 0 || updatedSchedule == null)
-                return StatusCode(500, new { errors = message });
-            return Ok(new { message, schedule = updatedSchedule });
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+
         }
 
         /// <summary>
@@ -115,11 +106,9 @@ namespace UserManagement.Controllers
             if (role != UserRole.Doctor.ToString())
                 return Forbid();
 
-            var (status, message, updatedSchedule) = await _scheduleService.UpdateScheduleStatus(scheduleId, scheduleStatus);
+            var response = await _scheduleService.UpdateScheduleStatus(scheduleId, scheduleStatus);
 
-            if (status == 0 || updatedSchedule == null)
-                return StatusCode(500, new { errors = message });
-            return Ok(new { message, schedule = updatedSchedule });
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
 
@@ -127,32 +116,10 @@ namespace UserManagement.Controllers
         [AuthorizeAccess]
         public async Task<IActionResult> DeleteSchedule(string scheduleId)
         {
-            var (status, message) = await _scheduleService.DeleteSchedule(scheduleId);
+            var response = await _scheduleService.DeleteSchedule(scheduleId);
 
-            if (status == 0)
-                return StatusCode(500, new { errors = message });
-            return Ok(new { message, success = true });
-        }
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
 
-        [HttpGet("{id}/chat/")]
-        [AuthorizeAccess]
-        public async Task<IActionResult> GetUserMessages(string id)
-        {
-            var (status, message, messages) = await _chatAIService.GetMessages(id);
-            if (status == 0)
-                return BadRequest(new { error = message });
-
-            return Ok(new { successMessage = message, messages });
-        }
-
-        [HttpPost("{id}/chat/")]
-        [AuthorizeAccess]
-        public async Task<IActionResult> AskAI([FromBody] string message, string id)
-        {
-            var (status, statusMessage, response) = await _chatAIService.AskAI(id, message);
-            if (status == 0 || response == null)
-                return NotFound(new { error = "AI server not found" });
-            return Ok(new { response, message = statusMessage });
         }
     }
 }

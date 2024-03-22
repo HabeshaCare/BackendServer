@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using UserManagement.DTOs;
 using UserManagement.DTOs.ScheduleDTOs;
 using UserManagement.Models;
 using UserManagement.Utils;
@@ -27,16 +28,16 @@ namespace UserManagement.Services.UserServices
             _mapper = mapper;
         }
 
-        private async Task<(int, string?, Schedule)> GetSchedule(string id)
+        private async Task<SResponseDTO<Schedule>> GetSchedule(string id)
         {
             try
             {
                 var schedule = (await _scheduleCollection.Find(s => s.Id == id).ToListAsync())[0];
-                return (1, null, schedule);
+                return new() { StatusCode = 200, Data = schedule, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
@@ -71,7 +72,7 @@ namespace UserManagement.Services.UserServices
             return updatedSchedule;
         }
 
-        public async Task<(int, string, ScheduleDTO?)> CreateSchedule(CreateScheduleDTO createScheduleDTO, string schedulerId)
+        public async Task<SResponseDTO<ScheduleDTO>> CreateSchedule(CreateScheduleDTO createScheduleDTO, string schedulerId)
         {
             try
             {
@@ -82,32 +83,33 @@ namespace UserManagement.Services.UserServices
 
                 ScheduleDTO createdSchedule = await FetchScheduleInformation(schedule, true);
 
-                return (1, "Schedule created successfully", createdSchedule);
+                return new() { StatusCode = 201, Message = "Schedule created successfully", Data = createdSchedule, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string, ScheduleDTO?)> GetScheduleById(string scheduleId)
+        public async Task<SResponseDTO<ScheduleDTO>> GetScheduleById(string scheduleId)
         {
             try
             {
-                var (status, message, schedule) = await GetSchedule(scheduleId);
-                if (status == 0 || schedule == null)
-                    return (0, "Schedule not found", null);
+                var response = await GetSchedule(scheduleId);
+                if (!response.Success)
+                    return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
+                Schedule schedule = response.Data!;
                 var scheduleDTO = _mapper.Map<ScheduleDTO>(schedule);
-                return (1, "Schedule Found", scheduleDTO);
+                return new() { StatusCode = 200, Message = "Schedule Found", Data = scheduleDTO, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string, ScheduleDTO[])> GetSchedules(string userId, bool scheduler, int page, int size)
+        public async Task<SResponseDTO<ScheduleDTO[]>> GetSchedules(string userId, bool scheduler, int page, int size)
         {
             var filterBuilder = Builders<Schedule>.Filter;
             var filterDefinition = filterBuilder.Empty;
@@ -127,22 +129,21 @@ namespace UserManagement.Services.UserServices
                     .ToListAsync();
 
                 if (foundSchedules.Count == 0)
-                    return (0, "No Schedules Found", Array.Empty<ScheduleDTO>());
+                    return new() { StatusCode = 404, Errors = new[] { "No Schedules Found" } };
 
                 ScheduleDTO[] schedules = _mapper.Map<ScheduleDTO[]>(foundSchedules);
 
                 var scheduleTasks = foundSchedules.Select(schedule => FetchScheduleInformation(schedule, scheduler)).ToList();
                 schedules = await Task.WhenAll(scheduleTasks);
-
-                return (1, $"Found {schedules.Length}", schedules);
+                return new() { StatusCode = 200, Message = $"Found {schedules.Length} schedules", Data = schedules, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string, ScheduleDTO?)> UpdateSchedule(DateTime dateTime, string scheduleId, bool scheduler)
+        public async Task<SResponseDTO<ScheduleDTO>> UpdateSchedule(DateTime dateTime, string scheduleId, bool scheduler)
         {
             var filter = Builders<Schedule>.Filter.Eq(u => u.Id, scheduleId);
             var options = new FindOneAndReplaceOptions<Schedule>
@@ -152,26 +153,26 @@ namespace UserManagement.Services.UserServices
 
             try
             {
-                var (status, message, schedule) = await GetSchedule(scheduleId);
+                var response = await GetSchedule(scheduleId);
 
-                if (status == 0 || schedule == null)
-                    return (0, "Schedule not found", null);
-
+                if (!response.Success)
+                    return new() { StatusCode = response.StatusCode, Errors = response.Errors };
+                Schedule schedule = response.Data!;
                 schedule.ScheduleTime = dateTime;
 
                 var updateSchedule = Task.Run(() => _scheduleCollection.FindOneAndReplaceAsync(filter, schedule, options));
                 var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, scheduler));
                 await Task.WhenAll(updateSchedule, fetchScheduleInfo);
 
-                return (1, "Schedule Updated", fetchScheduleInfo.Result);
+                return new() { StatusCode = 201, Message = "Schedule Updated", Data = fetchScheduleInfo.Result, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string, ScheduleDTO?)> UpdateScheduleStatus(string scheduleId, bool scheduleStatus)
+        public async Task<SResponseDTO<ScheduleDTO>> UpdateScheduleStatus(string scheduleId, bool scheduleStatus)
         {
             var filter = Builders<Schedule>.Filter.Eq(u => u.Id, scheduleId);
             var options = new FindOneAndReplaceOptions<Schedule>
@@ -181,38 +182,40 @@ namespace UserManagement.Services.UserServices
 
             try
             {
-                var (status, message, schedule) = await GetSchedule(scheduleId);
+                var response = await GetSchedule(scheduleId);
 
-                if (status == 0 || schedule == null)
-                    return (0, "Schedule not found", null);
+                if (!response.Success)
+                    return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
+                Schedule schedule = response.Data!;
                 schedule.Confirmed = scheduleStatus;
 
                 var updateSchedule = Task.Run(() => _scheduleCollection.FindOneAndReplaceAsync(filter, schedule, options));
                 var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, false));
                 await Task.WhenAll(updateSchedule, fetchScheduleInfo);
 
-                return (1, "Schedule Updated", fetchScheduleInfo.Result);
+                return new() { StatusCode = 201, Message = "Schedule Updated", Data = fetchScheduleInfo.Result, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string)> DeleteSchedule(string scheduleId)
+        public async Task<SResponseDTO<string>> DeleteSchedule(string scheduleId)
         {
             try
             {
                 var result = await _scheduleCollection.FindOneAndDeleteAsync(s => s.Id == scheduleId);
 
                 if (result == null)
-                    return (0, "Schedule not found");
-                return (1, "Schedule deleted successfully");
+                    return new() { StatusCode = 404, Errors = new[] { "Schedule not found" } };
+
+                return new() { StatusCode = 200, Message = "Schedule deleted successfully", Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
     }

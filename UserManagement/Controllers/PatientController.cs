@@ -26,24 +26,17 @@ namespace UserManagement.Controllers
         [HttpGet("{id}/profile")]
         public async Task<IActionResult> GetPatientById(string id)
         {
-            var (status, message, patient) = await _patientService.GetPatientById(id);
-            if (status == 0 || patient == null)
-            {
-                return NotFound(new { error = message });
-            }
-            return Ok(new { success = true, user = patient });
+            var response = await _patientService.GetPatientById(id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPut("{id}/profile")]
         [AuthorizeAccess]
         public async Task<IActionResult> UpdatePatient(string id, [FromBody] UpdatePatientDTO patientDTO)
         {
-            var (status, message, patient) = await _patientService.UpdatePatient(patientDTO, id);
+            var response = await _patientService.UpdatePatient(patientDTO, id);
 
-            if (status == 0 || patient == null)
-                return BadRequest(new { error = message });
-
-            return Ok(new { message, user = patient });
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPost("{id}/profile/upload-picture")]
@@ -52,11 +45,9 @@ namespace UserManagement.Controllers
         {
             try
             {
-                var (status, message, user) = await _patientService.UploadProfilePic<UsagePatientDTO>(id, image);
+                var response = await _patientService.UploadProfilePic<UsagePatientDTO>(id, image);
 
-                if (status == 0 || user == null)
-                    return BadRequest(new { error = message });
-                return Ok(new { message, user });
+                return new ObjectResult(response) { StatusCode = response.StatusCode };
             }
             catch (Exception ex)
             {
