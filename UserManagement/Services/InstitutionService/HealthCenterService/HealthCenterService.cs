@@ -16,7 +16,7 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
 {
     public class HealthCenterService : InstitutionService<HealthCenter>, IHealthCenterService
     {
-        public HealthCenterService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options, fileService, mapper)
+        public HealthCenterService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IAdminService adminService) : base(options, fileService, mapper, adminService)
         {
         }
 

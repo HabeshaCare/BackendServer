@@ -12,6 +12,7 @@ using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
 using UserManagement.Services.InstitutionService.HealthCenterService;
+using UserManagement.Services.UserServices;
 using UserManagement.Utils;
 
 namespace UserManagement.Services.InstitutionService
@@ -20,7 +21,7 @@ namespace UserManagement.Services.InstitutionService
     {
         private readonly IHealthCenterService _healthCenterService;
 
-        public LaboratoryService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService) : base(options, fileService, mapper)
+        public LaboratoryService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService, IAdminService adminService) : base(options, fileService, mapper, adminService)
         {
             _healthCenterService = healthCenterService;
 
@@ -34,6 +35,11 @@ namespace UserManagement.Services.InstitutionService
         public async Task<SResponseDTO<Laboratory>> GetLaboratory(string id)
         {
             return await GetInstitutionById<Laboratory>(id);
+        }
+
+        public async Task<SResponseDTO<Laboratory>> GetLabTestRequests()
+        {
+
         }
 
         public async Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory, string adminId)

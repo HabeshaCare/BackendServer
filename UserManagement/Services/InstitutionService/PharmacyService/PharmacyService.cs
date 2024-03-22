@@ -12,6 +12,7 @@ using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
 using UserManagement.Services.InstitutionService.HealthCenterService;
+using UserManagement.Services.UserServices;
 using UserManagement.Utils;
 
 namespace UserManagement.Services.InstitutionService
@@ -19,7 +20,7 @@ namespace UserManagement.Services.InstitutionService
     public class PharmacyService : InstitutionService<Pharmacy>, IPharmacyService
     {
         private readonly IHealthCenterService _healthCenterService;
-        public PharmacyService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService) : base(options, fileService, mapper)
+        public PharmacyService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService, IAdminService adminService) : base(options, fileService, mapper, adminService)
         {
             _healthCenterService = healthCenterService;
         }
