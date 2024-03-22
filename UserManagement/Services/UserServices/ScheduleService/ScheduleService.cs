@@ -37,7 +37,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message }, Success = false };
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
@@ -211,7 +211,7 @@ namespace UserManagement.Services.UserServices
                 if (result == null)
                     return new() { StatusCode = 404, Errors = new[] { "Schedule not found" } };
 
-                return new() { StatusCode = 200, Message = "Schedule deleted successfully" };
+                return new() { StatusCode = 200, Message = "Schedule deleted successfully", Success = true };
             }
             catch (Exception ex)
             {

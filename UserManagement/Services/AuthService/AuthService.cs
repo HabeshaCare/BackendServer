@@ -78,7 +78,7 @@ namespace UserManagement.Services
 
             string token = GenerateToken(authClaims);
             UsageUserDTO foundUser = _mapper.Map<UsageUserDTO>(user);
-            return new() { StatusCode = 200, Message = "Login successful", Data = foundUser, Token = token };
+            return new() { StatusCode = 200, Message = "Login successful", Data = foundUser, Token = token, Success = true };
         }
 
         public async Task<SResponseDTO<UsageUserDTO>> Registration(RegistrationDTO model)
