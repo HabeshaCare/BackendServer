@@ -21,11 +21,13 @@ namespace UserManagement.Middleware
         {
             // Extracts user Id and role claims from the JWT token.
             var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var InstitutionId = context.User.FindFirst("InstitutionId")?.Value;
             var role = context.User.FindFirst(ClaimTypes.Role)?.Value;
 
             // Stores the extracted values in the HttpContext items for later use in controllers
             context.Items["UserId"] = userId;
             context.Items["Role"] = role;
+            context.Items["InstitutionId"] = InstitutionId;
 
             await _next(context);
         }
