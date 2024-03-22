@@ -24,7 +24,7 @@ namespace UserManagement.Services.InstitutionService
             _healthCenterService = healthCenterService;
         }
 
-        public async Task<SResponseDTO<PharmacyDTO>> AddPharmacy(PharmacyDTO pharmacyDTO)
+        public async Task<SResponseDTO<PharmacyDTO>> AddPharmacy(PharmacyDTO pharmacyDTO, string adminId)
         {
             HealthCenterDTO? healthCenter = await HealthCenterExists(pharmacyDTO.HealthCenterName);
             string healthCenterId = healthCenter?.Id ?? string.Empty;
@@ -39,7 +39,7 @@ namespace UserManagement.Services.InstitutionService
             pharmacy.Type = InstitutionType.Pharmacy;
             pharmacy.AssociatedHealthCenterId = healthCenterId;
 
-            var response = await AddInstitution<PharmacyDTO>(pharmacy);
+            var response = await AddInstitution<PharmacyDTO>(pharmacy, adminId);
 
             if (response.Success)
                 response.Data!.HealthCenterName = pharmacyDTO.HealthCenterName;

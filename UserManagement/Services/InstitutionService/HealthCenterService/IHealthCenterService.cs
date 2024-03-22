@@ -15,7 +15,7 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
         Task<SResponseDTO<HealthCenterDTO[]>> GetHealthCenters(FilterDTO? filterDefinition, int page, int size);
         Task<SResponseDTO<HealthCenterDTO>> GetHealthCenter(string id);
         Task<SResponseDTO<HealthCenterDTO>> GetHealthCenterByName(string name);
-        Task<SResponseDTO<HealthCenterDTO>> AddHealthCenter(HealthCenterDTO healthCenter);
+        Task<SResponseDTO<HealthCenterDTO>> AddHealthCenter(HealthCenterDTO healthCenter, string adminId);
         Task<SResponseDTO<HealthCenterDTO>> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId);
     }
 }

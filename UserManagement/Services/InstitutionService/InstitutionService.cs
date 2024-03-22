@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using UserManagement.DTOs;
+using UserManagement.DTOs.AdminDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
@@ -20,7 +21,7 @@ namespace UserManagement.Services.InstitutionService
 
         protected readonly IMongoCollection<T> _collection;
         protected readonly IFileService _fileService;
-        // protected readonly IAdminService _adminService;
+        protected readonly IAdminService _adminService;
         protected readonly IMapper _mapper;
         public InstitutionService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options)
         {
@@ -107,7 +108,7 @@ namespace UserManagement.Services.InstitutionService
 
         // AD refers to the Registration DTO of an institution
         // USD refers to the Usage DTO of an institution
-        protected async Task<SResponseDTO<USD>> AddInstitution<USD>(T institution)
+        protected async Task<SResponseDTO<USD>> AddInstitution<USD>(T institution, string adminId)
         {
             try
             {
@@ -121,7 +122,11 @@ namespace UserManagement.Services.InstitutionService
                 USD createdInstitution = _mapper.Map<USD>(institution);
 
                 // #TODO: Add admin id here
-                // var (adminStatus, adminMessage, _) = await _adminService.AddInstitutionAccess("", institution?.Id ?? string.Empty);
+                UpdateAdminDTO updateAdminDTO = new()
+                {
+                    AssociatedHealthCenterId = response.Data!.Id!,
+                };
+                await _adminService.UpdateAdmin(updateAdminDTO, adminId);
 
                 return new() { StatusCode = 201, Message = "Institution created successfully", Data = createdInstitution, Success = true };
             }

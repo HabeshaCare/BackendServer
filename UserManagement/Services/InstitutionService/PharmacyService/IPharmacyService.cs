@@ -14,7 +14,7 @@ namespace UserManagement.Services.InstitutionService
     {
         Task<SResponseDTO<PharmacyDTO[]>> GetPharmacies(FilterDTO? filterOption, int page, int size);
         Task<SResponseDTO<Pharmacy>> GetPharmacy(string id);
-        Task<SResponseDTO<PharmacyDTO>> AddPharmacy(PharmacyDTO pharmacyDTO);
+        Task<SResponseDTO<PharmacyDTO>> AddPharmacy(PharmacyDTO pharmacyDTO, string adminId);
         Task<SResponseDTO<PharmacyDTO>> UpdatePharmacy(UpdatePharmacyDTO pharmacyDTO, string pharmacyId);
     }
 }

@@ -14,7 +14,7 @@ namespace UserManagement.Services.InstitutionService
     {
         Task<SResponseDTO<LaboratoryDTO[]>> GetLaboratories(FilterDTO? filterOption, int page, int size);
         Task<SResponseDTO<Laboratory>> GetLaboratory(string id);
-        Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory);
+        Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory, string adminId);
         Task<SResponseDTO<LaboratoryDTO>> UpdateLaboratory(UpdateLaboratoryDTO laboratoryDTO, string laboratoryId);
     }
 }

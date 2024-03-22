@@ -35,10 +35,10 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
             return await GetInstitutionByName<HealthCenterDTO>(name);
         }
 
-        public async Task<SResponseDTO<HealthCenterDTO>> AddHealthCenter(HealthCenterDTO healthCenter)
+        public async Task<SResponseDTO<HealthCenterDTO>> AddHealthCenter(HealthCenterDTO healthCenter, string adminId)
         {
             HealthCenter _healthCenter = _mapper.Map<HealthCenter>(healthCenter);
-            return await AddInstitution<HealthCenterDTO>(_healthCenter);
+            return await AddInstitution<HealthCenterDTO>(_healthCenter, adminId);
         }
 
         public async Task<SResponseDTO<HealthCenterDTO>> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId)

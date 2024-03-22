@@ -36,7 +36,7 @@ namespace UserManagement.Services.InstitutionService
             return await GetInstitutionById<Laboratory>(id);
         }
 
-        public async Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory)
+        public async Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory, string adminId)
         {
             HealthCenterDTO? healthCenter = await HealthCenterExists(laboratory.HealthCenterName);
             string healthCenterId = healthCenter?.Id ?? string.Empty;
@@ -47,7 +47,7 @@ namespace UserManagement.Services.InstitutionService
             Laboratory _laboratory = _mapper.Map<Laboratory>(laboratory);
             _laboratory.Type = InstitutionType.Laboratory;
             _laboratory.AssociatedHealthCenterId = healthCenterId;
-            return await AddInstitution<LaboratoryDTO>(_laboratory);
+            return await AddInstitution<LaboratoryDTO>(_laboratory, adminId);
         }
 
         public async Task<SResponseDTO<LaboratoryDTO>> UpdateLaboratory(UpdateLaboratoryDTO laboratoryDTO, string laboratoryId)
