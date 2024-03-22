@@ -42,36 +42,49 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<SResponseDTO<TestRequestDTO[]>> GetLabTestRequests(string laboratoryId)
         {
-            var response = await GetLaboratory(laboratoryId);
-            if (!response.Success)
-                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
+            try
+            {
+                var response = await GetLaboratory(laboratoryId);
+                if (!response.Success)
+                    return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
-            var labTestRequests = response.Data!.TestRequestIds;
+                var labTestRequests = response.Data!.TestRequestIds;
 
-            var filterBuilder = Builders<TestRequest>.Filter;
-            var filter = filterBuilder.Eq(tr => tr.LaboratoryId, laboratoryId) & filterBuilder.Eq(tr => tr.Status, RequestStatus.Pending);
-            var results = (await _testRequestCollection.Find(filter).ToListAsync()).ToArray();
-            var testRequests = Array.Empty<TestRequestDTO>();
+                var filterBuilder = Builders<TestRequest>.Filter;
+                var filter = filterBuilder.Eq(tr => tr.LaboratoryId, laboratoryId) & filterBuilder.Eq(tr => tr.Status, RequestStatus.Pending);
+                var results = (await _testRequestCollection.Find(filter).ToListAsync()).ToArray();
+                var testRequests = Array.Empty<TestRequestDTO>();
 
 
-            var tasks = results.Select(async testRequest =>
-                {
-                    var testRequestDTO = _mapper.Map<TestRequestDTO>(testRequest);
+                var tasks = results.Select(async testRequest =>
+                    {
+                        var testRequestDTO = _mapper.Map<TestRequestDTO>(testRequest);
 
-                    var laboratoryTask = Task.Run(() => _adminService.GetAdminById(testRequest.HandlerId));
-                    var doctorTask = Task.Run(() => _doctorService.GetDoctorById(testRequest.RequestorId));
+                        var laboratoryTask = Task.Run(() => _adminService.GetAdminById(testRequest.HandlerId));
+                        var doctorTask = Task.Run(() => _doctorService.GetDoctorById(testRequest.RequestorId));
 
-                    await Task.WhenAll(laboratoryTask, doctorTask);
+                        await Task.WhenAll(laboratoryTask, doctorTask);
 
-                    testRequestDTO.LaboratorianName = laboratoryTask.Result.Data?.Fullname ?? string.Empty;
-                    testRequestDTO.DoctorName = doctorTask.Result.Data?.Fullname ?? string.Empty;
+                        testRequestDTO.LaboratorianName = laboratoryTask.Result.Data?.Fullname ?? string.Empty;
+                        testRequestDTO.DoctorName = doctorTask.Result.Data?.Fullname ?? string.Empty;
 
-                    _ = testRequests.Append(testRequestDTO);
-                });
+                        _ = testRequests.Append(testRequestDTO);
+                    });
 
-            await Task.WhenAll(tasks);
+                await Task.WhenAll(tasks);
 
-            return new() { StatusCode = 200, Data = testRequests, Success = true };
+                return new() { StatusCode = 200, Data = testRequests, Success = true };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+            }
+
+        }
+
+        public async Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO laboratoryId)
+        {
+            var
         }
 
         public async Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory, string adminId)

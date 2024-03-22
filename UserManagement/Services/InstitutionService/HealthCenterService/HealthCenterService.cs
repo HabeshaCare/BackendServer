@@ -10,6 +10,7 @@ using UserManagement.DTOs.HealthCenterDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
+using UserManagement.Services.UserServices;
 using UserManagement.Utils;
 
 namespace UserManagement.Services.InstitutionService.HealthCenterService
