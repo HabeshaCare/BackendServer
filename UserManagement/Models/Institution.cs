@@ -23,6 +23,6 @@ namespace UserManagement.Models
         [BsonRepresentation(BsonType.String)]
         public required InstitutionType Type { get; set; }
 
-        public string HealthCenterId { get; set; } = string.Empty;
+        public string AssociatedHealthCenterId { get; set; } = string.Empty;
     }
 }

@@ -8,6 +8,7 @@ using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.DTOs.AdminDTOs;
 using UserManagement.Models;
+using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
 using UserManagement.Utils;
 
@@ -22,6 +23,13 @@ namespace UserManagement.Services.UserServices
         public async Task<SResponseDTO<Administrator>> AddAdmin(Administrator admin)
         {
             return await AddUser<Administrator>(admin);
+        }
+
+        public async Task<SResponseDTO<UsageAdminDTO[]>> GetAdmins(FilterDTO filterOptions, int page, int size)
+        {
+            var filterDefinition = PrepareFilterDefinition(filterOptions);
+
+            return await GetUsers<UsageAdminDTO>(filterDefinition, page, size);
         }
 
         public async Task<SResponseDTO<UsageAdminDTO>> GetAdminByEmail(string adminEmail)

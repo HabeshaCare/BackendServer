@@ -18,5 +18,6 @@ namespace UserManagement.Models
         */
         //The list of institution ids managed by the administrator
         public string InstitutionId { get; set; } = string.Empty;
+        public string AssociatedHealthCenterId { get; set; } = string.Empty;
     }
 }

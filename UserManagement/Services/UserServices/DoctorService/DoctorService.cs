@@ -34,19 +34,7 @@ namespace UserManagement.Services.UserServices
 
         public async Task<SResponseDTO<UsageDoctorDTO[]>> GetDoctors(FilterDTO filterOptions, int page, int size)
         {
-            var filterBuilder = Builders<Doctor>.Filter;
-            var filterDefinition = filterBuilder.Empty;
-
-            filterDefinition &= filterBuilder.Eq("Verified", true);
-
-            if (filterOptions.MinYearExperience.HasValue)
-                filterDefinition &= filterBuilder.Gte("YearOfExperience", filterOptions.MinYearExperience);
-
-            if (filterOptions.MaxYearExperience.HasValue)
-                filterDefinition &= filterBuilder.Lte("YearOfExperience", filterOptions.MaxYearExperience);
-
-            if (!string.IsNullOrEmpty(filterOptions.Specialization))
-                filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
+            var filterDefinition = PrepareFilterDefinition(filterOptions);
 
             return await GetUsers<UsageDoctorDTO>(filterDefinition, page, size);
         }

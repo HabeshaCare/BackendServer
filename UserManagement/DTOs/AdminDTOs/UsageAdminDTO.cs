@@ -13,5 +13,6 @@ namespace UserManagement.DTOs.AdminDTOs
         administrators are kept in a separate collection and 
         a different type is need to handle it
         */
+        public string AssociatedHealthCenterId { get; set; } = string.Empty;
     }
 }

@@ -37,7 +37,7 @@ namespace UserManagement.Services.InstitutionService
 
             Pharmacy pharmacy = _mapper.Map<Pharmacy>(pharmacyDTO);
             pharmacy.Type = InstitutionType.Pharmacy;
-            pharmacy.HealthCenterId = healthCenterId;
+            pharmacy.AssociatedHealthCenterId = healthCenterId;
 
             var response = await AddInstitution<PharmacyDTO>(pharmacy);
 

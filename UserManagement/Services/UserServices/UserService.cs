@@ -5,6 +5,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.Models;
+using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.Services.FileServices;
 using UserManagement.Utils;
@@ -255,6 +256,31 @@ namespace UserManagement.Services.UserServices
             {
                 return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
+        }
+
+        protected FilterDefinition<T> PrepareFilterDefinition(FilterDTO filterOptions)
+        {
+            var filterBuilder = Builders<T>.Filter;
+            var filterDefinition = filterBuilder.Empty;
+
+            filterDefinition &= filterBuilder.Eq("Verified", true);
+
+            if (filterOptions.MinYearExperience.HasValue)
+                filterDefinition &= filterBuilder.Gte("YearOfExperience", filterOptions.MinYearExperience);
+
+            if (filterOptions.MaxYearExperience.HasValue)
+                filterDefinition &= filterBuilder.Lte("YearOfExperience", filterOptions.MaxYearExperience);
+
+            if (!string.IsNullOrEmpty(filterOptions.Specialization))
+                filterDefinition &= filterBuilder.Eq("Specialization", filterOptions.Specialization);
+
+            if (!string.IsNullOrEmpty(filterOptions.AssociatedHealthCenterId))
+                filterDefinition &= filterBuilder.Eq("AssociatedHealthCenterId", filterOptions.AssociatedHealthCenterId);
+
+            if (!string.IsNullOrEmpty(filterOptions.Freelancer))
+                filterDefinition &= filterBuilder.Eq("AssociatedHealthCenterId", string.Empty);
+
+            return filterDefinition;
         }
     }
 }

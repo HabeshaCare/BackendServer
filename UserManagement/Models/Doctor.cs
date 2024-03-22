@@ -13,6 +13,7 @@ namespace UserManagement.Models
         public string? LicensePath { get; set; }
         public string Specialization { get; set; } = "Medical";
         public int? YearOfExperience { get; set; }
+        public string AssociatedHealthCenterId { get; set; } = string.Empty;
         public bool? Verified { get; set; }
     }
 }

@@ -39,6 +39,9 @@ namespace UserManagement.Services.InstitutionService
             if (filterOptions.Verified.HasValue)
                 filterDefinition &= filterBuilder.Gte("Verified", filterOptions.Verified);
 
+            if (!string.IsNullOrEmpty(filterOptions.Freelancer))
+                filterDefinition &= filterBuilder.Eq("AssociatedHealthCenterId", string.Empty);
+
             int skip = (page - 1) * size;
             try
             {
@@ -143,7 +146,7 @@ namespace UserManagement.Services.InstitutionService
                     institution.Verified = false;
 
                     if (healthCenterId != "")
-                        institution.HealthCenterId = healthCenterId;
+                        institution.AssociatedHealthCenterId = healthCenterId;
 
                     var filter = Builders<T>.Filter.And(
                         Builders<T>.Filter.Eq(u => u.Id, institutionId));

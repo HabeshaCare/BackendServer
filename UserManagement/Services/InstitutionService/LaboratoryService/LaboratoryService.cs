@@ -46,7 +46,7 @@ namespace UserManagement.Services.InstitutionService
 
             Laboratory _laboratory = _mapper.Map<Laboratory>(laboratory);
             _laboratory.Type = InstitutionType.Laboratory;
-            _laboratory.HealthCenterId = healthCenterId;
+            _laboratory.AssociatedHealthCenterId = healthCenterId;
             return await AddInstitution<LaboratoryDTO>(_laboratory);
         }
 
