@@ -78,5 +78,17 @@ namespace UserManagement.Services.InstitutionService
             var response = await _healthCenterService.GetHealthCenterByName(healthCenterName);
             return _mapper.Map<HealthCenterDTO>(response.Data);
         }
+
+        public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTests(LabTest[] labTests, string laboratoryId)
+        {
+            var response = await GetLaboratory(laboratoryId);
+            if (!response.Success)
+                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
+
+            var laboratory = response.Data!;
+            laboratory.AvailableTests = labTests;
+
+            return await UpdateInstitution<Laboratory, LaboratoryDTO>(laboratory, laboratoryId);
+        }
     }
 }

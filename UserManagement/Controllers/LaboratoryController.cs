@@ -65,6 +65,14 @@ namespace UserManagement.Controllers
 
         }
 
+        [HttpPut("{id}/update-tests")]
+        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
+        public async Task<IActionResult> UpdateLabTests([FromBody] LabTest[] labTests, string id)
+        {
+            var response = await _laboratoryService.UpdateLabTests(labTests, id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+        }
+
         [HttpPost("{id}/upload-license")]
         [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UploadLicense(string id, [FromForm] IFormFile license)
