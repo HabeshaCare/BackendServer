@@ -20,11 +20,14 @@ namespace UserManagement.Services.InstitutionService
     public class LaboratoryService : InstitutionService<Laboratory>, ILaboratoryService
     {
         private readonly IHealthCenterService _healthCenterService;
+        private readonly IDoctorService _doctorService;
+        private readonly IMongoCollection<TestRequest> _testRequestCollection;
 
-        public LaboratoryService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService, IAdminService adminService) : base(options, fileService, mapper, adminService)
+        public LaboratoryService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService, IAdminService adminService, IDoctorService doctorService) : base(options, fileService, mapper, adminService)
         {
             _healthCenterService = healthCenterService;
-
+            _doctorService = doctorService;
+            _testRequestCollection = GetCollection<TestRequest>("TestRequests");
         }
 
         public async Task<SResponseDTO<LaboratoryDTO[]>> GetLaboratories(FilterDTO? filterOption, int page, int size)
@@ -37,9 +40,38 @@ namespace UserManagement.Services.InstitutionService
             return await GetInstitutionById<Laboratory>(id);
         }
 
-        public async Task<SResponseDTO<Laboratory>> GetLabTestRequests()
+        public async Task<SResponseDTO<TestRequestDTO[]>> GetLabTestRequests(string laboratoryId)
         {
+            var response = await GetLaboratory(laboratoryId);
+            if (!response.Success)
+                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
+            var labTestRequests = response.Data!.TestRequestIds;
+
+            var filterBuilder = Builders<TestRequest>.Filter;
+            var filter = filterBuilder.Eq(tr => tr.LaboratoryId, laboratoryId) & filterBuilder.Eq(tr => tr.Status, RequestStatus.Pending);
+            var results = (await _testRequestCollection.Find(filter).ToListAsync()).ToArray();
+            var testRequests = Array.Empty<TestRequestDTO>();
+
+
+            var tasks = results.Select(async testRequest =>
+                {
+                    var testRequestDTO = _mapper.Map<TestRequestDTO>(testRequest);
+
+                    var laboratoryTask = Task.Run(() => _adminService.GetAdminById(testRequest.HandlerId));
+                    var doctorTask = Task.Run(() => _doctorService.GetDoctorById(testRequest.RequestorId));
+
+                    await Task.WhenAll(laboratoryTask, doctorTask);
+
+                    testRequestDTO.LaboratorianName = laboratoryTask.Result.Data?.Fullname ?? string.Empty;
+                    testRequestDTO.DoctorName = doctorTask.Result.Data?.Fullname ?? string.Empty;
+
+                    _ = testRequests.Append(testRequestDTO);
+                });
+
+            await Task.WhenAll(tasks);
+
+            return new() { StatusCode = 200, Data = testRequests, Success = true };
         }
 
         public async Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory, string adminId)

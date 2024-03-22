@@ -10,7 +10,7 @@ namespace UserManagement.DTOs.LaboratoryDTOs
     public class LaboratoryDTO : InstitutionDTO
     {
         public LabTest[] AvailableTests { get; set; } = Array.Empty<LabTest>();
-        public TestRequest[] LabRequests { get; set; } = Array.Empty<TestRequest>();
+        public string[] TestRequestIds { get; set; } = Array.Empty<string>();
         public string HealthCenterName { get; set; } = string.Empty;
     }
 }

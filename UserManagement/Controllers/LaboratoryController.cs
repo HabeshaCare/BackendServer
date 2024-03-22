@@ -35,7 +35,22 @@ namespace UserManagement.Controllers
         {
             var response = await _laboratoryService.GetLaboratory(id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
+        }
 
+        [HttpGet("{id}/test-requests")]
+        [Authorize(Roles = "LaboratoryAdmin, HealthCenter")]
+        public async Task<IActionResult> GetLabTestRequests(string id)
+        {
+            var response = await _laboratoryService.GetLabTestRequests(id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+        }
+
+        [HttpGet("{id}/test-requests")]
+        [Authorize(Roles = "Doctor, Patient, HealthCenterAdmin")]
+        public async Task<IActionResult> RequestForLabTest([FromBody] CreateTestRequestDTO labTestRequest, string id)
+        {
+            var response = await _laboratoryService.GetLabTestRequests(id);
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPost]

@@ -8,6 +8,6 @@ namespace UserManagement.Models
     public class Laboratory : Institution
     {
         public LabTest[] AvailableTests { get; set; } = Array.Empty<LabTest>();
-        public TestRequest[] LabRequests { get; set; } = Array.Empty<TestRequest>();
+        public string[] TestRequestIds { get; set; } = Array.Empty<string>();
     }
 }
