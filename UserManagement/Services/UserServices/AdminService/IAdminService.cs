@@ -16,6 +16,8 @@ namespace UserManagement.Services.UserServices
         Task<SResponseDTO<UsageAdminDTO>> GetAdminByEmail(string adminEmail);
         Task<SResponseDTO<Administrator>> AddAdmin(Administrator admin);
         Task<SResponseDTO<Administrator>> UpdateAdmin(UpdateAdminDTO adminDTO, string id);
-        // Task<(int, string, UsageAdminDTO?)> AddInstitutionAccess(string adminId, string institutionId);
+        Task<SResponseDTO<bool>> AddInstitutionAccess(string adminId, string institutionId);
+        Task<SResponseDTO<bool>> RemoveInstitutionAccess(string adminId);
+
     }
 }

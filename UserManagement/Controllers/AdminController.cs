@@ -39,6 +39,36 @@ namespace UserManagement.Controllers
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
+        /// <summary>
+        /// Add a pharmacyAdmin or laboratoryAdmin access to institutions associated with the health center. It accepts the institution id from the body.
+        /// </summary>
+        /// <param name="adminId">The id of the admin to grant access.</param>
+        /// <param name="institutionId">The id of the laboratory or the pharmacy institution.</param>
+        /// <returns>Nothing useful except for messages.</returns>
+        [HttpPut("{id}/add-admin")]
+        [Authorize(Roles = "HealthCenterAdmin")]
+        public async Task<IActionResult> AddAdmin(string adminId, [FromBody] string institutionId)
+        {
+            var response = await _adminService.AddInstitutionAccess(adminId, institutionId);
+
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+        }
+
+
+        /// <summary>
+        /// Remove a pharmacy or laboratory access to institutions associated with the health center.
+        /// </summary>
+        /// <param name="adminId">The id of the admin to grant access.</param>
+        /// <returns>Nothing useful except for messages.</returns>
+        [HttpPut("{id}/remove-admin")]
+        [Authorize(Roles = "HealthCenterAdmin")]
+        public async Task<IActionResult> RemoveAdmin(string adminId)
+        {
+            var response = await _adminService.RemoveInstitutionAccess(adminId);
+
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+        }
+
         [HttpPost("{id}/profile/upload-picture")]
         [AuthorizeAccess]
         public async Task<IActionResult> UploadProfilePicture(string id, [FromForm] IFormFile? image)

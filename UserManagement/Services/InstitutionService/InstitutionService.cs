@@ -121,14 +121,10 @@ namespace UserManagement.Services.InstitutionService
                 await _collection.InsertOneAsync(institution);
                 USD createdInstitution = _mapper.Map<USD>(institution);
 
-                // #TODO: Add admin id here
-                UpdateAdminDTO updateAdminDTO = new()
-                {
-                    AssociatedHealthCenterId = response.Data!.Id!,
-                };
-                await _adminService.UpdateAdmin(updateAdminDTO, adminId);
+                var accessResponse = await _adminService.AddInstitutionAccess(response.Data!.Id!, adminId);
+                var failureMessage = accessResponse.Success ? string.Empty : "but couldn't grant access to admin";
 
-                return new() { StatusCode = 201, Message = "Institution created successfully", Data = createdInstitution, Success = true };
+                return new() { StatusCode = 201, Message = $"Institution created successfully {failureMessage}", Data = createdInstitution, Success = true, Errors = accessResponse.Errors };
             }
             catch (Exception ex)
             {

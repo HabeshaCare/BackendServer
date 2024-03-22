@@ -46,29 +46,47 @@ namespace UserManagement.Services.UserServices
         {
             return await UpdateUser<UpdateAdminDTO, Administrator>(adminDTO, id);
         }
-        // public async Task<(int, string, UsageAdminDTO?)> AddInstitutionAccess(string adminId, string institutionId)
-        // {
-        //     try
-        //     {
-        //         var filter = Builders<Administrator>.Filter.Eq(a => a.Id, adminId);
-        //         var update = Builders<Administrator>.Update.Push(a => a.InstitutionId, institutionId);
-        //         var result = await _collection.UpdateOneAsync(filter, update);
-        //         if (result.ModifiedCount > 0)
-        //         {
-        //             return (1, "Institution access added successfully", null);
-        //         }
-        //         else
-        //         {
-        //             return (0, "Failed to add institution access", null);
-        //         }
 
-        //     }
-        //     catch (Exception ex)
-        //     {
+        public async Task<SResponseDTO<bool>> AddInstitutionAccess(string adminId, string institutionId)
+        {
+            try
+            {
+                var filter = Builders<Administrator>.Filter.Eq(a => a.Id, adminId);
+                var update = Builders<Administrator>.Update.Set(a => a.InstitutionId, institutionId);
+                var result = await _collection.UpdateOneAsync(filter, update);
 
-        //         return (0, ex.Message, null);
-        //     }
+                bool success = result.ModifiedCount > 0;
 
-        // }
+                if (success)
+                    return new() { StatusCode = 200, Message = "Access granted", Success = true };
+                else
+                    return new() { StatusCode = 404, Errors = new[] { "Failed to grant access to admin" } };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+            }
+        }
+
+        public async Task<SResponseDTO<bool>> RemoveInstitutionAccess(string adminId)
+        {
+            try
+            {
+                var filter = Builders<Administrator>.Filter.Eq(a => a.Id, adminId);
+                var update = Builders<Administrator>.Update.Set(a => a.InstitutionId, "");
+                var result = await _collection.UpdateOneAsync(filter, update);
+
+                bool success = result.ModifiedCount > 0;
+
+                if (success)
+                    return new() { StatusCode = 200, Message = "Access revoked", Success = true };
+                else
+                    return new() { StatusCode = 404, Errors = new[] { "Failed to revoke access from admin" } };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+            }
+        }
     }
 }
