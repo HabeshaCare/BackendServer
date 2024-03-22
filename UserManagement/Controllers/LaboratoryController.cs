@@ -49,7 +49,7 @@ namespace UserManagement.Controllers
         [Authorize(Roles = "Doctor, Patient, HealthCenterAdmin")]
         public async Task<IActionResult> RequestForLabTest([FromBody] CreateTestRequestDTO labTestRequest, string id)
         {
-            var response = await _laboratoryService.GetLabTestRequests(id);
+            var response = await _laboratoryService.RequestForLabTest(labTestRequest, id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 

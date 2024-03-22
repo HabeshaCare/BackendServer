@@ -104,11 +104,11 @@ namespace UserManagement.Services.InstitutionService
 
         }
 
-        public async Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO labTestRequest)
+        public async Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO labTestRequest, string labId)
         {
             try
             {
-                var response = await GetLaboratory(labTestRequest.LaboratoryId);
+                var response = await GetLaboratory(labId);
 
                 if (!response.Success)
                     return new() { StatusCode = response.StatusCode, Errors = response.Errors };
