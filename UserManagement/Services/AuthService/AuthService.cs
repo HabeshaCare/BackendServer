@@ -83,26 +83,7 @@ namespace UserManagement.Services
 
         public async Task<SResponseDTO<UsageUserDTO>> Registration(RegistrationDTO model)
         {
-            // Checks if the user exists in the database from different collections.
-            var adminTask = _adminService.GetUserByEmail<Administrator>(model.Email!);
-            var doctorTask = _doctorService.GetUserByEmail<Doctor>(model.Email!);
-            var patientTask = _patientService.GetUserByEmail<Patient>(model.Email!);
-
-            // Used to call asynchronously and wait for all the tasks to complete which will be run in parallel.
-            await Task.WhenAll(adminTask, doctorTask, patientTask);
-
-            Administrator _admin = _mapper.Map<Administrator>(adminTask.Result.Data);
-            Doctor _doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
-            Patient _patient = _mapper.Map<Patient>(patientTask.Result.Data);
-
-            //
-            User _user = _admin as User ?? _doctor as User ?? _patient;
-
-            bool ifUserFound = _user != null;
             SResponseDTO<User> result;
-
-            if (ifUserFound)
-                return new() { StatusCode = 409, Errors = new[] { "User already exists" } };
 
             switch (model.Role)
             {
@@ -174,7 +155,7 @@ namespace UserManagement.Services
             }
 
             var user = result.Data;
-            bool registrationSuccessful = user?.VerificationToken != string.Empty;
+            bool registrationSuccessful = result.Success;
             var updatedUser = _mapper.Map<UsageUserDTO>(user);
 
             if (registrationSuccessful)
@@ -200,7 +181,7 @@ namespace UserManagement.Services
             }
             else
             {
-                return new() { StatusCode = 500, Message = "Something went wrong on registration. " };
+                return new() { StatusCode = result.StatusCode, Errors = result.Errors };
             }
         }
 
