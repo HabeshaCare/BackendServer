@@ -7,6 +7,7 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using UserManagement.DTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Models.DTOs.UserDTOs;
@@ -21,17 +22,17 @@ namespace UserManagement.Services.UserServices
         {
         }
 
-        private async Task<(int, string?, Doctor?)> GetDoctor(string doctorId)
+        private async Task<SResponseDTO<Doctor>> GetDoctor(string doctorId)
         {
             return await GetUser(doctorId);
         }
 
-        public async Task<(int, string?, UsageDoctorDTO?)> GetDoctorById(string doctorId)
+        public async Task<SResponseDTO<UsageDoctorDTO>> GetDoctorById(string doctorId)
         {
             return await GetUserById<UsageDoctorDTO>(doctorId);
         }
 
-        public async Task<(int, string?, UsageDoctorDTO[])> GetDoctors(FilterDTO filterOptions, int page, int size)
+        public async Task<SResponseDTO<UsageDoctorDTO[]>> GetDoctors(FilterDTO filterOptions, int page, int size)
         {
             var filterBuilder = Builders<Doctor>.Filter;
             var filterDefinition = filterBuilder.Empty;
@@ -50,14 +51,14 @@ namespace UserManagement.Services.UserServices
             return await GetUsers<UsageDoctorDTO>(filterDefinition, page, size);
         }
 
-        public async Task<(int, string, UsageDoctorDTO?)> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
+        public async Task<SResponseDTO<UsageDoctorDTO>> UpdateDoctor(UpdateDoctorDTO doctorDTO, string doctorId)
         {
             try
             {
-                var (status, message, doctor) = await GetDoctor(doctorId);
-                if (status == 1 && doctor != null)
+                var response = await GetDoctor(doctorId);
+                if (response.Success)
                 {
-
+                    Doctor doctor = response.Data!;
                     bool changedCriticalInformation =
                         doctorDTO.Fullname != doctor.Fullname ||
                         doctorDTO.Gender != doctor.Gender ||
@@ -74,31 +75,29 @@ namespace UserManagement.Services.UserServices
                     var filter = Builders<Doctor>.Filter.And(
                         Builders<Doctor>.Filter.Eq(u => u.Id, doctorId));
 
-                    var (updateStatus, updateMessage, updatedDoctorDTO) = await UpdateUser<UpdateDoctorDTO, UsageDoctorDTO>(doctorDTO, doctorId);
+                    var updateResponse = await UpdateUser<UpdateDoctorDTO, UsageDoctorDTO>(doctorDTO, doctorId);
 
 
-                    if (updateStatus == 0 || updatedDoctorDTO == null)
+                    if (!updateResponse.Success)
                     {
-                        return (0, "Error updating Doctor", null);
+                        return new() { StatusCode = updateResponse.StatusCode, Errors = updateResponse.Errors };
                     }
-
-                    return (1, "Doctor profile updated successfully. Status set to unverified until approved by Admin", updatedDoctorDTO);
+                    return new() { StatusCode = updateResponse.StatusCode, Message = "Doctor profile updated successfully", Data = updateResponse.Data };
                 }
-
-                return (0, "Doctor not found", null);
+                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string, Doctor?)> AddDoctor(Doctor user)
+        public async Task<SResponseDTO<Doctor>> AddDoctor(Doctor user)
         {
             return await AddUser<Doctor>(user);
         }
 
-        public async Task<(int, string, UsageDoctorDTO?)> VerifyDoctor(string doctorId)
+        public async Task<SResponseDTO<UsageDoctorDTO>> VerifyDoctor(string doctorId)
         {
             var filter = Builders<Doctor>.Filter.And(
                 Builders<Doctor>.Filter.Eq("_id", ObjectId.Parse(doctorId))
@@ -113,30 +112,31 @@ namespace UserManagement.Services.UserServices
             {
                 var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
                 if (result != null)
-                    return (1, "Doctor Verified", _mapper.Map<UsageDoctorDTO>(result));
+                    return new() { StatusCode = 201, Message = "Doctor Verified", Data = _mapper.Map<UsageDoctorDTO>(result) };
                 else
-                    return (0, "Doctor not found", null);
+                    return new() { StatusCode = 404, Message = "Doctor not found" };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string, UsageDoctorDTO?)> UploadLicense(IFormFile licenseInformation, string doctorId)
+        public async Task<SResponseDTO<UsageDoctorDTO>> UploadLicense(IFormFile licenseInformation, string doctorId)
         {
             try
             {
                 string? licenseInformationPath = null;
-                var (status, message, doctor) = await GetDoctor(doctorId);
-                if (status == 1 && doctor != null)
+                var response = await GetDoctor(doctorId);
+                Doctor doctor = response.Data!;
+                if (response.Success)
                 {
-                    var (fileStatus, fileMessage, filePath) = await _fileService.UploadFile(licenseInformation, doctorId, "Licenses");
-                    if (fileStatus == 1 || filePath == null)
-                        return (fileStatus, fileMessage, null);
+                    var fileResponse = await _fileService.UploadFile(licenseInformation, doctorId, "Licenses");
+                    if (!fileResponse.Success)
+                        return new() { StatusCode = fileResponse.StatusCode, Errors = fileResponse.Errors };
 
-                    licenseInformationPath = filePath;
-                    doctor.LicensePath = filePath;
+                    licenseInformationPath = fileResponse.Data;
+                    doctor.LicensePath = fileResponse.Data;
 
                     var filter = Builders<Doctor>.Filter.And(
                         Builders<Doctor>.Filter.Eq(u => u.Id, doctorId));
@@ -154,22 +154,21 @@ namespace UserManagement.Services.UserServices
 
                     if (result == null)
                     {
-                        return (0, "Error updating Doctor", null);
+                        return new() { StatusCode = 500, Errors = new[] { "Error updating Doctor" } };
                     }
-
-                    return (1, "License Information Uploaded Successfully. Status set to unverified until approved by Admin", updatedDoctorDTO);
+                    return new() { StatusCode = 201, Message = "License Information Uploaded Successfully. Status set to unverified until approved by Admin", Success = true };
                 }
 
-                return (0, "Doctor not found", null);
+                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        public async Task<(int, string?, UsageDoctorDTO?)> GetDoctorByEmail(string doctorEmail)
+        public async Task<SResponseDTO<UsageDoctorDTO>> GetDoctorByEmail(string doctorEmail)
         {
             return await GetUserByEmail<UsageDoctorDTO>(doctorEmail);
         }
