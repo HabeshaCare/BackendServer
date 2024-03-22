@@ -58,6 +58,7 @@ Todo:
         }
 
         [HttpPut("{id}/verify")]
+        [Authorize(Roles = "SuperAdmin, HealthCenterAdmin")]
         public async Task<IActionResult> UpdatePharmacyVerification([FromQuery] bool verified, string id)
         {
             var response = await _pharmacyService.UpdateInstitutionVerification<Pharmacy>(id, verified);

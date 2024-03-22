@@ -53,7 +53,7 @@ namespace UserManagement.Controllers
         /// Verify a doctor's credentials by an admin.
         /// </summary>
         [HttpPut("{id}/verify/")]
-        [Authorize(Roles = "HealthCenterAdmin")]
+        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
         public async Task<IActionResult> VerifyDoctor(string id)
         {
             var response = await _doctorService.VerifyDoctor(id);

@@ -63,6 +63,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPut("{id}/verify")]
+        [Authorize(Roles = "SuperAdmin")]
         public async Task<IActionResult> UpdateHealthCenterVerification([FromQuery] bool verified, string id)
         {
             var response = await _healthCenterService.UpdateInstitutionVerification<HealthCenter>(id, verified);
