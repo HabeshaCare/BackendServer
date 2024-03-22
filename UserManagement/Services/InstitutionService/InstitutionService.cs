@@ -6,6 +6,7 @@ using AutoMapper;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using UserManagement.DTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
@@ -30,7 +31,7 @@ namespace UserManagement.Services.InstitutionService
         }
 
         // USD refers to the Usage DTO of an institution
-        protected async Task<(int, string?, USD[])> GetInstitutions<USD>(FilterDTO filterOptions, int page, int size)
+        protected async Task<SResponseDTO<USD[]>> GetInstitutions<USD>(FilterDTO filterOptions, int page, int size)
         {
             var filterBuilder = Builders<T>.Filter;
             var filterDefinition = filterBuilder.Empty;
@@ -47,45 +48,45 @@ namespace UserManagement.Services.InstitutionService
                     .ToListAsync();
 
                 if (foundInstitutions.Count == 0)
-                    return (0, "No matching institutions found", Array.Empty<USD>());
+                    return new() { StatusCode = 404, Errors = new[] { "No matching institutions found" } };
 
                 USD[] institutions = _mapper.Map<USD[]>(foundInstitutions);
-                return (1, $"Found {foundInstitutions.Count} matching institutions", institutions);
+                return new() { StatusCode = 200, Message = $"Found {foundInstitutions.Count} matching institutions", Data = institutions, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, Array.Empty<USD>())!;
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
-        protected async Task<(int, string?, T?)> GetInstitution(string id)
+        protected async Task<SResponseDTO<T>> GetInstitution(string id)
         {
             try
             {
                 var result = await _collection.FindAsync(I => I.Id == id);
                 T? institution = (await result.ToListAsync()).FirstOrDefault();
-                return (1, null, institution);
+                return new() { StatusCode = 200, Message = "Institution found", Data = institution, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, null);
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
         // USD refers to the Usage DTO of a institution
-        public async Task<(int, string?, USD?)> GetInstitutionById<USD>(string id)
+        public async Task<SResponseDTO<USD>> GetInstitutionById<USD>(string id)
         {
-            var (status, message, institution) = await GetInstitution(id);
-            if (status == 1 && institution != null)
+            var response = await GetInstitution(id);
+            if (response.Success)
             {
+                T institution = response.Data!;
                 USD? foundInstitution = _mapper.Map<USD>(institution);
-                return (status, message, foundInstitution);
+                return new() { StatusCode = 200, Message = "Institution found", Data = foundInstitution, Success = true };
             }
-
-            return (status, message, default(USD));
+            return new() { StatusCode = response.StatusCode, Errors = response.Errors };
         }
 
-        protected async Task<(int, string?, USD?)> GetInstitutionByName<USD>(string name)
+        protected async Task<SResponseDTO<USD>> GetInstitutionByName<USD>(string name)
         {
             try
             {
@@ -93,25 +94,25 @@ namespace UserManagement.Services.InstitutionService
                 T? institution = (await result.ToListAsync()).FirstOrDefault();
                 USD? foundInstitution = _mapper.Map<USD>(institution);
 
-                return (1, null, foundInstitution);
+                return new() { StatusCode = 200, Message = "Institution found", Data = foundInstitution, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, default(USD));
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
         // AD refers to the Registration DTO of an institution
         // USD refers to the Usage DTO of an institution
-        protected async Task<(int, string, USD?)> AddInstitution<USD>(T institution)
+        protected async Task<SResponseDTO<USD>> AddInstitution<USD>(T institution)
         {
             try
             {
 
-                var (status, message, foundInstitution) = await GetInstitutionByName<T>(institution.Name ?? "");
+                var response = await GetInstitutionByName<T>(institution.Name ?? "");
 
-                if (status == 1 && foundInstitution != null)
-                    return (0, "Institution with this name already exists", default(USD));
+                if (response.Success)
+                    return new() { StatusCode = 409, Errors = new[] { "Institution with this name already exists" } };
 
                 await _collection.InsertOneAsync(institution);
                 USD createdInstitution = _mapper.Map<USD>(institution);
@@ -119,23 +120,24 @@ namespace UserManagement.Services.InstitutionService
                 // #TODO: Add admin id here
                 // var (adminStatus, adminMessage, _) = await _adminService.AddInstitutionAccess("", institution?.Id ?? string.Empty);
 
-                return (1, "Institution created successfully", createdInstitution);
+                return new() { StatusCode = 201, Message = "Institution created successfully", Data = createdInstitution, Success = true };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, default(USD));
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
         // UD refers to the Update DTO of a institution
         // USD refers to the Usage DTO of a institution
-        protected async Task<(int, string, USD?)> UpdateInstitution<UD, USD>(UD institutionDTO, string institutionId, string healthCenterId = "")
+        protected async Task<SResponseDTO<USD>> UpdateInstitution<UD, USD>(UD institutionDTO, string institutionId, string healthCenterId = "")
         {
             try
             {
-                var (status, message, institution) = await GetInstitution(institutionId);
-                if (status == 1 && institution != null)
+                var response = await GetInstitution(institutionId);
+                if (response.Success)
                 {
+                    T institution = response.Data!;
                     _mapper.Map(institutionDTO, institution);
 
                     institution.Verified = false;
@@ -158,22 +160,20 @@ namespace UserManagement.Services.InstitutionService
 
                     if (result == null)
                     {
-                        return (0, "Error updating institution", default(USD));
+                        return new() { StatusCode = 500, Errors = new[] { "Error updating institution" } };
                     }
-
-                    return (1, "Institution updated successfully.", updatedInstitutionDTO);
+                    return new() { StatusCode = 201, Message = "Institution updated successfully", Data = updatedInstitutionDTO, Success = true };
                 }
-
-                return (0, "Institution not found", default(USD));
+                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, default(USD));
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
         //USD refers to the Usage DTO of an institution
-        public async Task<(int, string, USD?)> UploadLicense<USD>(string institutionId, IFormFile? image)
+        public async Task<SResponseDTO<USD>> UploadLicense<USD>(string institutionId, IFormFile? image)
         {
             var filter = Builders<T>.Filter.Eq(I => I.Id, institutionId);
             try
@@ -181,17 +181,17 @@ namespace UserManagement.Services.InstitutionService
                 string? licensePath = null;
                 if (image != null)
                 {
-                    var (fileStatus, fileMessage, filePath) = await _fileService.UploadFile(image, institutionId, "Licenses");
-                    if (fileStatus == 1 || filePath == null)
-                        return (fileStatus, fileMessage, default(USD));
+                    var response = await _fileService.UploadFile(image, institutionId, "Licenses");
+                    if (!response.Success)
+                        return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
-                    licensePath = filePath;
+                    licensePath = response.Data;
                 }
-                var (institutionStatus, institutionMessage, institution) = await GetInstitution(institutionId);
+                var getResponse = await GetInstitution(institutionId);
 
-                if (institutionStatus == 0 || institution == null)
-                    return (institutionStatus, institutionMessage ?? "Institution doesn't Exist", default(USD));
-
+                if (!getResponse.Success)
+                    return new() { StatusCode = getResponse.StatusCode, Errors = getResponse.Errors };
+                T institution = getResponse.Data!;
                 institution.LicensePath = licensePath ?? string.Empty;
 
                 var options = new FindOneAndReplaceOptions<T>
@@ -202,16 +202,16 @@ namespace UserManagement.Services.InstitutionService
                 var rawInstitution = await _collection.FindOneAndReplaceAsync(filter, institution, options);
 
                 USD updatedInstitution = _mapper.Map<USD>(rawInstitution);
-                return (1, "License information Uploaded Successfully", updatedInstitution);
+                return new() { StatusCode = 201, Message = "License information Uploaded Successfully", Data = updatedInstitution, Success = true };
             }
             catch (Exception ex)
             {
-                return (1, ex.Message, default(USD));
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
 
         //USD refers to the Usage DTO of an institution
-        public async Task<(int, string, USD?)> UpdateInstitutionVerification<USD>(string institutionId, bool status)
+        public async Task<SResponseDTO<USD>> UpdateInstitutionVerification<USD>(string institutionId, bool status)
         {
             var filter = Builders<T>.Filter.And(
                 Builders<T>.Filter.Eq("_id", ObjectId.Parse(institutionId))
@@ -226,13 +226,13 @@ namespace UserManagement.Services.InstitutionService
             {
                 var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
                 if (result != null)
-                    return (1, $"Institution Verification set to {status}", _mapper.Map<USD>(result));
+                    return new() { StatusCode = 201, Message = $"Institution Verification set to {status}", Data = _mapper.Map<USD>(result), Success = true };
                 else
-                    return (0, "Institution not found", default(USD));
+                    return new() { StatusCode = 404, Errors = new[] { "Institution not found" } };
             }
             catch (Exception ex)
             {
-                return (0, ex.Message, default(USD));
+                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
             }
         }
     }
