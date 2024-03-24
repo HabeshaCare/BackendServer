@@ -14,16 +14,21 @@ using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
 using UserManagement.Services.InstitutionService;
+using UserManagement.Services.InstitutionService.HealthCenterService;
 using UserManagement.Utils;
 
 namespace UserManagement.Services.UserServices
 {
     public class AdminService : UserService<Administrator>, IAdminService
     {
-        private readonly IInstitutionService _institutionService;
-        public AdminService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IInstitutionService institutionService) : base(options, fileService, mapper)
+        private readonly IHealthCenterService _healthCenterService;
+        private readonly IPharmacyService _pharmacyService;
+        private readonly ILaboratoryService _laboratoryService;
+        public AdminService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService, IPharmacyService pharmacyService, ILaboratoryService laboratoryService) : base(options, fileService, mapper)
         {
-            _institutionService = institutionService;
+            _healthCenterService = healthCenterService;
+            _pharmacyService = pharmacyService;
+            _laboratoryService = laboratoryService;
         }
 
         public async Task<SResponseDTO<Administrator>> AddAdmin(Administrator admin)
@@ -66,9 +71,9 @@ namespace UserManagement.Services.UserServices
                 {
                     Task updateInstitutionVerificationTask = admin.Role switch
                     {
-                        UserRole.HealthCenterAdmin => Task.Run(() => _institutionService.UpdateInstitutionVerification<HealthCenterDTO>(admin.InstitutionId, false)),
-                        UserRole.LaboratoryAdmin => Task.Run(() => _institutionService.UpdateInstitutionVerification<LaboratoryDTO>(admin.InstitutionId, false)),
-                        UserRole.PharmacyAdmin => Task.Run(() => _institutionService.UpdateInstitutionVerification<PharmacyDTO>(admin.InstitutionId, false)),
+                        UserRole.HealthCenterAdmin => Task.Run(() => _healthCenterService.UpdateInstitutionVerification<HealthCenterDTO>(admin.InstitutionId, false)),
+                        UserRole.LaboratoryAdmin => Task.Run(() => _laboratoryService.UpdateInstitutionVerification<LaboratoryDTO>(admin.InstitutionId, false)),
+                        UserRole.PharmacyAdmin => Task.Run(() => _pharmacyService.UpdateInstitutionVerification<PharmacyDTO>(admin.InstitutionId, false)),
                         _ => Task.Run(() => "Dummy task"),
                     };
 
