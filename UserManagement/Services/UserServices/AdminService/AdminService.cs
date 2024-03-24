@@ -21,14 +21,8 @@ namespace UserManagement.Services.UserServices
 {
     public class AdminService : UserService<Administrator>, IAdminService
     {
-        private readonly IHealthCenterService _healthCenterService;
-        private readonly IPharmacyService _pharmacyService;
-        private readonly ILaboratoryService _laboratoryService;
-        public AdminService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper, IHealthCenterService healthCenterService, IPharmacyService pharmacyService, ILaboratoryService laboratoryService) : base(options, fileService, mapper)
+        public AdminService(IOptions<MongoDBSettings> options, IFileService fileService, IMapper mapper) : base(options, fileService, mapper)
         {
-            _healthCenterService = healthCenterService;
-            _pharmacyService = pharmacyService;
-            _laboratoryService = laboratoryService;
         }
 
         public async Task<SResponseDTO<Administrator>> AddAdmin(Administrator admin)
