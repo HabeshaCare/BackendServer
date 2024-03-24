@@ -66,23 +66,7 @@ namespace UserManagement.Services.UserServices
                 UsageAdminDTO admin = response.Data!;
                 UpdateAdminDTO adminDTO = new() { Verified = verified };
                 var updateAdminTask = Task.Run(() => UpdateAdmin(adminDTO, id));
-
-                if (!verified)
-                {
-                    Task updateInstitutionVerificationTask = admin.Role switch
-                    {
-                        UserRole.HealthCenterAdmin => Task.Run(() => _healthCenterService.UpdateInstitutionVerification<HealthCenterDTO>(admin.InstitutionId, false)),
-                        UserRole.LaboratoryAdmin => Task.Run(() => _laboratoryService.UpdateInstitutionVerification<LaboratoryDTO>(admin.InstitutionId, false)),
-                        UserRole.PharmacyAdmin => Task.Run(() => _pharmacyService.UpdateInstitutionVerification<PharmacyDTO>(admin.InstitutionId, false)),
-                        _ => Task.Run(() => "Dummy task"),
-                    };
-
-                    await Task.WhenAll(updateAdminTask, updateInstitutionVerificationTask);
-                }
-                else
-                {
-                    await updateAdminTask;
-                }
+                await updateAdminTask;
 
                 var updatedAdmin = _mapper.Map<UsageAdminDTO>(updateAdminTask.Result.Data!);
                 return new() { StatusCode = updateAdminTask.Result.StatusCode, Message = updateAdminTask.Result.Message, Data = updatedAdmin, Success = updateAdminTask.Result.Success, Errors = updateAdminTask.Result.Errors };
