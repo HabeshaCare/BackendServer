@@ -13,6 +13,7 @@ namespace UserManagement.Models.DTOs.UserDTOs
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string? ImageUrl { get; set; }
         public string VerificationToken { get; set; } = string.Empty;
+        public DateTime? VerificationTokenExpires { get; set; }
         public DateTime? VerifiedAt { get; set; }
         public string PasswordResetToken { get; set; } = string.Empty;
         public DateTime? ResetTokenExpires { get; set; }

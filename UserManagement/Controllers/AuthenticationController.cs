@@ -61,13 +61,20 @@ namespace UserManagement.Controllers
             }
         }
 
+        [HttpPost("resend-token")]
+        public async Task<IActionResult> SendVerificationLink(string email)
+        {
+            var response = await _authService.SendVerificationToken(email);
+
+            return new ObjectResult(response) { StatusCode = response.StatusCode };
+        }
+
         [HttpPost("verify")]
         public async Task<IActionResult> Verify(string token)
         {
             var response = await _authService.VerifyEmail(token);
 
             return new ObjectResult(response) { StatusCode = response.StatusCode };
-
         }
 
         [HttpPost("forgot-password")]

@@ -185,6 +185,53 @@ namespace UserManagement.Services
             }
         }
 
+        public async Task<SResponseDTO<UsageUserDTO>> SendVerificationToken(string email)
+        {
+            var adminTask = _adminService.GetUserByEmail<Administrator>(email);
+            var doctorTask = _doctorService.GetUserByEmail<Doctor>(email);
+            var patientTask = _patientService.GetUserByEmail<Patient>(email);
+
+            await Task.WhenAll(adminTask, doctorTask, patientTask);
+
+            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Data);
+            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
+            Patient patient = _mapper.Map<Patient>(patientTask.Result.Data);
+
+            User user = admin as User ?? doctor as User ?? patient;
+
+            if (user == null)
+            {
+                return new() { StatusCode = 404, Errors = new[] { "User not found" } };
+            }
+
+            if (user.VerifiedAt < DateTime.Now)
+                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "User already verified" } };
+
+            var tokenExpiryTimeInMins = int.Parse(_configuration["TokenExpiryTimeInMins"] ?? "5");
+
+            user.VerificationToken = CreateRandomToken();
+            user.VerificationTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
+
+            string verificationUrl = $"{_configuration["VerificationUrl"]}/?token={user?.VerificationToken}";
+
+            EmailDTO emailRequest = new()
+            {
+                To = email!,
+                Subject = "Email Verification",
+                Body = $"Please visit the following url to verify your email.{verificationUrl}"
+            };
+
+            var response = await UpdateUser(user!);
+            bool emailSent = _emailService.SendEmail(emailRequest);
+            if (emailSent && response.Success)
+            {
+                return new() { StatusCode = 201, Message = "Check email for verification link.", Data = response.Data };
+            }
+            else
+            {
+                return new() { StatusCode = 500, Errors = response.Errors };
+            }
+        }
         public async Task<SResponseDTO<UsageUserDTO>> VerifyEmail(string token)
         {
             try
@@ -203,7 +250,7 @@ namespace UserManagement.Services
 
                 bool userNotFound = user == null;
 
-                if (userNotFound)
+                if (userNotFound || user!.VerificationTokenExpires < DateTime.Now)
                     return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Invalid Token" } };
 
                 user!.VerifiedAt = DateTime.Now;
@@ -241,10 +288,12 @@ namespace UserManagement.Services
                 return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "User not found" } };
             }
 
-            user.PasswordResetToken = CreateRandomToken();
-            user.ResetTokenExpires = DateTime.Now.AddDays(1);
+            var tokenExpiryTimeInMins = int.Parse(_configuration["TokenExpiryTimeInMins"] ?? "5");
 
-            string resetUrl = $"https://localhost:5072/resetPassword/?token={user.PasswordResetToken}";
+            user.PasswordResetToken = CreateRandomToken();
+            user.ResetTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
+
+            string resetUrl = $"{_configuration["ResetUrl"]}/?token={user.PasswordResetToken}";
 
             EmailDTO emailRequest = new()
             {
@@ -263,8 +312,6 @@ namespace UserManagement.Services
             {
                 return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = response.Errors };
             }
-
-
         }
 
         public async Task<SResponseDTO<string>> ResetPassword(UserResetPasswordDTO request)
