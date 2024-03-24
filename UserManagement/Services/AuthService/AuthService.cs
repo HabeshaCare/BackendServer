@@ -204,6 +204,9 @@ namespace UserManagement.Services
                 return new() { StatusCode = 404, Errors = new[] { "User not found" } };
             }
 
+            if (user.VerifiedAt < DateTime.Now)
+                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "User already verified" } };
+
             var tokenExpiryTimeInMins = int.Parse(_configuration["TokenExpiryTimeInMins"] ?? "5");
 
             user.VerificationToken = CreateRandomToken();
