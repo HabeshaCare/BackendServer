@@ -207,5 +207,35 @@ namespace UserManagement.Services.InstitutionService
                 };
             }
         }
+
+        public async Task<SResponseDTO<LaboratoryDTO>> DeleteLabTest(string labTestId, string laboratoryId)
+        {
+            var response = await GetLaboratory(laboratoryId);
+            if (!response.Success)
+                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
+
+            var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
+            var update = Builders<Laboratory>.Update.PullFilter(l => l.AvailableTests, lt => lt.Id == labTestId);
+            var updateResult = await _collection.UpdateOneAsync(filter, update);
+
+            if (updateResult.ModifiedCount == 0)
+            {
+                return new SResponseDTO<LaboratoryDTO>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Errors = new[] { "No laboratory found with the provided ID or the lab test was not found in the available tests." }
+                };
+            }
+            else
+            {
+                return new SResponseDTO<LaboratoryDTO>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Lab test deleted successfully",
+                    Success = true
+                };
+            }
+
+        }
     }
 }
