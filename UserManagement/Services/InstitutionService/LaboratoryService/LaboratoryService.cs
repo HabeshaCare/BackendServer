@@ -179,16 +179,33 @@ namespace UserManagement.Services.InstitutionService
             return _mapper.Map<HealthCenterDTO>(response.Data);
         }
 
-        public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTests(LabTest[] labTests, string laboratoryId)
+        public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTest(LabTest labTest, string laboratoryId)
         {
             var response = await GetLaboratory(laboratoryId);
             if (!response.Success)
                 return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
-            var laboratory = response.Data!;
-            laboratory.AvailableTests = labTests;
+            var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
+            var update = Builders<Laboratory>.Update.Push(l => l.AvailableTests, labTest);
+            var updateResult = await _collection.UpdateOneAsync(filter, update);
 
-            return await UpdateInstitution<Laboratory, LaboratoryDTO>(laboratory, laboratoryId);
+            if (updateResult.ModifiedCount == 0)
+            {
+                return new SResponseDTO<LaboratoryDTO>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Errors = new[] { "No laboratory found with the provided ID." }
+                };
+            }
+            else
+            {
+                return new SResponseDTO<LaboratoryDTO>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Lab test added successfully",
+                    Success = true
+                };
+            }
         }
     }
 }

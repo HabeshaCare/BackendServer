@@ -19,6 +19,6 @@ namespace UserManagement.Services.InstitutionService
         Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO labTestRequest, string id);
         Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory, string adminId);
         Task<SResponseDTO<LaboratoryDTO>> UpdateLaboratory(UpdateLaboratoryDTO laboratoryDTO, string laboratoryId);
-        Task<SResponseDTO<LaboratoryDTO>> UpdateLabTests(LabTest[] labTests, string laboratoryId);
+        Task<SResponseDTO<LaboratoryDTO>> UpdateLabTest(LabTest labTest, string laboratoryId);
     }
 }

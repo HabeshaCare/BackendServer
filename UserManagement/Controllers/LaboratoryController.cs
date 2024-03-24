@@ -80,11 +80,11 @@ namespace UserManagement.Controllers
 
         }
 
-        [HttpPut("{id}/update-tests")]
+        [HttpPut("{id}/tests")]
         [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
-        public async Task<IActionResult> UpdateLabTests([FromBody] LabTest[] labTests, string id)
+        public async Task<IActionResult> UpdateLabTests([FromBody] LabTest labTest, string id)
         {
-            var response = await _laboratoryService.UpdateLabTests(labTests, id);
+            var response = await _laboratoryService.UpdateLabTest(labTest, id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
