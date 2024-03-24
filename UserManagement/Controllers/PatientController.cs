@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using UserManagement.Attributes;
 using UserManagement.DTOs.PatientDTOs;
 using UserManagement.Models;
+using UserManagement.Services.InstitutionService.HealthCenterService;
 using UserManagement.Services.UserServices;
 
 namespace UserManagement.Controllers
@@ -24,6 +25,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpGet("{id}/profile")]
+        [AuthorizePatientAccess]
         public async Task<IActionResult> GetPatientById(string id)
         {
             var response = await _patientService.GetPatientById(id);
@@ -31,7 +33,7 @@ namespace UserManagement.Controllers
         }
 
         [HttpPut("{id}/profile")]
-        [AuthorizeAccess]
+        [AuthorizePatientAccess]
         public async Task<IActionResult> UpdatePatient(string id, [FromBody] UpdatePatientDTO patientDTO)
         {
             var response = await _patientService.UpdatePatient(patientDTO, id);
