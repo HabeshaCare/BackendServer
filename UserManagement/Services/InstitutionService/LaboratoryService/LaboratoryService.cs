@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.Extensions.Options;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.DTOs.HealthCenterDTOs;
@@ -179,12 +180,8 @@ namespace UserManagement.Services.InstitutionService
             return _mapper.Map<HealthCenterDTO>(response.Data);
         }
 
-        public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTest(LabTest labTest, string laboratoryId)
+        public async Task<SResponseDTO<LaboratoryDTO>> AddLabTest(LabTest labTest, string laboratoryId)
         {
-            var response = await GetLaboratory(laboratoryId);
-            if (!response.Success)
-                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
-
             var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
             var update = Builders<Laboratory>.Update.Push(l => l.AvailableTests, labTest);
             var updateResult = await _collection.UpdateOneAsync(filter, update);
@@ -203,6 +200,32 @@ namespace UserManagement.Services.InstitutionService
                 {
                     StatusCode = StatusCodes.Status200OK,
                     Message = "Lab test added successfully",
+                    Success = true
+                };
+            }
+        }
+
+        public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTest(LabTest labTest, string laboratoryId)
+        {
+            var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
+            var update = Builders<Laboratory>.Update.Set(l => l.AvailableTests[-1], labTest);
+            var updateOptions = new UpdateOptions { ArrayFilters = new List<ArrayFilterDefinition> { new BsonDocumentArrayFilterDefinition<Laboratory>(new BsonDocument("elem._id", labTest.Id)) } };
+            var updateResult = await _collection.UpdateOneAsync(filter, update, updateOptions);
+
+            if (updateResult.ModifiedCount == 0)
+            {
+                return new SResponseDTO<LaboratoryDTO>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Errors = new[] { "No laboratory found with the provided ID." }
+                };
+            }
+            else
+            {
+                return new SResponseDTO<LaboratoryDTO>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Lab test Updated successfully",
                     Success = true
                 };
             }
