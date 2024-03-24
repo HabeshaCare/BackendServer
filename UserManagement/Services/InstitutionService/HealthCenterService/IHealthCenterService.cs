@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.DTOs.HealthCenterDTOs;
+using UserManagement.DTOs.PatientDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 
@@ -17,5 +18,8 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
         Task<SResponseDTO<HealthCenterDTO>> GetHealthCenterByName(string name);
         Task<SResponseDTO<HealthCenterDTO>> AddHealthCenter(HealthCenterDTO healthCenter, string adminId);
         Task<SResponseDTO<HealthCenterDTO>> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId);
+        Task<SResponseDTO<bool>> SharePatient(string healthCenterId, string patientId, TimeSpan duration);
+        Task<SResponseDTO<UsagePatientDTO[]>> GetSharedPatients(string healthCenterId, int page, int size);
+
     }
 }
