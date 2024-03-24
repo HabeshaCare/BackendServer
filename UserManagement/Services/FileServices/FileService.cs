@@ -16,11 +16,11 @@ namespace UserManagement.Services.FileServices
             try
             {
                 if (file == null || file.Length == 0)
-                    return new() { StatusCode = 400, Errors = new[] { "File is empty" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "File is empty" } };
 
                 var fileExtension = Path.GetExtension(file.FileName);
                 if (!_allowedFileTypes.Contains(fileExtension))
-                    return new() { StatusCode = 400, Errors = new[] { "Invalid file type" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Invalid file type" } };
 
                 var fileName = $"{id}_{Guid.NewGuid()}{fileExtension}";
                 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), uploadDir);
@@ -36,12 +36,12 @@ namespace UserManagement.Services.FileServices
                 }
 
                 var fileUrl = $"{uploadDir}/{fileName}";
-                return new() { StatusCode = 201, Message = "File Created Successfully", Data = fileUrl, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "File Created Successfully", Data = fileUrl, Success = true };
 
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
     }

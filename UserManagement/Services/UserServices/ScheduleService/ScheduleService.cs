@@ -33,11 +33,11 @@ namespace UserManagement.Services.UserServices
             try
             {
                 var schedule = (await _scheduleCollection.Find(s => s.Id == id).ToListAsync())[0];
-                return new() { StatusCode = 200, Data = schedule, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Data = schedule, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -83,11 +83,11 @@ namespace UserManagement.Services.UserServices
 
                 ScheduleDTO createdSchedule = await FetchScheduleInformation(schedule, true);
 
-                return new() { StatusCode = 201, Message = "Schedule created successfully", Data = createdSchedule, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "Schedule created successfully", Data = createdSchedule, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -101,11 +101,11 @@ namespace UserManagement.Services.UserServices
 
                 Schedule schedule = response.Data!;
                 var scheduleDTO = _mapper.Map<ScheduleDTO>(schedule);
-                return new() { StatusCode = 200, Message = "Schedule Found", Data = scheduleDTO, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = "Schedule Found", Data = scheduleDTO, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -129,17 +129,17 @@ namespace UserManagement.Services.UserServices
                     .ToListAsync();
 
                 if (foundSchedules.Count == 0)
-                    return new() { StatusCode = 404, Errors = new[] { "No Schedules Found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "No Schedules Found" } };
 
                 ScheduleDTO[] schedules = _mapper.Map<ScheduleDTO[]>(foundSchedules);
 
                 var scheduleTasks = foundSchedules.Select(schedule => FetchScheduleInformation(schedule, scheduler)).ToList();
                 schedules = await Task.WhenAll(scheduleTasks);
-                return new() { StatusCode = 200, Message = $"Found {schedules.Length} schedules", Data = schedules, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {schedules.Length} schedules", Data = schedules, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -164,11 +164,11 @@ namespace UserManagement.Services.UserServices
                 var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, scheduler));
                 await Task.WhenAll(updateSchedule, fetchScheduleInfo);
 
-                return new() { StatusCode = 201, Message = "Schedule Updated", Data = fetchScheduleInfo.Result, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "Schedule Updated", Data = fetchScheduleInfo.Result, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -194,11 +194,11 @@ namespace UserManagement.Services.UserServices
                 var fetchScheduleInfo = Task.Run(() => FetchScheduleInformation(schedule, false));
                 await Task.WhenAll(updateSchedule, fetchScheduleInfo);
 
-                return new() { StatusCode = 201, Message = "Schedule Updated", Data = fetchScheduleInfo.Result, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "Schedule Updated", Data = fetchScheduleInfo.Result, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -209,13 +209,13 @@ namespace UserManagement.Services.UserServices
                 var result = await _scheduleCollection.FindOneAndDeleteAsync(s => s.Id == scheduleId);
 
                 if (result == null)
-                    return new() { StatusCode = 404, Errors = new[] { "Schedule not found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Schedule not found" } };
 
-                return new() { StatusCode = 200, Message = "Schedule deleted successfully", Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = "Schedule deleted successfully", Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
     }

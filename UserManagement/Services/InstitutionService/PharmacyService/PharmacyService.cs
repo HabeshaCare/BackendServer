@@ -34,7 +34,7 @@ namespace UserManagement.Services.InstitutionService
 
             // We don't care for the healthCenter existence if there is none given in the case of pharmacy
             if (healthCenterAddedButNotFound)
-                return new() { StatusCode = 404, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
+                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
 
             Pharmacy pharmacy = _mapper.Map<Pharmacy>(pharmacyDTO);
             pharmacy.Type = InstitutionType.Pharmacy;
@@ -70,7 +70,7 @@ namespace UserManagement.Services.InstitutionService
                 healthCenterId = healthCenter?.Id ?? string.Empty;
 
                 if (healthCenterId == string.Empty)
-                    return new() { StatusCode = 404, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
             }
 
             var response = await UpdateInstitution<UpdatePharmacyDTO, PharmacyDTO>(pharmacyDTO, pharmacyId, healthCenterId);

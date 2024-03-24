@@ -47,7 +47,7 @@ namespace UserManagement.Services.InstitutionService
             {
                 var testRequest = await _testRequestCollection.Find(tr => tr.Id == labTestId).FirstOrDefaultAsync();
                 if (testRequest == null)
-                    return new() { StatusCode = 404, Errors = new[] { "Test request not found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Test request not found" } };
 
                 var testRequestDTO = _mapper.Map<TestRequestDTO>(testRequest);
 
@@ -61,11 +61,11 @@ namespace UserManagement.Services.InstitutionService
                 testRequestDTO.LaboratorianName = laboratorianTask.Result.Data?.Fullname ?? string.Empty;
                 testRequestDTO.DoctorName = doctorTask.Result.Data?.Fullname ?? string.Empty;
 
-                return new() { StatusCode = 200, Message = "Found test request", Data = testRequestDTO, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = "Found test request", Data = testRequestDTO, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -96,11 +96,11 @@ namespace UserManagement.Services.InstitutionService
 
                 await Task.WhenAll(tasks);
 
-                return new() { StatusCode = 200, Data = testRequests, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Data = testRequests, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
 
         }
@@ -129,11 +129,11 @@ namespace UserManagement.Services.InstitutionService
 
                 var createdTestRequest = _mapper.Map<TestRequest>(labTestRequest);
 
-                return new() { StatusCode = 201, Message = "Test request created successfully", Data = null, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "Test request created successfully", Data = null, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -143,7 +143,7 @@ namespace UserManagement.Services.InstitutionService
             string healthCenterId = healthCenter?.Id ?? string.Empty;
 
             if (laboratory.HealthCenterName == string.Empty || healthCenterId == string.Empty)
-                return new() { StatusCode = 404, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
+                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
 
             Laboratory _laboratory = _mapper.Map<Laboratory>(laboratory);
             _laboratory.Type = InstitutionType.Laboratory;
@@ -162,7 +162,7 @@ namespace UserManagement.Services.InstitutionService
                 healthCenterId = healthCenter?.Id ?? string.Empty;
 
                 if (healthCenterId == string.Empty)
-                    return new() { StatusCode = 404, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
             }
 
             var response = await UpdateInstitution<UpdateLaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId, healthCenterId);

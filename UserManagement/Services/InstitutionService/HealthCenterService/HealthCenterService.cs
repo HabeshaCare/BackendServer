@@ -55,11 +55,11 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
                 var filter = Builders<HealthCenter>.Filter.Eq(hc => hc.Id, healthCenterId);
                 var update = Builders<HealthCenter>.Update.Push(hc => hc.SharedPatients, sharedPatient);
                 await _collection.UpdateOneAsync(filter, update);
-                return new() { StatusCode = 200, Message = "Patient shared successfully", Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = "Patient shared successfully", Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Message = ex.Message, Success = false };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Message = ex.Message, Success = false };
             }
         }
 
@@ -72,7 +72,7 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Message = ex.Message, Success = false };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Message = ex.Message, Success = false };
             }
         }
 
@@ -96,11 +96,11 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
 
                 await Task.WhenAll(tasks);
 
-                return new() { StatusCode = 200, Message = $"Found {patients.Length} shared Patients", Data = patients, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {patients.Length} shared Patients", Data = patients, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Message = ex.Message, Success = false };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Message = ex.Message, Success = false };
             }
         }
 

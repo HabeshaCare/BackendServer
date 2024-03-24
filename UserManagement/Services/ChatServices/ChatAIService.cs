@@ -32,7 +32,7 @@ namespace UserManagement.Services.ChatServices
             //Guard to prevent null message from being sent
             if (userId == null || message == null)
             {
-                return new() { StatusCode = 400, Errors = new[] { "Not all required fields are set" } };
+                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Not all required fields are set" } };
             }
 
             Message newMessage = new() { UserId = userId, Type = messageType, Content = message };
@@ -40,11 +40,11 @@ namespace UserManagement.Services.ChatServices
             try
             {
                 await _messageCollection.InsertOneAsync(newMessage);
-                return new() { StatusCode = 201, Message = "Message added successfully", Data = createdMessage, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "Message added successfully", Data = createdMessage, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -67,11 +67,11 @@ namespace UserManagement.Services.ChatServices
                 string responseData = await response.Content.ReadAsStringAsync();
                 var answer = JObject.Parse(responseData)["Response"];
 
-                return new() { StatusCode = response.IsSuccessStatusCode ? 200 : 503, Data = answer?.ToString(), Success = response.IsSuccessStatusCode };
+                return new() { StatusCode = response.IsSuccessStatusCode ? StatusCodes.Status200OK : StatusCodes.Status503ServiceUnavailable, Data = answer?.ToString(), Success = response.IsSuccessStatusCode };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -91,12 +91,12 @@ namespace UserManagement.Services.ChatServices
                 UsageMessageDTO? aiMessage = result[1].Data;
 
                 if (response.Success && aiMessage != null)
-                    return new() { StatusCode = 200, Message = "Asking llm successful", Data = aiMessage, Success = true };
+                    return new() { StatusCode = StatusCodes.Status200OK, Message = "Asking llm successful", Data = aiMessage, Success = true };
                 return new() { StatusCode = response.StatusCode, Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -107,11 +107,11 @@ namespace UserManagement.Services.ChatServices
             {
                 var result = await _messageCollection.Find(m => m.UserId == userId).ToListAsync();
                 UsageMessageDTO[] messages = _mapper.Map<UsageMessageDTO[]>(result);
-                return new() { StatusCode = 200, Message = "Found messages", Data = messages, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = "Found messages", Data = messages, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
     }

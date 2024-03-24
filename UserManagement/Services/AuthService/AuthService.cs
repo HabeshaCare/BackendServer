@@ -61,10 +61,10 @@ namespace UserManagement.Services
             bool userNotVerified = user?.VerifiedAt == null;
 
             if (userNotFound || !validPassword)
-                return new() { StatusCode = 401, Errors = new[] { "Invalid Credentials" } };
+                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Invalid Credentials" } };
 
             if (userNotVerified)
-                return new() { StatusCode = 401, Errors = new[] { "Account not verified" } };
+                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Account not verified" } };
 
             // Generates authentication claims and token.
             var authClaims = new List<Claim>
@@ -78,7 +78,7 @@ namespace UserManagement.Services
 
             string token = GenerateToken(authClaims);
             UsageUserDTO foundUser = _mapper.Map<UsageUserDTO>(user);
-            return new() { StatusCode = 200, Message = "Login successful", Data = foundUser, Token = token, Success = true };
+            return new() { StatusCode = StatusCodes.Status200OK, Message = "Login successful", Data = foundUser, Token = token, Success = true };
         }
 
         public async Task<SResponseDTO<UsageUserDTO>> Registration(RegistrationDTO model)
@@ -101,7 +101,7 @@ namespace UserManagement.Services
                         }
                         else
                         {
-                            return new() { StatusCode = 500, Errors = new[] { "Error while password hashing" } };
+                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error while password hashing" } };
                         }
                     }
 
@@ -119,11 +119,11 @@ namespace UserManagement.Services
                         }
                         else
                         {
-                            return new() { StatusCode = 500, Errors = new[] { "Error while hashing password" } };
+                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error while hashing password" } };
                         }
                     }
                 case UserRole.SuperAdmin:
-                    return new() { StatusCode = 403, Errors = new[] { "This role is not allowed to be created" } };
+                    return new() { StatusCode = StatusCodes.Status403Forbidden, Errors = new[] { "This role is not allowed to be created" } };
 
 
                 case UserRole.HealthCenterAdmin:
@@ -145,12 +145,12 @@ namespace UserManagement.Services
                         }
                         else
                         {
-                            return new() { StatusCode = 500, Errors = new[] { "Error while password hashing" } };
+                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error while password hashing" } };
 
                         }
                     }
                 default:
-                    return new() { StatusCode = 400, Errors = new[] { "Invalid Role" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Invalid Role" } };
 
             }
 
@@ -172,11 +172,11 @@ namespace UserManagement.Services
 
                 if (emailSent)
                 {
-                    return new() { StatusCode = 201, Message = "Registration Complete. Check email for verification link to verify your account.", Data = updatedUser };
+                    return new() { StatusCode = StatusCodes.Status201Created, Message = "Registration Complete. Check email for verification link to verify your account.", Data = updatedUser };
                 }
                 else
                 {
-                    return new() { StatusCode = 201, Message = "Registration Complete but couldn't sent verification email.", Data = updatedUser };
+                    return new() { StatusCode = StatusCodes.Status201Created, Message = "Registration Complete but couldn't sent verification email.", Data = updatedUser };
                 }
             }
             else
@@ -204,7 +204,7 @@ namespace UserManagement.Services
                 bool userNotFound = user == null;
 
                 if (userNotFound)
-                    return new() { StatusCode = 401, Errors = new[] { "Invalid Token" } };
+                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Invalid Token" } };
 
                 user!.VerifiedAt = DateTime.Now;
                 user.VerificationToken = string.Empty;
@@ -214,11 +214,11 @@ namespace UserManagement.Services
                 {
                     return new() { StatusCode = response.StatusCode, Message = "Email verified", Data = response.Data, Success = true };
                 }
-                return new() { StatusCode = 400, Errors = response.Errors };
+                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -238,7 +238,7 @@ namespace UserManagement.Services
 
             if (user == null)
             {
-                return new() { StatusCode = 404, Errors = new[] { "User not found" } };
+                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "User not found" } };
             }
 
             user.PasswordResetToken = CreateRandomToken();
@@ -257,11 +257,11 @@ namespace UserManagement.Services
             bool emailSent = _emailService.SendEmail(emailRequest);
             if (emailSent && response.Success)
             {
-                return new() { StatusCode = 201, Message = "Check email for password reset link.", Data = response.Data };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "Check email for password reset link.", Data = response.Data };
             }
             else
             {
-                return new() { StatusCode = 500, Errors = response.Errors };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = response.Errors };
             }
 
 
@@ -283,7 +283,7 @@ namespace UserManagement.Services
 
             if (user == null || user.ResetTokenExpires < DateTime.Now)
             {
-                return new() { StatusCode = 401, Message = "Invalid token." };
+                return new() { StatusCode = StatusCodes.Status401Unauthorized, Message = "Invalid token." };
             }
 
             user.Password = HashPassword(request.Password);
@@ -390,7 +390,7 @@ namespace UserManagement.Services
                         return new() { StatusCode = response.StatusCode, Message = response.Message, Data = verifiedUser, Errors = response.Errors, Success = response.Success };
                     }
                 default:
-                    return new() { StatusCode = 400, Errors = new[] { "Invalid Role" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Invalid Role" } };
             }
         }
         private async Task<SResponseDTO<string>> UpdatePassword(User user)
@@ -420,7 +420,7 @@ namespace UserManagement.Services
                         return new() { StatusCode = response.StatusCode, Message = response.Message, Errors = response.Errors, Success = response.Success };
                     }
                 default:
-                    return new() { StatusCode = 400, Errors = new[] { "Invalid Role" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Invalid Role" } };
             }
         }
     }

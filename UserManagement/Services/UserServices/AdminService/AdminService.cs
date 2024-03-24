@@ -67,7 +67,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -82,13 +82,13 @@ namespace UserManagement.Services.UserServices
                 bool success = result.ModifiedCount > 0;
 
                 if (success)
-                    return new() { StatusCode = 200, Message = "Access granted", Success = true };
+                    return new() { StatusCode = StatusCodes.Status200OK, Message = "Access granted", Success = true };
                 else
-                    return new() { StatusCode = 404, Errors = new[] { "Failed to grant access to admin" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Failed to grant access to admin" } };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -103,13 +103,13 @@ namespace UserManagement.Services.UserServices
                 bool success = result.ModifiedCount > 0;
 
                 if (success)
-                    return new() { StatusCode = 200, Message = "Access revoked", Success = true };
+                    return new() { StatusCode = StatusCodes.Status200OK, Message = "Access revoked", Success = true };
                 else
-                    return new() { StatusCode = 404, Errors = new[] { "Failed to revoke access from admin" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Failed to revoke access from admin" } };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
     }

@@ -52,14 +52,14 @@ namespace UserManagement.Services.InstitutionService
                     .ToListAsync();
 
                 if (foundInstitutions.Count == 0)
-                    return new() { StatusCode = 404, Errors = new[] { "No matching institutions found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "No matching institutions found" } };
 
                 USD[] institutions = _mapper.Map<USD[]>(foundInstitutions);
-                return new() { StatusCode = 200, Message = $"Found {foundInstitutions.Count} matching institutions", Data = institutions, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {foundInstitutions.Count} matching institutions", Data = institutions, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -69,11 +69,11 @@ namespace UserManagement.Services.InstitutionService
             {
                 var result = await _collection.FindAsync(I => I.Id == id);
                 T? institution = (await result.ToListAsync()).FirstOrDefault();
-                return new() { StatusCode = 200, Message = "Institution found", Data = institution, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = "Institution found", Data = institution, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -85,7 +85,7 @@ namespace UserManagement.Services.InstitutionService
             {
                 T institution = response.Data!;
                 USD? foundInstitution = _mapper.Map<USD>(institution);
-                return new() { StatusCode = 200, Message = "Institution found", Data = foundInstitution, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = "Institution found", Data = foundInstitution, Success = true };
             }
             return new() { StatusCode = response.StatusCode, Errors = response.Errors };
         }
@@ -98,11 +98,11 @@ namespace UserManagement.Services.InstitutionService
                 T? institution = (await result.ToListAsync()).FirstOrDefault();
                 USD? foundInstitution = _mapper.Map<USD>(institution);
 
-                return new() { StatusCode = 200, Message = "Institution found", Data = foundInstitution, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = "Institution found", Data = foundInstitution, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -116,7 +116,7 @@ namespace UserManagement.Services.InstitutionService
                 var response = await GetInstitutionByName<T>(institution.Name ?? "");
 
                 if (response.Success)
-                    return new() { StatusCode = 409, Errors = new[] { "Institution with this name already exists" } };
+                    return new() { StatusCode = StatusCodes.Status409Conflict, Errors = new[] { "Institution with this name already exists" } };
 
                 await _collection.InsertOneAsync(institution);
                 USD createdInstitution = _mapper.Map<USD>(institution);
@@ -124,11 +124,11 @@ namespace UserManagement.Services.InstitutionService
                 var accessResponse = await _adminService.AddInstitutionAccess(response.Data!.Id!, adminId);
                 var failureMessage = accessResponse.Success ? string.Empty : "but couldn't grant access to admin";
 
-                return new() { StatusCode = 201, Message = $"Institution created successfully {failureMessage}", Data = createdInstitution, Success = true, Errors = accessResponse.Errors };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = $"Institution created successfully {failureMessage}", Data = createdInstitution, Success = true, Errors = accessResponse.Errors };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -164,15 +164,15 @@ namespace UserManagement.Services.InstitutionService
 
                     if (result == null)
                     {
-                        return new() { StatusCode = 500, Errors = new[] { "Error updating institution" } };
+                        return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error updating institution" } };
                     }
-                    return new() { StatusCode = 201, Message = "Institution updated successfully", Data = updatedInstitutionDTO, Success = true };
+                    return new() { StatusCode = StatusCodes.Status201Created, Message = "Institution updated successfully", Data = updatedInstitutionDTO, Success = true };
                 }
                 return new() { StatusCode = response.StatusCode, Errors = response.Errors };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -206,11 +206,11 @@ namespace UserManagement.Services.InstitutionService
                 var rawInstitution = await _collection.FindOneAndReplaceAsync(filter, institution, options);
 
                 USD updatedInstitution = _mapper.Map<USD>(rawInstitution);
-                return new() { StatusCode = 201, Message = "License information Uploaded Successfully", Data = updatedInstitution, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "License information Uploaded Successfully", Data = updatedInstitution, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -230,13 +230,13 @@ namespace UserManagement.Services.InstitutionService
             {
                 var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
                 if (result != null)
-                    return new() { StatusCode = 201, Message = $"Institution Verification set to {status}", Data = _mapper.Map<USD>(result), Success = true };
+                    return new() { StatusCode = StatusCodes.Status201Created, Message = $"Institution Verification set to {status}", Data = _mapper.Map<USD>(result), Success = true };
                 else
-                    return new() { StatusCode = 404, Errors = new[] { "Institution not found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Institution not found" } };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
     }

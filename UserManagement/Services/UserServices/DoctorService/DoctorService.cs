@@ -76,7 +76,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -100,13 +100,13 @@ namespace UserManagement.Services.UserServices
             {
                 var result = await _collection.FindOneAndUpdateAsync(filter, update, options);
                 if (result != null)
-                    return new() { StatusCode = 201, Message = "Doctor Verified", Data = _mapper.Map<UsageDoctorDTO>(result) };
+                    return new() { StatusCode = StatusCodes.Status201Created, Message = "Doctor Verified", Data = _mapper.Map<UsageDoctorDTO>(result) };
                 else
-                    return new() { StatusCode = 404, Message = "Doctor not found" };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Message = "Doctor not found" };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
@@ -142,9 +142,9 @@ namespace UserManagement.Services.UserServices
 
                     if (result == null)
                     {
-                        return new() { StatusCode = 500, Errors = new[] { "Error updating Doctor" } };
+                        return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error updating Doctor" } };
                     }
-                    return new() { StatusCode = 201, Message = "License Information Uploaded Successfully. Status set to unverified until approved by Admin", Success = true };
+                    return new() { StatusCode = StatusCodes.Status201Created, Message = "License Information Uploaded Successfully. Status set to unverified until approved by Admin", Success = true };
                 }
 
                 return new() { StatusCode = response.StatusCode, Errors = response.Errors };
@@ -152,7 +152,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = 500, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
             }
         }
 
