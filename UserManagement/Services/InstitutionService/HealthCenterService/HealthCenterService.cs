@@ -63,6 +63,19 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
             }
         }
 
+        public async Task<SResponseDTO<bool>> ReferPatient(ReferralDTO referralDTO, TimeSpan duration)
+        {
+            try
+            {
+                //#TODO: Change this to a more realistic logic later
+                return await SharePatient(referralDTO.HealthCenterId, referralDTO.PatientId, duration);
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = 500, Message = ex.Message, Success = false };
+            }
+        }
+
         public async Task<SResponseDTO<UsagePatientDTO[]>> GetSharedPatients(string healthCenterId)
         {
             try

@@ -19,6 +19,7 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
         Task<SResponseDTO<HealthCenterDTO>> AddHealthCenter(HealthCenterDTO healthCenter, string adminId);
         Task<SResponseDTO<HealthCenterDTO>> UpdateHealthCenter(UpdateHealthCenterDTO healthCenterDTO, string healthCenterId);
         Task<SResponseDTO<bool>> SharePatient(string healthCenterId, string patientId, TimeSpan duration);
+        Task<SResponseDTO<bool>> ReferPatient(ReferralDTO referralDTO, TimeSpan duration);
         Task<SResponseDTO<UsagePatientDTO[]>> GetSharedPatients(string healthCenterId);
 
     }
