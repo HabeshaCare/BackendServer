@@ -5,15 +5,17 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UserManagement.Attributes;
+using UserManagement.DTOs;
 using UserManagement.DTOs.PatientDTOs;
 using UserManagement.Models;
+using UserManagement.Models.DTOs.UserDTOs;
 using UserManagement.Services.InstitutionService.HealthCenterService;
 using UserManagement.Services.UserServices;
 
 namespace UserManagement.Controllers
 {
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Patient, SuperAdmin, HealthCenterAdmin, Reception, Doctor")]
     [Route("api/patient")]
     public class PatientController : ControllerBase
     {
@@ -29,6 +31,19 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> GetPatientById(string id)
         {
             var response = await _patientService.GetPatientById(id);
+            SResponseDTO<UsageUserDTO>? updatedResponse = null;
+            var role = HttpContext.Items["Role"]?.ToString() ?? UserRole.Reception.ToString();
+            switch (role)
+            {
+                case "Reception":
+                    updatedResponse = new() { StatusCode = response.StatusCode, Message = response.Message, Data = response.Data as UsageUserDTO, Errors = response.Errors, Success = response.Success };
+                    break;
+                default:
+                    break;
+            }
+
+            if (updatedResponse != null)
+                return new ObjectResult(updatedResponse) { StatusCode = updatedResponse.StatusCode };
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
