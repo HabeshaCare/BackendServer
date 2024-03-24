@@ -63,7 +63,7 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
             }
         }
 
-        public async Task<SResponseDTO<UsagePatientDTO[]>> GetSharedPatients(string healthCenterId, int page, int size)
+        public async Task<SResponseDTO<UsagePatientDTO[]>> GetSharedPatients(string healthCenterId)
         {
             try
             {
