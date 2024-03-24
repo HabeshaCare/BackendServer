@@ -16,6 +16,7 @@ namespace UserManagement.Services
     {
         Task<SResponseDTO<UsageUserDTO>> Registration(RegistrationDTO model);
         Task<SResponseDTO<UsageUserDTO>> Login(LoginDTO model);
+        Task<SResponseDTO<UsageUserDTO>> SendVerificationToken(string email);
         Task<SResponseDTO<UsageUserDTO>> VerifyEmail(string token);
         Task<SResponseDTO<UsageUserDTO>> ForgotPassword(string email);
         Task<SResponseDTO<string>> ResetPassword(UserResetPasswordDTO request);
