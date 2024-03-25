@@ -120,7 +120,7 @@ namespace UserManagement.Services.InstitutionService
                 testRequest.LaboratoryId = laboratoryId;
 
                 await _testRequestCollection.InsertOneAsync(testRequest);
-                _ = laboratory.TestRequestIds.Append(testRequest.Id);
+                laboratory.TestRequestIds.Add(testRequest.Id!);
 
                 var labUpdateResponse = await UpdateInstitution<Laboratory, LaboratoryDTO>(laboratory, laboratory.Id!);
 
