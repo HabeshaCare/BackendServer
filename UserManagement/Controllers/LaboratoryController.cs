@@ -45,7 +45,7 @@ namespace UserManagement.Controllers
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
-        [HttpGet("{id}/test-requests")]
+        [HttpPost("{id}/test-requests")]
         [Authorize(Roles = "Doctor, Patient, HealthCenterAdmin")]
         public async Task<IActionResult> RequestForLabTest([FromBody] CreateTestRequestDTO labTestRequest, string id)
         {
