@@ -37,7 +37,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -87,7 +87,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -105,11 +105,11 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
-        public async Task<SResponseDTO<ScheduleDTO[]>> GetSchedules(string userId, bool scheduler, int page, int size)
+        public async Task<SResponseDTO<List<ScheduleDTO>>> GetSchedules(string userId, bool scheduler, int page, int size)
         {
             var filterBuilder = Builders<Schedule>.Filter;
             var filterDefinition = filterBuilder.Empty;
@@ -129,17 +129,17 @@ namespace UserManagement.Services.UserServices
                     .ToListAsync();
 
                 if (foundSchedules.Count == 0)
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "No Schedules Found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "No Schedules Found" } };
 
-                ScheduleDTO[] schedules = _mapper.Map<ScheduleDTO[]>(foundSchedules);
+                List<ScheduleDTO> schedules = _mapper.Map<List<ScheduleDTO>>(foundSchedules);
 
-                var scheduleTasks = foundSchedules.Select(schedule => FetchScheduleInformation(schedule, scheduler)).ToList();
-                schedules = await Task.WhenAll(scheduleTasks);
-                return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {schedules.Length} schedules", Data = schedules, Success = true };
+                List<Task<ScheduleDTO>> scheduleTasks = foundSchedules.Select(schedule => FetchScheduleInformation(schedule, scheduler)).ToList();
+                schedules = (await Task.WhenAll(scheduleTasks)).ToList();
+                return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {schedules.Count} schedules", Data = schedules, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -168,7 +168,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -198,7 +198,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -209,13 +209,13 @@ namespace UserManagement.Services.UserServices
                 var result = await _scheduleCollection.FindOneAndDeleteAsync(s => s.Id == scheduleId);
 
                 if (result == null)
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Schedule not found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Schedule not found" } };
 
                 return new() { StatusCode = StatusCodes.Status200OK, Message = "Schedule deleted successfully", Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
     }

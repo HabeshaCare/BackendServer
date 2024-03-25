@@ -32,7 +32,7 @@ namespace UserManagement.Services.ChatServices
             //Guard to prevent null message from being sent
             if (userId == null || message == null)
             {
-                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Not all required fields are set" } };
+                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "Not all required fields are set" } };
             }
 
             Message newMessage = new() { UserId = userId, Type = messageType, Content = message };
@@ -44,7 +44,7 @@ namespace UserManagement.Services.ChatServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -71,7 +71,7 @@ namespace UserManagement.Services.ChatServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -96,22 +96,22 @@ namespace UserManagement.Services.ChatServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
         /// Retrieves all messages for a specific user from the chat log.
-        public async Task<SResponseDTO<UsageMessageDTO[]>> GetMessages(string userId)
+        public async Task<SResponseDTO<List<UsageMessageDTO>>> GetMessages(string userId)
         {
             try
             {
                 var result = await _messageCollection.Find(m => m.UserId == userId).ToListAsync();
-                UsageMessageDTO[] messages = _mapper.Map<UsageMessageDTO[]>(result);
+                List<UsageMessageDTO> messages = _mapper.Map<List<UsageMessageDTO>>(result);
                 return new() { StatusCode = StatusCodes.Status200OK, Message = "Found messages", Data = messages, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
     }

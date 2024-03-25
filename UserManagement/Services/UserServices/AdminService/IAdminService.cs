@@ -11,7 +11,7 @@ namespace UserManagement.Services.UserServices
 {
     public interface IAdminService : IUserService
     {
-        Task<SResponseDTO<UsageAdminDTO[]>> GetAdmins(FilterDTO filterOptions, int page, int size);
+        Task<SResponseDTO<List<UsageAdminDTO>>> GetAdmins(FilterDTO filterOptions, int page, int size);
         Task<SResponseDTO<UsageAdminDTO>> GetAdminById(string adminId);
         Task<SResponseDTO<UsageAdminDTO>> GetAdminByEmail(string adminEmail);
         Task<SResponseDTO<Administrator>> AddAdmin(Administrator admin);

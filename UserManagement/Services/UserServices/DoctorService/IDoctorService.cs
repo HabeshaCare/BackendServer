@@ -13,7 +13,7 @@ namespace UserManagement.Services.UserServices
     {
         Task<SResponseDTO<UsageDoctorDTO>> GetDoctorById(string doctorId);
         Task<SResponseDTO<UsageDoctorDTO>> GetDoctorByEmail(string doctorEmail);
-        Task<SResponseDTO<UsageDoctorDTO[]>> GetDoctors(FilterDTO filterOptions, int page, int size);
+        Task<SResponseDTO<List<UsageDoctorDTO>>> GetDoctors(FilterDTO filterOptions, int page, int size);
         Task<SResponseDTO<Doctor>> AddDoctor(Doctor user);
         Task<SResponseDTO<UsageDoctorDTO>> VerifyDoctor(string doctorId);
         Task<SResponseDTO<UsageDoctorDTO>> UpdateDoctor(UpdateDoctorDTO doctorDTO, string id);

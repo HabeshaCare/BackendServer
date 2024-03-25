@@ -61,7 +61,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
 
         }
@@ -77,7 +77,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -103,14 +103,14 @@ namespace UserManagement.Services.UserServices
                 T user = await _collection.Find(filterCondition).FirstOrDefaultAsync();
 
                 if (user == null)
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "User not found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "User not found" } };
 
                 USD? foundUser = _mapper.Map<USD>(user);
                 return new() { StatusCode = StatusCodes.Status200OK, Message = "User Found", Data = foundUser, Success = true };
             }
             catch (Exception)
             {
-                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "User not found" } };
+                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "User not found" } };
             }
         }
 
@@ -122,14 +122,14 @@ namespace UserManagement.Services.UserServices
                 var filterCondition = Builders<T>.Filter.Eq("VerificationToken", token);
                 var foundUsers = await _collection.Find(filterCondition).ToListAsync();
                 if (foundUsers.Count == 0)
-                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Invalid Token" } };
+                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Invalid Token" } };
 
-                USD user = _mapper.Map<USD[]>(foundUsers)[0];
+                USD user = _mapper.Map<List<USD>>(foundUsers)[0];
                 return new() { StatusCode = StatusCodes.Status200OK, Message = "User Found", Data = user, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -141,19 +141,19 @@ namespace UserManagement.Services.UserServices
                 var filterCondition = Builders<T>.Filter.Eq("PasswordResetToken", token);
                 var foundUsers = await _collection.Find(filterCondition).ToListAsync();
                 if (foundUsers.Count == 0)
-                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Invalid Token" } };
+                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Invalid Token" } };
 
-                USD user = _mapper.Map<USD[]>(foundUsers)[0];
+                USD user = _mapper.Map<List<USD>>(foundUsers)[0];
                 return new() { StatusCode = StatusCodes.Status200OK, Message = "User Found", Data = user, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
         // USD refers to the Usage DTO of a user
-        protected async Task<SResponseDTO<USD[]>> GetUsers<USD>(FilterDefinition<T> filterDefinition, int page, int size)
+        protected async Task<SResponseDTO<List<USD>>> GetUsers<USD>(FilterDefinition<T> filterDefinition, int page, int size)
         {
             int skip = (page - 1) * size;
             try
@@ -164,14 +164,14 @@ namespace UserManagement.Services.UserServices
                     .ToListAsync();
 
                 if (foundUsers.Count == 0)
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "No matching users found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "No matching users found" } };
 
-                USD[] users = _mapper.Map<USD[]>(foundUsers);
+                List<USD> users = _mapper.Map<List<USD>>(foundUsers);
                 return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {foundUsers.Count} matching users", Data = users, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -202,7 +202,7 @@ namespace UserManagement.Services.UserServices
 
                     if (result == null)
                     {
-                        return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error updating user" } };
+                        return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { "Error updating user" } };
                     }
                     return new() { StatusCode = StatusCodes.Status200OK, Message = "User profile updated successfully", Data = updatedUserDTO, Success = true };
                 }
@@ -211,7 +211,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -223,7 +223,7 @@ namespace UserManagement.Services.UserServices
                 var response = await GetUserByEmail<T>(user.Email ?? "");
 
                 if (response.Success)
-                    return new() { StatusCode = StatusCodes.Status409Conflict, Errors = new[] { "User already exists" } };
+                    return new() { StatusCode = StatusCodes.Status409Conflict, Errors = new() { "User already exists" } };
 
                 await _collection.InsertOneAsync(user);
                 USD createdUser = _mapper.Map<USD>(user);
@@ -232,7 +232,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -250,11 +250,11 @@ namespace UserManagement.Services.UserServices
                 if (result.ModifiedCount > 0)
                     return new() { StatusCode = StatusCodes.Status200OK, Message = "Password Reset successfully", Success = true };
                 else
-                    return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "User doesn't exist" } };
+                    return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { "User doesn't exist" } };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 

@@ -28,7 +28,7 @@ namespace UserManagement.Attributes
             if (!response.Success)
                 context.Result = new ForbidResult("Error getting shared patients");
 
-            UsagePatientDTO[] sharedPatients = response.Data!;
+            List<UsagePatientDTO> sharedPatients = response.Data!;
 
             bool healthCenterHasAccess = sharedPatients.Any(p => p.Id == resourceId);
 

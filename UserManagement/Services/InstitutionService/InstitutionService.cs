@@ -32,7 +32,7 @@ namespace UserManagement.Services.InstitutionService
         }
 
         // USD refers to the Usage DTO of an institution
-        protected async Task<SResponseDTO<USD[]>> GetInstitutions<USD>(FilterDTO filterOptions, int page, int size)
+        protected async Task<SResponseDTO<List<USD>>> GetInstitutions<USD>(FilterDTO filterOptions, int page, int size)
         {
             var filterBuilder = Builders<T>.Filter;
             var filterDefinition = filterBuilder.Empty;
@@ -52,14 +52,14 @@ namespace UserManagement.Services.InstitutionService
                     .ToListAsync();
 
                 if (foundInstitutions.Count == 0)
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "No matching institutions found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "No matching institutions found" } };
 
-                USD[] institutions = _mapper.Map<USD[]>(foundInstitutions);
+                List<USD> institutions = _mapper.Map<List<USD>>(foundInstitutions);
                 return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {foundInstitutions.Count} matching institutions", Data = institutions, Success = true };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -73,7 +73,7 @@ namespace UserManagement.Services.InstitutionService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -102,7 +102,7 @@ namespace UserManagement.Services.InstitutionService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -116,7 +116,7 @@ namespace UserManagement.Services.InstitutionService
                 var response = await GetInstitutionByName<T>(institution.Name ?? "");
 
                 if (response.Success)
-                    return new() { StatusCode = StatusCodes.Status409Conflict, Errors = new[] { "Institution with this name already exists" } };
+                    return new() { StatusCode = StatusCodes.Status409Conflict, Errors = new() { "Institution with this name already exists" } };
 
                 await _collection.InsertOneAsync(institution);
                 USD createdInstitution = _mapper.Map<USD>(institution);
@@ -128,7 +128,7 @@ namespace UserManagement.Services.InstitutionService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -164,7 +164,7 @@ namespace UserManagement.Services.InstitutionService
 
                     if (result == null)
                     {
-                        return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error updating institution" } };
+                        return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { "Error updating institution" } };
                     }
                     return new() { StatusCode = StatusCodes.Status201Created, Message = "Institution updated successfully", Data = updatedInstitutionDTO, Success = true };
                 }
@@ -172,7 +172,7 @@ namespace UserManagement.Services.InstitutionService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -210,7 +210,7 @@ namespace UserManagement.Services.InstitutionService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -232,11 +232,11 @@ namespace UserManagement.Services.InstitutionService
                 if (result != null)
                     return new() { StatusCode = StatusCodes.Status201Created, Message = $"Institution Verification set to {status}", Data = _mapper.Map<USD>(result), Success = true };
                 else
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Institution not found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Institution not found" } };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
     }

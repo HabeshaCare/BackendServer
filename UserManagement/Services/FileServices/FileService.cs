@@ -16,11 +16,11 @@ namespace UserManagement.Services.FileServices
             try
             {
                 if (file == null || file.Length == 0)
-                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "File is empty" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "File is empty" } };
 
                 var fileExtension = Path.GetExtension(file.FileName);
                 if (!_allowedFileTypes.Contains(fileExtension))
-                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Invalid file type" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "Invalid file type" } };
 
                 var fileName = $"{id}_{Guid.NewGuid()}{fileExtension}";
                 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), uploadDir);
@@ -41,7 +41,7 @@ namespace UserManagement.Services.FileServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
     }

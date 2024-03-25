@@ -24,7 +24,7 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
             _patientService = patientService;
         }
 
-        public async Task<SResponseDTO<HealthCenterDTO[]>> GetHealthCenters(FilterDTO? filterOption, int page, int size)
+        public async Task<SResponseDTO<List<HealthCenterDTO>>> GetHealthCenters(FilterDTO? filterOption, int page, int size)
         {
             return await GetInstitutions<HealthCenterDTO>(filterOption!, page, size);
         }
@@ -76,7 +76,7 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
             }
         }
 
-        public async Task<SResponseDTO<UsagePatientDTO[]>> GetSharedPatients(string healthCenterId)
+        public async Task<SResponseDTO<List<UsagePatientDTO>>> GetSharedPatients(string healthCenterId)
         {
             try
             {
@@ -85,18 +85,18 @@ namespace UserManagement.Services.InstitutionService.HealthCenterService
                     return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
                 var sharedPatients = response.Data!.SharedPatients;
-                var patients = Array.Empty<UsagePatientDTO>();
+                List<UsagePatientDTO> patients = new();
                 var tasks = sharedPatients.Select(async sharedPatient =>
                     {
                         var response = await _patientService.GetPatientById(sharedPatient.PatientId ?? string.Empty);
 
                         if (response.Success)
-                            _ = patients.Append(response.Data!);
+                            patients.Add(response.Data!);
                     });
 
                 await Task.WhenAll(tasks);
 
-                return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {patients.Length} shared Patients", Data = patients, Success = true };
+                return new() { StatusCode = StatusCodes.Status200OK, Message = $"Found {patients.Count} shared Patients", Data = patients, Success = true };
             }
             catch (Exception ex)
             {

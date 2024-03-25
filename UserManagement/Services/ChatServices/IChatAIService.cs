@@ -10,7 +10,7 @@ namespace UserManagement.Services.ChatServices
 {
     public interface IChatAIService
     {
-        Task<SResponseDTO<UsageMessageDTO[]>> GetMessages(string userId);
+        Task<SResponseDTO<List<UsageMessageDTO>>> GetMessages(string userId);
         Task<SResponseDTO<UsageMessageDTO>> AskAI(string userId, string message);
     }
 }

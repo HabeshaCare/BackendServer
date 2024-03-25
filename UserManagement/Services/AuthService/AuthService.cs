@@ -61,10 +61,10 @@ namespace UserManagement.Services
             bool userNotVerified = user?.VerifiedAt == null;
 
             if (userNotFound || !validPassword)
-                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Invalid Credentials" } };
+                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Invalid Credentials" } };
 
             if (userNotVerified)
-                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Account not verified" } };
+                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Account not verified" } };
 
             // Generates authentication claims and token.
             var authClaims = new List<Claim>
@@ -101,7 +101,7 @@ namespace UserManagement.Services
                         }
                         else
                         {
-                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error while password hashing" } };
+                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { "Error while password hashing" } };
                         }
                     }
 
@@ -119,11 +119,11 @@ namespace UserManagement.Services
                         }
                         else
                         {
-                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error while hashing password" } };
+                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { "Error while hashing password" } };
                         }
                     }
                 case UserRole.SuperAdmin:
-                    return new() { StatusCode = StatusCodes.Status403Forbidden, Errors = new[] { "This role is not allowed to be created" } };
+                    return new() { StatusCode = StatusCodes.Status403Forbidden, Errors = new() { "This role is not allowed to be created" } };
 
 
                 case UserRole.HealthCenterAdmin:
@@ -145,12 +145,12 @@ namespace UserManagement.Services
                         }
                         else
                         {
-                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error while password hashing" } };
+                            return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { "Error while password hashing" } };
 
                         }
                     }
                 default:
-                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Invalid Role" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "Invalid Role" } };
 
             }
 
@@ -201,11 +201,11 @@ namespace UserManagement.Services
 
             if (user == null)
             {
-                return new() { StatusCode = 404, Errors = new[] { "User not found" } };
+                return new() { StatusCode = 404, Errors = new() { "User not found" } };
             }
 
             if (user.VerifiedAt < DateTime.Now)
-                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "User already verified" } };
+                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "User already verified" } };
 
             var tokenExpiryTimeInMins = int.Parse(_configuration["TokenExpiryTimeInMins"] ?? "5");
 
@@ -251,7 +251,7 @@ namespace UserManagement.Services
                 bool userNotFound = user == null;
 
                 if (userNotFound || user!.VerificationTokenExpires < DateTime.Now)
-                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new[] { "Invalid Token" } };
+                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Invalid Token" } };
 
                 user!.VerifiedAt = DateTime.Now;
                 user.VerificationToken = string.Empty;
@@ -265,7 +265,7 @@ namespace UserManagement.Services
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -285,7 +285,7 @@ namespace UserManagement.Services
 
             if (user == null)
             {
-                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "User not found" } };
+                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "User not found" } };
             }
 
             var tokenExpiryTimeInMins = int.Parse(_configuration["TokenExpiryTimeInMins"] ?? "5");
@@ -437,7 +437,7 @@ namespace UserManagement.Services
                         return new() { StatusCode = response.StatusCode, Message = response.Message, Data = verifiedUser, Errors = response.Errors, Success = response.Success };
                     }
                 default:
-                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Invalid Role" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "Invalid Role" } };
             }
         }
         private async Task<SResponseDTO<string>> UpdatePassword(User user)
@@ -467,7 +467,7 @@ namespace UserManagement.Services
                         return new() { StatusCode = response.StatusCode, Message = response.Message, Errors = response.Errors, Success = response.Success };
                     }
                 default:
-                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new[] { "Invalid Role" } };
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "Invalid Role" } };
             }
         }
     }

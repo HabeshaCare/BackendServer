@@ -32,7 +32,7 @@ namespace UserManagement.Services.UserServices
             return await GetUserById<UsageDoctorDTO>(doctorId);
         }
 
-        public async Task<SResponseDTO<UsageDoctorDTO[]>> GetDoctors(FilterDTO filterOptions, int page, int size)
+        public async Task<SResponseDTO<List<UsageDoctorDTO>>> GetDoctors(FilterDTO filterOptions, int page, int size)
         {
             var filterDefinition = PrepareFilterDefinition(filterOptions);
 
@@ -76,7 +76,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -106,7 +106,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -142,7 +142,7 @@ namespace UserManagement.Services.UserServices
 
                     if (result == null)
                     {
-                        return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { "Error updating Doctor" } };
+                        return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { "Error updating Doctor" } };
                     }
                     return new() { StatusCode = StatusCodes.Status201Created, Message = "License Information Uploaded Successfully. Status set to unverified until approved by Admin", Success = true };
                 }
@@ -152,7 +152,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 

@@ -7,7 +7,7 @@ namespace UserManagement.Models
 {
     public class Laboratory : Institution
     {
-        public LabTest[] AvailableTests { get; set; } = Array.Empty<LabTest>();
-        public string[] TestRequestIds { get; set; } = Array.Empty<string>();
+        public List<LabTest> AvailableTests { get; set; } = new();
+        public List<string> TestRequestIds { get; set; } = new();
     }
 }

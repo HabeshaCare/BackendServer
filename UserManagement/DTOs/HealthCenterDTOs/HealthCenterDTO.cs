@@ -9,7 +9,7 @@ namespace UserManagement.DTOs.HealthCenterDTOs
 {
     public class HealthCenterDTO : InstitutionDTO
     {
-        public string[] DoctorsId { get; set; } = Array.Empty<string>();
-        public SharedPatient[] SharedPatients { get; set; } = Array.Empty<SharedPatient>();
+        public List<string> DoctorsId { get; set; } = new();
+        public List<SharedPatient> SharedPatients { get; set; } = new();
     }
 }

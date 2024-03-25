@@ -31,7 +31,7 @@ namespace UserManagement.Services.InstitutionService
             _testRequestCollection = GetCollection<TestRequest>("TestRequests");
         }
 
-        public async Task<SResponseDTO<LaboratoryDTO[]>> GetLaboratories(FilterDTO? filterOption, int page, int size)
+        public async Task<SResponseDTO<List<LaboratoryDTO>>> GetLaboratories(FilterDTO? filterOption, int page, int size)
         {
             return await GetInstitutions<LaboratoryDTO>(filterOption!, page, size);
         }
@@ -47,7 +47,7 @@ namespace UserManagement.Services.InstitutionService
             {
                 var testRequest = await _testRequestCollection.Find(tr => tr.Id == labTestId).FirstOrDefaultAsync();
                 if (testRequest == null)
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Test request not found" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Test request not found" } };
 
                 var testRequestDTO = _mapper.Map<TestRequestDTO>(testRequest);
 
@@ -65,13 +65,13 @@ namespace UserManagement.Services.InstitutionService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
 
 
-        public async Task<SResponseDTO<TestRequestDTO[]>> GetLabTestRequests(string laboratoryId)
+        public async Task<SResponseDTO<List<TestRequestDTO>>> GetLabTestRequests(string laboratoryId)
         {
             try
             {
@@ -84,14 +84,14 @@ namespace UserManagement.Services.InstitutionService
                 var filterBuilder = Builders<TestRequest>.Filter;
                 var filter = filterBuilder.Eq(tr => tr.LaboratoryId, laboratoryId) & filterBuilder.Eq(tr => tr.Status, RequestStatus.Pending);
                 var results = (await _testRequestCollection.Find(filter).ToListAsync()).ToArray();
-                var testRequests = Array.Empty<TestRequestDTO>();
+                List<TestRequestDTO> testRequests = new();
 
 
                 var tasks = results.Select(async testRequest =>
                     {
                         var response = await GetLabTestRequest(testRequest.Id ?? string.Empty);
                         if (response.Success)
-                            _ = testRequests.Append(response.Data!);
+                            testRequests.Add(response.Data!);
                     });
 
                 await Task.WhenAll(tasks);
@@ -100,12 +100,12 @@ namespace UserManagement.Services.InstitutionService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
 
         }
 
-        public async Task<SResponseDTO<TestRequestDTO[]>> RequestForLabTest(CreateTestRequestDTO labTestRequest, string laboratoryId)
+        public async Task<SResponseDTO<List<TestRequestDTO>>> RequestForLabTest(CreateTestRequestDTO labTestRequest, string laboratoryId)
         {
             try
             {
@@ -133,7 +133,7 @@ namespace UserManagement.Services.InstitutionService
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -143,7 +143,7 @@ namespace UserManagement.Services.InstitutionService
             string healthCenterId = healthCenter?.Id ?? string.Empty;
 
             if (laboratory.HealthCenterName == string.Empty || healthCenterId == string.Empty)
-                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
+                return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Health Center not found. Make sure you're sending an existing health center's name" } };
 
             Laboratory _laboratory = _mapper.Map<Laboratory>(laboratory);
             _laboratory.Type = InstitutionType.Laboratory;
@@ -162,7 +162,7 @@ namespace UserManagement.Services.InstitutionService
                 healthCenterId = healthCenter?.Id ?? string.Empty;
 
                 if (healthCenterId == string.Empty)
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Health Center not found. Make sure you're sending an existing health center's name" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Health Center not found. Make sure you're sending an existing health center's name" } };
             }
 
             var response = await UpdateInstitution<UpdateLaboratoryDTO, LaboratoryDTO>(laboratoryDTO, laboratoryId, healthCenterId);
@@ -191,7 +191,7 @@ namespace UserManagement.Services.InstitutionService
                 return new SResponseDTO<LaboratoryDTO>
                 {
                     StatusCode = StatusCodes.Status404NotFound,
-                    Errors = new[] { "No laboratory found with the provided ID." }
+                    Errors = new() { "No laboratory found with the provided ID." }
                 };
             }
             else
@@ -217,7 +217,7 @@ namespace UserManagement.Services.InstitutionService
                 return new SResponseDTO<LaboratoryDTO>
                 {
                     StatusCode = StatusCodes.Status404NotFound,
-                    Errors = new[] { "No laboratory found with the provided ID." }
+                    Errors = new() { "No laboratory found with the provided ID." }
                 };
             }
             else
@@ -246,7 +246,7 @@ namespace UserManagement.Services.InstitutionService
                 return new SResponseDTO<LaboratoryDTO>
                 {
                     StatusCode = StatusCodes.Status404NotFound,
-                    Errors = new[] { "No laboratory found with the provided ID or the lab test was not found in the available tests." }
+                    Errors = new() { "No laboratory found with the provided ID or the lab test was not found in the available tests." }
                 };
             }
             else

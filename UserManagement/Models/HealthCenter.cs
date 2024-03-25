@@ -7,7 +7,7 @@ namespace UserManagement.Models
 {
     public class HealthCenter : Institution
     {
-        public string[] DoctorsId { get; set; } = Array.Empty<string>();
-        public SharedPatient[] SharedPatients { get; set; } = Array.Empty<SharedPatient>();
+        public List<string> DoctorsId { get; set; } = new();
+        public List<SharedPatient> SharedPatients { get; set; } = new();
     }
 }

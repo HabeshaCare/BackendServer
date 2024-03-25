@@ -12,7 +12,7 @@ namespace UserManagement.Services.InstitutionService
 {
     public interface IPharmacyService : IInstitutionService
     {
-        Task<SResponseDTO<PharmacyDTO[]>> GetPharmacies(FilterDTO? filterOption, int page, int size);
+        Task<SResponseDTO<List<PharmacyDTO>>> GetPharmacies(FilterDTO? filterOption, int page, int size);
         Task<SResponseDTO<Pharmacy>> GetPharmacy(string id);
         Task<SResponseDTO<PharmacyDTO>> AddPharmacy(PharmacyDTO pharmacyDTO, string adminId);
         Task<SResponseDTO<PharmacyDTO>> UpdatePharmacy(UpdatePharmacyDTO pharmacyDTO, string pharmacyId);

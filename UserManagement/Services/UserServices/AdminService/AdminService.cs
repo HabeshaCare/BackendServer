@@ -30,7 +30,7 @@ namespace UserManagement.Services.UserServices
             return await AddUser<Administrator>(admin);
         }
 
-        public async Task<SResponseDTO<UsageAdminDTO[]>> GetAdmins(FilterDTO filterOptions, int page, int size)
+        public async Task<SResponseDTO<List<UsageAdminDTO>>> GetAdmins(FilterDTO filterOptions, int page, int size)
         {
             var filterDefinition = PrepareFilterDefinition(filterOptions);
 
@@ -67,7 +67,7 @@ namespace UserManagement.Services.UserServices
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -84,11 +84,11 @@ namespace UserManagement.Services.UserServices
                 if (success)
                     return new() { StatusCode = StatusCodes.Status200OK, Message = "Access granted", Success = true };
                 else
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Failed to grant access to admin" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Failed to grant access to admin" } };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
 
@@ -105,11 +105,11 @@ namespace UserManagement.Services.UserServices
                 if (success)
                     return new() { StatusCode = StatusCodes.Status200OK, Message = "Access revoked", Success = true };
                 else
-                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new[] { "Failed to revoke access from admin" } };
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Failed to revoke access from admin" } };
             }
             catch (Exception ex)
             {
-                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new[] { ex.Message } };
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
             }
         }
     }

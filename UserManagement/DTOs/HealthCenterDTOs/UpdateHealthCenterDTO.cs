@@ -8,6 +8,6 @@ namespace UserManagement.DTOs.HealthCenterDTOs
 {
     public class UpdateHealthCenterDTO : UpdateInstitutionDTO
     {
-        public string?[] DoctorsId { get; set; } = Array.Empty<string>();
+        public List<string> DoctorsId { get; set; } = new();
     }
 }
