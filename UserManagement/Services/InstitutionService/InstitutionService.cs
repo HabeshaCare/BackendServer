@@ -40,7 +40,7 @@ namespace UserManagement.Services.InstitutionService
             if (filterOptions.Verified.HasValue)
                 filterDefinition &= filterBuilder.Gte("Verified", filterOptions.Verified);
 
-            if (!string.IsNullOrEmpty(filterOptions.Freelancer))
+            if (filterOptions.Freelancer ?? false)
                 filterDefinition &= filterBuilder.Eq("AssociatedHealthCenterId", string.Empty);
 
             int skip = (page - 1) * size;

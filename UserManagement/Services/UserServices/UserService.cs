@@ -277,7 +277,7 @@ namespace UserManagement.Services.UserServices
             if (!string.IsNullOrEmpty(filterOptions.AssociatedHealthCenterId))
                 filterDefinition &= filterBuilder.Eq("AssociatedHealthCenterId", filterOptions.AssociatedHealthCenterId);
 
-            if (!string.IsNullOrEmpty(filterOptions.Freelancer))
+            if (filterOptions.Freelancer ?? false)
                 filterDefinition &= filterBuilder.Eq("AssociatedHealthCenterId", string.Empty);
 
             return filterDefinition;
