@@ -14,6 +14,6 @@ namespace UserManagement.Models
         public string Specialization { get; set; } = "Medical";
         public int? YearOfExperience { get; set; }
         public string AssociatedHealthCenterId { get; set; } = string.Empty;
-        public bool? Verified { get; set; }
+        public bool? Verified { get; set; } = false;
     }
 }
