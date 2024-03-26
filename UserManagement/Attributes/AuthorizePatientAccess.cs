@@ -27,7 +27,7 @@ namespace UserManagement.Attributes
 
             if (!response.Success)
             {
-                context.Result = new ForbidResult("Error getting shared patients");
+                context.Result = new ObjectResult(response) { StatusCode = response.StatusCode };
                 return;
             }
 
@@ -41,7 +41,7 @@ namespace UserManagement.Attributes
                 return;
             }
 
-            context.Result = new ForbidResult("You don't have access to this patient");
+            context.Result = new ForbidResult();
         }
 
     }
