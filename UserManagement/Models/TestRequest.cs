@@ -20,7 +20,7 @@ namespace UserManagement.Models
         public required string LaboratoryId { get; set; }
         public DateTime RequestedDate { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
         public RequestStatus Status { get; set; } = RequestStatus.Pending;
 

@@ -17,7 +17,7 @@ namespace UserManagement.Models
         public string? Id { get; set; }
         public required string Content { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
         public MessageType Type { get; set; } = MessageType.Human;
         public required string UserId { get; set; }

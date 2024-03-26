@@ -24,7 +24,7 @@ namespace UserManagement.Models
         public string? Location { get; set; }
         public string? ImageUrl { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
         public UserRole Role { get; set; } = UserRole.Patient;
         [Required(ErrorMessage = "This is a required field")]

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Converters;
 using UserManagement.Models;
 
 namespace UserManagement.DTOs.LaboratoryDTOs
@@ -20,7 +19,7 @@ namespace UserManagement.DTOs.LaboratoryDTOs
         public required string LaboratoryName { get; set; }
         public DateTime RequestedDate { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public RequestStatus Status { get; set; } = RequestStatus.Pending;
     }
 }

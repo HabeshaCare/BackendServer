@@ -19,7 +19,7 @@ namespace UserManagement.Models
         public required string LicensePath { get; set; }
         public bool Verified { get; set; }
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
         public required InstitutionType Type { get; set; }
 
