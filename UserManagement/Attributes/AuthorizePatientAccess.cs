@@ -26,7 +26,10 @@ namespace UserManagement.Attributes
             var response = await healthCenterService.GetSharedPatients(institutionIdFromToken);
 
             if (!response.Success)
+            {
                 context.Result = new ForbidResult("Error getting shared patients");
+                return;
+            }
 
             List<UsagePatientDTO> sharedPatients = response.Data!;
 
