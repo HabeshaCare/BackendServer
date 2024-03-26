@@ -86,12 +86,14 @@ namespace UserManagement.Services
                 return new() { StatusCode = StatusCodes.Status409Conflict, Errors = new() { "User already exists" } };
 
             SResponseDTO<User> result;
+            var tokenExpiryTimeInMins = int.Parse(_configuration["TokenExpiryTimeInMins"] ?? "5");
 
             switch (model.Role)
             {
                 case UserRole.Patient:
                     Patient patient = _mapper.Map<Patient>(model);
                     patient.VerificationToken = CreateRandomToken();
+                    patient.VerificationTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(patient, model.Password);
@@ -110,6 +112,7 @@ namespace UserManagement.Services
                 case UserRole.Doctor:
                     Doctor doctor = _mapper.Map<Doctor>(model);
                     doctor.VerificationToken = CreateRandomToken();
+                    doctor.VerificationTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(doctor, model.Password);
@@ -127,13 +130,13 @@ namespace UserManagement.Services
                 case UserRole.SuperAdmin:
                     return new() { StatusCode = StatusCodes.Status403Forbidden, Errors = new() { "This role is not allowed to be created" } };
 
-
                 case UserRole.HealthCenterAdmin:
                 case UserRole.LaboratoryAdmin:
                 case UserRole.PharmacyAdmin:
                 case UserRole.Reception:
                     Administrator admin = _mapper.Map<Administrator>(model);
                     admin.VerificationToken = CreateRandomToken();
+                    admin.VerificationTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(admin, model.Password);
