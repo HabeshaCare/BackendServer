@@ -263,8 +263,6 @@ namespace UserManagement.Services.UserServices
             var filterBuilder = Builders<T>.Filter;
             var filterDefinition = filterBuilder.Empty;
 
-            filterDefinition &= filterBuilder.Eq("Verified", true);
-
             if (filterOptions.MinYearExperience.HasValue)
                 filterDefinition &= filterBuilder.Gte("YearOfExperience", filterOptions.MinYearExperience);
 
@@ -277,8 +275,15 @@ namespace UserManagement.Services.UserServices
             if (!string.IsNullOrEmpty(filterOptions.AssociatedHealthCenterId))
                 filterDefinition &= filterBuilder.Eq("AssociatedHealthCenterId", filterOptions.AssociatedHealthCenterId);
 
-            if (filterOptions.Freelancer ?? false)
+            if (filterOptions.Freelancer.HasValue && (filterOptions.Freelancer ?? false))
                 filterDefinition &= filterBuilder.Eq("AssociatedHealthCenterId", string.Empty);
+
+            if (filterOptions.Freelancer.HasValue && (!filterOptions.Freelancer ?? false))
+                filterDefinition &= filterBuilder.Ne("AssociatedHealthCenterId", string.Empty);
+
+            if (filterOptions.Verified.HasValue)
+                filterDefinition &= filterBuilder.Eq("Verified", filterOptions.Verified);
+
 
             return filterDefinition;
         }

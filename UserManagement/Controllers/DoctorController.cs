@@ -57,6 +57,7 @@ namespace UserManagement.Controllers
         public async Task<IActionResult> VerifyDoctor(string id)
         {
             var response = await _doctorService.VerifyDoctor(id);
+
             return new ObjectResult(response) { StatusCode = response.StatusCode };
 
         }
