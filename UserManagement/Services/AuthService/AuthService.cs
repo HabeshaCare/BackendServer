@@ -60,9 +60,9 @@ namespace UserManagement.Services
             bool userNotVerified = user?.VerifiedAt == null;
 
             if (userNotFound || !validPassword)
-
-                if (userNotVerified)
-                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Account not verified" } };
+                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Invalid Credentials" } };
+            if (userNotVerified)
+                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Account not verified" } };
 
             // Generates authentication claims and token.
             var authClaims = new List<Claim>
