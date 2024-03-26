@@ -19,7 +19,7 @@ namespace UserManagement.DTOs.PatientDTOs
                 if (DateOfBirth == null)
                     return null;
 
-                DateTime currentDate = DateTime.Now;
+                DateTime currentDate = DateTime.UtcNow;
                 DateTime dateOfBirth = DateOfBirth.Value;
 
                 int age = currentDate.Year - dateOfBirth.Year;

@@ -7,6 +7,6 @@ namespace UserManagement.DTOs.MessageDTOs
 {
     public class UsageMessageDTO : MessageDTO
     {
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
 }

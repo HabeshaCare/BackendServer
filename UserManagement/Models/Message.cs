@@ -21,6 +21,6 @@ namespace UserManagement.Models
         [BsonRepresentation(BsonType.String)]
         public MessageType Type { get; set; } = MessageType.Human;
         public required string UserId { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.Now;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
     }
 }

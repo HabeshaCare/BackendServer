@@ -93,7 +93,7 @@ namespace UserManagement.Services
                 case UserRole.Patient:
                     Patient patient = _mapper.Map<Patient>(model);
                     patient.VerificationToken = CreateRandomToken();
-                    patient.VerificationTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
+                    patient.VerificationTokenExpires = DateTime.UtcNow.AddMinutes(tokenExpiryTimeInMins);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(patient, model.Password);
@@ -112,7 +112,7 @@ namespace UserManagement.Services
                 case UserRole.Doctor:
                     Doctor doctor = _mapper.Map<Doctor>(model);
                     doctor.VerificationToken = CreateRandomToken();
-                    doctor.VerificationTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
+                    doctor.VerificationTokenExpires = DateTime.UtcNow.AddMinutes(tokenExpiryTimeInMins);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(doctor, model.Password);
@@ -136,7 +136,7 @@ namespace UserManagement.Services
                 case UserRole.Reception:
                     Administrator admin = _mapper.Map<Administrator>(model);
                     admin.VerificationToken = CreateRandomToken();
-                    admin.VerificationTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
+                    admin.VerificationTokenExpires = DateTime.UtcNow.AddMinutes(tokenExpiryTimeInMins);
                     {
                         //The curly braces are used to limit the scope of the variable declaration
                         var resultUser = AddPassword(admin, model.Password);
@@ -198,13 +198,13 @@ namespace UserManagement.Services
 
             User user = getUserResponse.Data!;
 
-            if (user.VerifiedAt < DateTime.Now)
+            if (user.VerifiedAt < DateTime.UtcNow)
                 return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "User already verified" } };
 
             var tokenExpiryTimeInMins = int.Parse(_configuration["TokenExpiryTimeInMins"] ?? "5");
 
             user.VerificationToken = CreateRandomToken();
-            user.VerificationTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
+            user.VerificationTokenExpires = DateTime.UtcNow.AddMinutes(tokenExpiryTimeInMins);
 
             string verificationUrl = $"{_configuration["VerificationUrl"]}/?token={user?.VerificationToken}";
 
@@ -230,9 +230,9 @@ namespace UserManagement.Services
         {
             try
             {
-                var adminTask = _adminService.GetUserByVerificationToken<UsageAdminDTO>(token);
-                var doctorTask = _doctorService.GetUserByVerificationToken<UsageDoctorDTO>(token);
-                var patientTask = _patientService.GetUserByVerificationToken<UsagePatientDTO>(token);
+                var adminTask = _adminService.GetUserByVerificationToken<Administrator>(token);
+                var doctorTask = _doctorService.GetUserByVerificationToken<Doctor>(token);
+                var patientTask = _patientService.GetUserByVerificationToken<Patient>(token);
 
                 await Task.WhenAll(adminTask, doctorTask, patientTask);
 
@@ -244,10 +244,10 @@ namespace UserManagement.Services
 
                 bool userNotFound = user == null;
 
-                if (userNotFound || user!.VerificationTokenExpires < DateTime.Now)
+                if (userNotFound || user!.VerificationTokenExpires < DateTime.UtcNow)
                     return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Invalid Token" } };
 
-                user!.VerifiedAt = DateTime.Now;
+                user!.VerifiedAt = DateTime.UtcNow;
                 user.VerificationToken = string.Empty;
 
                 var response = await UpdateUser(user);
@@ -285,7 +285,7 @@ namespace UserManagement.Services
             var tokenExpiryTimeInMins = int.Parse(_configuration["TokenExpiryTimeInMins"] ?? "5");
 
             user.PasswordResetToken = CreateRandomToken();
-            user.ResetTokenExpires = DateTime.Now.AddMinutes(tokenExpiryTimeInMins);
+            user.ResetTokenExpires = DateTime.UtcNow.AddMinutes(tokenExpiryTimeInMins);
 
             string resetUrl = $"{_configuration["ResetUrl"]}/?token={user.PasswordResetToken}";
 
@@ -322,7 +322,7 @@ namespace UserManagement.Services
 
             User user = admin as User ?? doctor as User ?? patient;
 
-            if (user == null || user.ResetTokenExpires < DateTime.Now)
+            if (user == null || user.ResetTokenExpires < DateTime.UtcNow)
             {
                 return new() { StatusCode = StatusCodes.Status401Unauthorized, Message = "Invalid token." };
             }
