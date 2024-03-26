@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using UserManagement.DTOs;
 using UserManagement.DTOs.AdminDTOs;
+using UserManagement.DTOs.InstitutionDTOs;
 using UserManagement.Models;
 using UserManagement.Models.DTOs.OptionsDTO;
 using UserManagement.Services.FileServices;
@@ -112,7 +113,7 @@ namespace UserManagement.Services.InstitutionService
 
         // AD refers to the Registration DTO of an institution
         // USD refers to the Usage DTO of an institution
-        protected async Task<SResponseDTO<USD>> AddInstitution<USD>(T institution, string adminId)
+        protected async Task<SResponseDTO<USD>> AddInstitution<USD>(T institution, string adminId) where USD : InstitutionDTO
         {
             try
             {
@@ -125,7 +126,7 @@ namespace UserManagement.Services.InstitutionService
                 await _collection.InsertOneAsync(institution);
                 USD createdInstitution = _mapper.Map<USD>(institution);
 
-                var accessResponse = await _adminService.AddInstitutionAccess(response.Data!.Id!, adminId);
+                var accessResponse = await _adminService.AddInstitutionAccess(createdInstitution.Id!, adminId);
                 var failureMessage = accessResponse.Success ? string.Empty : "but couldn't grant access to admin";
 
                 return new() { StatusCode = StatusCodes.Status201Created, Message = $"Institution created successfully {failureMessage}", Data = createdInstitution, Success = true, Errors = accessResponse.Errors };
