@@ -96,6 +96,10 @@ namespace UserManagement.Services.InstitutionService
             {
                 var result = await _collection.FindAsync(I => I.Name == name);
                 T? institution = (await result.ToListAsync()).FirstOrDefault();
+
+                if (institution == null)
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Institution can't be found" } };
+
                 USD? foundInstitution = _mapper.Map<USD>(institution);
 
                 return new() { StatusCode = StatusCodes.Status200OK, Message = "Institution found", Data = foundInstitution, Success = true };
