@@ -47,9 +47,9 @@ namespace UserManagement.Services.UserServices
             return await GetUserById<UsageAdminDTO>(adminId);
         }
 
-        public async Task<SResponseDTO<Administrator>> UpdateAdmin(UpdateAdminDTO adminDTO, string id)
+        public async Task<SResponseDTO<UsageAdminDTO>> UpdateAdmin(UpdateAdminDTO adminDTO, string id)
         {
-            return await UpdateUser<UpdateAdminDTO, Administrator>(adminDTO, id);
+            return await UpdateUser<UpdateAdminDTO, UsageAdminDTO>(adminDTO, id);
         }
 
         public async Task<SResponseDTO<UsageAdminDTO>> UpdateVerification(bool verified, string id)
