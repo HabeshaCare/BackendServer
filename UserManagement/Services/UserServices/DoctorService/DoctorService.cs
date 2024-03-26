@@ -70,7 +70,7 @@ namespace UserManagement.Services.UserServices
                     {
                         return new() { StatusCode = updateResponse.StatusCode, Errors = updateResponse.Errors };
                     }
-                    return new() { StatusCode = updateResponse.StatusCode, Message = "Doctor profile updated successfully", Data = updateResponse.Data };
+                    return new() { StatusCode = updateResponse.StatusCode, Message = "Doctor profile updated successfully", Data = updateResponse.Data, Success = true };
                 }
                 return new() { StatusCode = response.StatusCode, Errors = response.Errors };
             }
