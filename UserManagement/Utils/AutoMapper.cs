@@ -69,6 +69,10 @@ namespace UserManagement.Utils
             CreateMap<Laboratory, LaboratoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
             CreateMap<Laboratory, UpdateLaboratoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
 
+            CreateMap<TestRequest, CreateTestRequestDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
+            CreateMap<TestRequest, TestRequestDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
+
+
             CreateMap<Message, MessageDTO>().ReverseMap();
             CreateMap<Message, UsageMessageDTO>().ReverseMap();
         }
