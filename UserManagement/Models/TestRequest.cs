@@ -11,6 +11,8 @@ namespace UserManagement.Models
 {
     public class TestRequest
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
         //This is the doctor Id
         public required string RequestorId { get; set; }
