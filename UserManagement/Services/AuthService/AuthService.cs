@@ -53,7 +53,6 @@ namespace UserManagement.Services
             Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
             Patient patient = _mapper.Map<Patient>(patientTask.Result.Data);
 
-            //
             User user = admin as User ?? doctor as User ?? patient;
 
             bool userNotFound = user == null;
@@ -61,10 +60,9 @@ namespace UserManagement.Services
             bool userNotVerified = user?.VerifiedAt == null;
 
             if (userNotFound || !validPassword)
-                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Invalid Credentials" } };
 
-            if (userNotVerified)
-                return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Account not verified" } };
+                if (userNotVerified)
+                    return new() { StatusCode = StatusCodes.Status401Unauthorized, Errors = new() { "Account not verified" } };
 
             // Generates authentication claims and token.
             var authClaims = new List<Claim>
@@ -83,6 +81,10 @@ namespace UserManagement.Services
 
         public async Task<SResponseDTO<UsageUserDTO>> Registration(RegistrationDTO model)
         {
+            var getUserResponse = await GetUser(model.Email ?? "");
+            if (getUserResponse.Success)
+                return new() { StatusCode = StatusCodes.Status409Conflict, Errors = new() { "User already exists" } };
+
             SResponseDTO<User> result;
 
             switch (model.Role)
@@ -187,22 +189,11 @@ namespace UserManagement.Services
 
         public async Task<SResponseDTO<UsageUserDTO>> SendVerificationToken(string email)
         {
-            var adminTask = _adminService.GetUserByEmail<Administrator>(email);
-            var doctorTask = _doctorService.GetUserByEmail<Doctor>(email);
-            var patientTask = _patientService.GetUserByEmail<Patient>(email);
+            var getUserResponse = await GetUser(email);
+            if (!getUserResponse.Success)
+                return new() { StatusCode = getUserResponse.StatusCode, Errors = getUserResponse.Errors };
 
-            await Task.WhenAll(adminTask, doctorTask, patientTask);
-
-            Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Data);
-            Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
-            Patient patient = _mapper.Map<Patient>(patientTask.Result.Data);
-
-            User user = admin as User ?? doctor as User ?? patient;
-
-            if (user == null)
-            {
-                return new() { StatusCode = 404, Errors = new() { "User not found" } };
-            }
+            User user = getUserResponse.Data!;
 
             if (user.VerifiedAt < DateTime.Now)
                 return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "User already verified" } };
@@ -402,7 +393,34 @@ namespace UserManagement.Services
                 return null;
             }
         }
+        private async Task<SResponseDTO<User>> GetUser(string email)
+        {
+            try
+            {
+                // Checks if the user exists in the database from different collections.
+                var adminTask = _adminService.GetUserByEmail<Administrator>(email);
+                var doctorTask = _doctorService.GetUserByEmail<Doctor>(email);
+                var patientTask = _patientService.GetUserByEmail<Patient>(email);
 
+                // Used to call asynchronously and wait for all the tasks to complete which will be run in parallel.
+                await Task.WhenAll(adminTask, doctorTask, patientTask);
+
+                Administrator admin = _mapper.Map<Administrator>(adminTask.Result.Data);
+                Doctor doctor = _mapper.Map<Doctor>(doctorTask.Result.Data);
+                Patient patient = _mapper.Map<Patient>(patientTask.Result.Data);
+
+                User user = admin as User ?? doctor as User ?? patient;
+
+                if (user != null)
+                    return new() { StatusCode = StatusCodes.Status200OK, Data = user, Success = true };
+                else
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "User not found" } };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
+            }
+        }
         private async Task<SResponseDTO<UsageUserDTO>> UpdateUser(User user)
         {
 
