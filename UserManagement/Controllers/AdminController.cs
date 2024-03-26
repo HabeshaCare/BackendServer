@@ -67,7 +67,7 @@ namespace UserManagement.Controllers
         /// <summary>
         /// Remove a pharmacy or laboratory access to institutions associated with the health center.
         /// </summary>
-        /// <param name="id">The id of the admin to grant access.</param>
+        /// <param name="id">The id of the admin to revoke access.</param>
         /// <returns>Nothing useful except for messages.</returns>
         [HttpPut("{id}/remove-admin")]
         [Authorize(Roles = "HealthCenterAdmin")]
