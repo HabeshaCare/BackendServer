@@ -16,7 +16,7 @@ namespace UserManagement.Attributes
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var healthCenterService = (IHealthCenterService)context.HttpContext.RequestServices.GetService(typeof(IHealthCenterService))!;
-            var institutionIdFromToken = context.HttpContext.Items["InstitutionId"]?.ToString() ?? "";
+            var institutionIdFromToken = context.HttpContext.Items["InstitutionId"]?.ToString() ?? "Not found";
             var userRole = context.HttpContext.Items["Role"]?.ToString();
             var resourceId = context.RouteData.Values["id"]?.ToString();
 

@@ -71,7 +71,7 @@ namespace UserManagement.Services
                 new(ClaimTypes.NameIdentifier, user!.Id!),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(ClaimTypes.Role, user.Role.ToString()),
-                new Claim("InstitutionId", admin?.InstitutionId.ToString() ?? string.Empty),
+                new Claim("InstitutionId", admin?.InstitutionId.ToString() ?? doctor?.AssociatedHealthCenterId ?? "Not found"),
             };
 
             string token = GenerateToken(authClaims);

@@ -38,13 +38,16 @@ namespace UserManagement.Utils
             CreateMap<User, UpdateUserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
             CreateMap<User, RegistrationDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
             CreateMap<User, SchedulerUserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
+            CreateMap<User, User>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
 
             CreateMap<Doctor, UpdateDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
             CreateMap<Doctor, UsageDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
             CreateMap<Doctor, ScheduledDoctorDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
+            CreateMap<Doctor, Doctor>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
 
             CreateMap<Patient, UsagePatientDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
             CreateMap<Patient, UpdatePatientDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
+            CreateMap<Patient, Patient>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
 
             CreateMap<Schedule, ScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
             CreateMap<Schedule, CreateScheduleDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
@@ -59,6 +62,7 @@ namespace UserManagement.Utils
 
             CreateMap<Administrator, UsageAdminDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
             CreateMap<Administrator, UpdateAdminDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
+            CreateMap<Administrator, Administrator>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
 
             CreateMap<Pharmacy, PharmacyDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is Array array && array.Length > 0))));
 
