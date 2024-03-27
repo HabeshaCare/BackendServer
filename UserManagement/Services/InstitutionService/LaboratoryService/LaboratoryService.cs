@@ -227,14 +227,17 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTest(UpdateTestNameDTO testName, string laboratoryId)
         {
-            var filter = Builders<Laboratory>.Filter.And(
-                Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId),
-                Builders<Laboratory>.Filter.ElemMatch(at => at.AvailableTests, t => t == testName.OldTestName));
+            var laboratoryResponse = await GetLaboratory(laboratoryId);
+            if (!laboratoryResponse.Success)
+                return new() { StatusCode = laboratoryResponse.StatusCode, Errors = laboratoryResponse.Errors };
 
-            var update = Builders<Laboratory>.Update.Set(l => l.AvailableTests[-1], testName.NewTestName);
-            var arrayFilter = new BsonDocumentArrayFilterDefinition<Laboratory>(new BsonDocument("i", testName.OldTestName));
-            var updateOptions = new UpdateOptions { ArrayFilters = new List<ArrayFilterDefinition> { arrayFilter } };
-            var updateResult = await _collection.UpdateOneAsync(filter, update, updateOptions);
+            var laboratory = laboratoryResponse.Data!;
+            var indexOfTest = laboratory.AvailableTests.IndexOf(testName.OldTestName);
+            laboratory.AvailableTests[indexOfTest] = testName.NewTestName;
+
+            var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
+            var update = Builders<Laboratory>.Update.Set(l => l.AvailableTests, laboratory.AvailableTests);
+            var updateResult = await _collection.UpdateOneAsync(filter, update);
 
             if (updateResult.ModifiedCount == 0)
             {

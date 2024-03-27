@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json.Converters;
 using UserManagement.Models;
 
@@ -10,6 +12,8 @@ namespace UserManagement.DTOs.InstitutionDTOs
 {
     public class InstitutionDTO
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
         public required string Name { get; set; }
         public required string Location { get; set; }
