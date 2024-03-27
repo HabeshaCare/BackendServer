@@ -82,7 +82,7 @@ namespace UserManagement.Controllers
 
         [HttpPost("{id}/test")]
         [AuthorizeInstitutionAccess]
-        public async Task<IActionResult> AddLabTest([FromBody] string testName, string id)
+        public async Task<IActionResult> AddLabTest(string testName, string id)
         {
             var response = await _laboratoryService.AddLabTest(testName, id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
