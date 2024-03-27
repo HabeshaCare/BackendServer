@@ -105,7 +105,7 @@ namespace UserManagement.Services.InstitutionService
 
         }
 
-        public async Task<SResponseDTO<List<TestRequestDTO>>> RequestForLabTest(CreateTestRequestDTO labTestRequest, string laboratoryId)
+        public async Task<SResponseDTO<TestRequestDTO>> RequestForLabTest(CreateTestRequestDTO labTestRequest, string laboratoryId)
         {
             try
             {
@@ -132,7 +132,7 @@ namespace UserManagement.Services.InstitutionService
 
                 var createdTestRequest = _mapper.Map<TestRequest>(labTestRequest);
 
-                return new() { StatusCode = StatusCodes.Status201Created, Message = "Test request sent successfully", Data = null, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "Test request sent successfully", Data = _mapper.Map<TestRequestDTO>(createdTestRequest), Success = true };
             }
             catch (Exception ex)
             {
