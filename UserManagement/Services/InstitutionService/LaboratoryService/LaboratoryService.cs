@@ -122,6 +122,14 @@ namespace UserManagement.Services.InstitutionService
                 var testRequest = _mapper.Map<TestRequest>(labTestRequest);
                 testRequest.LaboratoryId = laboratoryId;
 
+                bool allTestsAvailable = testRequest.Tests.All(test => laboratory.AvailableTests.Any(availableTest => availableTest.TestName == test.TestName));
+
+                if (!allTestsAvailable)
+                {
+                    var unAvailableTestNames = testRequest.Tests.Where(test => !laboratory.AvailableTests.Any(availableTest => availableTest.TestName == test.TestName)).Select(test => test.TestName).ToList();
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = unAvailableTestNames.Select(testName => $"Test '{testName}' is not available in the laboratory").ToList() };
+                }
+
                 await _testRequestCollection.InsertOneAsync(testRequest);
                 laboratory.TestRequestIds.Add(testRequest.Id!);
 
