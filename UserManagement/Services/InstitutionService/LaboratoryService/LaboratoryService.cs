@@ -148,6 +148,43 @@ namespace UserManagement.Services.InstitutionService
             }
         }
 
+        public async Task<SResponseDTO<TestRequestDTO>> HandleTestRequest(List<LabTest> tests, string requestId, string laboratorianId)
+        {
+            try
+            {
+                if (tests == null || tests.Count == 0)
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "No tests provided" } };
+
+                var response = (await _testRequestCollection.FindAsync(l => l.Id == requestId)).FirstOrDefault();
+                if (response == null)
+                    return new() { StatusCode = StatusCodes.Status404NotFound, Errors = new() { "Tests request not found" } };
+
+                var testRequest = response!;
+                testRequest.HandlerId = laboratorianId;
+                testRequest.Status = RequestStatus.Completed;
+
+                foreach (var test in testRequest.Tests)
+                {
+                    var matchingTest = tests.FirstOrDefault(t => t.TestName == test.TestName);
+                    if (matchingTest != null)
+                        test.TestValue = matchingTest.TestValue;
+                }
+
+                var filter = Builders<TestRequest>.Filter.Eq(t => t.Id, requestId);
+                var update = Builders<TestRequest>.Update.Set(t => t, testRequest);
+
+
+                var result = await _testRequestCollection.UpdateOneAsync(filter, update);
+                if (result.ModifiedCount > 0)
+                    return new() { StatusCode = StatusCodes.Status201Created, Success = true };
+                return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "Couldn't update test request for some reason" } };
+            }
+            catch (Exception ex)
+            {
+                return new() { StatusCode = StatusCodes.Status500InternalServerError, Errors = new() { ex.Message } };
+            }
+        }
+
         public async Task<SResponseDTO<LaboratoryDTO>> AddLaboratory(LaboratoryDTO laboratory, string adminId)
         {
             HealthCenterDTO? healthCenter = await HealthCenterExists(laboratory.HealthCenterName);
