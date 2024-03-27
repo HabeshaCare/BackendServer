@@ -260,12 +260,15 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<SResponseDTO<LaboratoryDTO>> DeleteLabTest(string testName, string laboratoryId)
         {
-            var response = await GetLaboratory(laboratoryId);
-            if (!response.Success)
-                return new() { StatusCode = response.StatusCode, Errors = response.Errors };
+            var laboratoryResponse = await GetLaboratory(laboratoryId);
+            if (!laboratoryResponse.Success)
+                return new() { StatusCode = laboratoryResponse.StatusCode, Errors = laboratoryResponse.Errors };
+
+            var laboratory = laboratoryResponse.Data!;
+            laboratory.AvailableTests.Remove(testName);
 
             var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
-            var update = Builders<Laboratory>.Update.PullFilter(l => l.AvailableTests, lt => lt == testName);
+            var update = Builders<Laboratory>.Update.Set(l => l.AvailableTests, laboratory.AvailableTests);
             var updateResult = await _collection.UpdateOneAsync(filter, update);
 
             if (updateResult.ModifiedCount == 0)
