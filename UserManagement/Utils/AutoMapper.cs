@@ -71,7 +71,7 @@ namespace UserManagement.Utils
             CreateMap<Laboratory, LaboratoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
             CreateMap<Laboratory, UpdateLaboratoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
 
-            CreateMap<TestRequest, CreateTestRequestDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
+            CreateMap<TestRequest, CreateTestRequestDTO>().ForMember(dest => dest.TestNames, opt => opt.MapFrom(src => src.Tests.Select(t => t.TestName).ToList())).ReverseMap().ForPath(src => src.Tests, opt => opt.MapFrom(dest => dest.TestNames.Select(name => new LabTest() { TestName = name }))).ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
             CreateMap<TestRequest, TestRequestDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
 
 

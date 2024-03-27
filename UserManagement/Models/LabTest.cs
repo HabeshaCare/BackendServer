@@ -10,8 +10,7 @@ namespace UserManagement.Models
     public class LabTest
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? Id { get; set; }
+        public string? Id { get; set; } = Guid.NewGuid().ToString();
         public required string TestName { get; set; }
         public string? TestValue { get; set; }
 

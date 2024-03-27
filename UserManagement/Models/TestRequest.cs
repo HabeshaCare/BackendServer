@@ -19,6 +19,7 @@ namespace UserManagement.Models
 
         //This is the laboratorian Id
         public string HandlerId { get; set; } = string.Empty;
+        public List<LabTest> Tests { get; set; } = new();
         public required string LaboratoryId { get; set; }
         public DateTime RequestedDate { get; set; }
 

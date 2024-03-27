@@ -14,6 +14,8 @@ namespace UserManagement.DTOs.LaboratoryDTOs
         //This is the doctor Id
         public required string DoctorName { get; set; }
 
+        public List<LabTest> Tests { get; set; } = new();
+
         //This is the laboratorian Id
         public string LaboratorianName { get; set; } = string.Empty;
         public required string LaboratoryName { get; set; }

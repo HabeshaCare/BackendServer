@@ -109,6 +109,9 @@ namespace UserManagement.Services.InstitutionService
         {
             try
             {
+                if (labTestRequest.TestNames.Count == 0)
+                    return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = new() { "No test names provided" } };
+
                 var response = await GetLaboratory(laboratoryId);
 
                 if (!response.Success)
@@ -129,7 +132,7 @@ namespace UserManagement.Services.InstitutionService
 
                 var createdTestRequest = _mapper.Map<TestRequest>(labTestRequest);
 
-                return new() { StatusCode = StatusCodes.Status201Created, Message = "Test request created successfully", Data = null, Success = true };
+                return new() { StatusCode = StatusCodes.Status201Created, Message = "Test request sent successfully", Data = null, Success = true };
             }
             catch (Exception ex)
             {

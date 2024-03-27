@@ -17,6 +17,7 @@ namespace UserManagement.DTOs.LaboratoryDTOs
         public required string RequestorId { get; set; }
         //This is the laboratorian Id
         public string HandlerId { get; set; } = string.Empty;
+        public List<string> TestNames { get; set; } = new();
         public DateTime RequestedDate { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         [BsonRepresentation(BsonType.String)]
