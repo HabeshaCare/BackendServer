@@ -9,7 +9,7 @@ namespace UserManagement.DTOs.LaboratoryDTOs
 {
     public class LaboratoryDTO : InstitutionDTO
     {
-        public List<LabTest> AvailableTests { get; set; } = new();
+        public List<string> AvailableTests { get; set; } = new();
         public List<string> TestRequestIds { get; set; } = new();
         public string HealthCenterName { get; set; } = string.Empty;
     }

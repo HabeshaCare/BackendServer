@@ -82,27 +82,25 @@ namespace UserManagement.Controllers
 
         [HttpPost("{id}/test")]
         [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
-        public async Task<IActionResult> AddLabTest([FromBody] LabTest labTest, string id, string testId)
+        public async Task<IActionResult> AddLabTest([FromBody] string testName, string id)
         {
-            labTest.Id = testId;
-            var response = await _laboratoryService.AddLabTest(labTest, id);
+            var response = await _laboratoryService.AddLabTest(testName, id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpPut("{id}/test/{testId}")]
         [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
-        public async Task<IActionResult> UpdateLabTest([FromBody] LabTest labTest, string id, string testId)
+        public async Task<IActionResult> UpdateLabTest([FromBody] UpdateTestNameDTO testNameDTO, string id)
         {
-            labTest.Id = testId;
-            var response = await _laboratoryService.UpdateLabTest(labTest, id);
+            var response = await _laboratoryService.UpdateLabTest(testNameDTO, id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
         [HttpDelete("{id}/test/{testId}")]
         [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
-        public async Task<IActionResult> DeleteLabTest(string testId, string id)
+        public async Task<IActionResult> DeleteLabTest(string testName, string id)
         {
-            var response = await _laboratoryService.DeleteLabTest(testId, id);
+            var response = await _laboratoryService.DeleteLabTest(testName, id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 

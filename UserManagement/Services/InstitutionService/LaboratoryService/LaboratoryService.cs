@@ -122,11 +122,11 @@ namespace UserManagement.Services.InstitutionService
                 var testRequest = _mapper.Map<TestRequest>(labTestRequest);
                 testRequest.LaboratoryId = laboratoryId;
 
-                bool allTestsAvailable = testRequest.Tests.All(test => laboratory.AvailableTests.Any(availableTest => availableTest.TestName == test.TestName));
+                bool allTestsAvailable = testRequest.Tests.All(test => laboratory.AvailableTests.Any(availableTest => availableTest == test.TestName));
 
                 if (!allTestsAvailable)
                 {
-                    var unAvailableTestNames = testRequest.Tests.Where(test => !laboratory.AvailableTests.Any(availableTest => availableTest.TestName == test.TestName)).Select(test => test.TestName).ToList();
+                    var unAvailableTestNames = testRequest.Tests.Where(test => !laboratory.AvailableTests.Any(availableTest => availableTest == test.TestName)).Select(test => test.TestName).ToList();
                     return new() { StatusCode = StatusCodes.Status400BadRequest, Errors = unAvailableTestNames.Select(testName => $"Test '{testName}' is not available in the laboratory").ToList() };
                 }
 
@@ -191,10 +191,10 @@ namespace UserManagement.Services.InstitutionService
             return _mapper.Map<HealthCenterDTO>(response.Data);
         }
 
-        public async Task<SResponseDTO<LaboratoryDTO>> AddLabTest(LabTest labTest, string laboratoryId)
+        public async Task<SResponseDTO<LaboratoryDTO>> AddLabTest(string testName, string laboratoryId)
         {
             var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
-            var update = Builders<Laboratory>.Update.Push(l => l.AvailableTests, labTest);
+            var update = Builders<Laboratory>.Update.Push(l => l.AvailableTests, testName);
             var updateResult = await _collection.UpdateOneAsync(filter, update);
 
             if (updateResult.ModifiedCount == 0)
@@ -216,11 +216,11 @@ namespace UserManagement.Services.InstitutionService
             }
         }
 
-        public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTest(LabTest labTest, string laboratoryId)
+        public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTest(UpdateTestNameDTO testName, string laboratoryId)
         {
             var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
-            var update = Builders<Laboratory>.Update.Set(l => l.AvailableTests[-1], labTest);
-            var updateOptions = new UpdateOptions { ArrayFilters = new List<ArrayFilterDefinition> { new BsonDocumentArrayFilterDefinition<Laboratory>(new BsonDocument("elem._id", labTest.Id)) } };
+            var update = Builders<Laboratory>.Update.Set(l => l.AvailableTests[-1], testName.PrevTestName);
+            var updateOptions = new UpdateOptions { ArrayFilters = new List<ArrayFilterDefinition> { new BsonDocumentArrayFilterDefinition<Laboratory>(new BsonDocument("elem", testName.NewTestName)) } };
             var updateResult = await _collection.UpdateOneAsync(filter, update, updateOptions);
 
             if (updateResult.ModifiedCount == 0)
@@ -242,14 +242,14 @@ namespace UserManagement.Services.InstitutionService
             }
         }
 
-        public async Task<SResponseDTO<LaboratoryDTO>> DeleteLabTest(string labTestId, string laboratoryId)
+        public async Task<SResponseDTO<LaboratoryDTO>> DeleteLabTest(string testName, string laboratoryId)
         {
             var response = await GetLaboratory(laboratoryId);
             if (!response.Success)
                 return new() { StatusCode = response.StatusCode, Errors = response.Errors };
 
             var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
-            var update = Builders<Laboratory>.Update.PullFilter(l => l.AvailableTests, lt => lt.Id == labTestId);
+            var update = Builders<Laboratory>.Update.PullFilter(l => l.AvailableTests, lt => lt == testName);
             var updateResult = await _collection.UpdateOneAsync(filter, update);
 
             if (updateResult.ModifiedCount == 0)
