@@ -193,6 +193,15 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<SResponseDTO<LaboratoryDTO>> AddLabTest(string testName, string laboratoryId)
         {
+            var laboratoryResponse = await GetLaboratory(laboratoryId);
+            if (!laboratoryResponse.Success)
+                return new() { StatusCode = laboratoryResponse.StatusCode, Errors = laboratoryResponse.Errors };
+
+            var laboratory = laboratoryResponse.Data!;
+
+            if (laboratory.AvailableTests.Contains(testName))
+                return new() { StatusCode = 409, Errors = new() { $"Test name '{testName}' already exists" } };
+
             var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
             var update = Builders<Laboratory>.Update.Push(l => l.AvailableTests, testName);
             var updateResult = await _collection.UpdateOneAsync(filter, update);
