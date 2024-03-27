@@ -81,23 +81,23 @@ namespace UserManagement.Controllers
         }
 
         [HttpPost("{id}/test")]
-        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> AddLabTest([FromBody] string testName, string id)
         {
             var response = await _laboratoryService.AddLabTest(testName, id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
-        [HttpPut("{id}/test/{testId}")]
-        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
+        [HttpPut("{id}/test/")]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> UpdateLabTest([FromBody] UpdateTestNameDTO testNameDTO, string id)
         {
             var response = await _laboratoryService.UpdateLabTest(testNameDTO, id);
             return new ObjectResult(response) { StatusCode = response.StatusCode };
         }
 
-        [HttpDelete("{id}/test/{testId}")]
-        [Authorize(Roles = "HealthCenterAdmin, SuperAdmin")]
+        [HttpDelete("{id}/test/")]
+        [AuthorizeInstitutionAccess]
         public async Task<IActionResult> DeleteLabTest(string testName, string id)
         {
             var response = await _laboratoryService.DeleteLabTest(testName, id);
