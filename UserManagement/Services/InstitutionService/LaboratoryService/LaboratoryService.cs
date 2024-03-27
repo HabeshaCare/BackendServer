@@ -227,9 +227,13 @@ namespace UserManagement.Services.InstitutionService
 
         public async Task<SResponseDTO<LaboratoryDTO>> UpdateLabTest(UpdateTestNameDTO testName, string laboratoryId)
         {
-            var filter = Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId);
-            var update = Builders<Laboratory>.Update.Set(l => l.AvailableTests[-1], testName.PrevTestName);
-            var updateOptions = new UpdateOptions { ArrayFilters = new List<ArrayFilterDefinition> { new BsonDocumentArrayFilterDefinition<Laboratory>(new BsonDocument("elem", testName.NewTestName)) } };
+            var filter = Builders<Laboratory>.Filter.And(
+                Builders<Laboratory>.Filter.Eq(l => l.Id, laboratoryId),
+                Builders<Laboratory>.Filter.ElemMatch(at => at.AvailableTests, t => t == testName.OldTestName));
+
+            var update = Builders<Laboratory>.Update.Set(l => l.AvailableTests[-1], testName.NewTestName);
+            var arrayFilter = new BsonDocumentArrayFilterDefinition<Laboratory>(new BsonDocument("i", testName.OldTestName));
+            var updateOptions = new UpdateOptions { ArrayFilters = new List<ArrayFilterDefinition> { arrayFilter } };
             var updateResult = await _collection.UpdateOneAsync(filter, update, updateOptions);
 
             if (updateResult.ModifiedCount == 0)

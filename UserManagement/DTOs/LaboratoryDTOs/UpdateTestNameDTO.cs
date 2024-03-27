@@ -8,6 +8,6 @@ namespace UserManagement.DTOs.LaboratoryDTOs
     public class UpdateTestNameDTO
     {
         public string NewTestName { get; set; } = string.Empty;
-        public string PrevTestName { get; set; } = string.Empty;
+        public string OldTestName { get; set; } = string.Empty;
     }
 }
