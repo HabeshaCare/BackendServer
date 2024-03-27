@@ -83,7 +83,7 @@ namespace UserManagement.Services.InstitutionService
 
                 var filterBuilder = Builders<TestRequest>.Filter;
                 var filter = filterBuilder.Eq(tr => tr.LaboratoryId, laboratoryId) & filterBuilder.Eq(tr => tr.Status, RequestStatus.Pending);
-                var results = (await _testRequestCollection.Find(filter).ToListAsync()).ToArray();
+                var results = await _testRequestCollection.Find(filter).ToListAsync();
                 List<TestRequestDTO> testRequests = new();
 
 
@@ -122,7 +122,7 @@ namespace UserManagement.Services.InstitutionService
                 await _testRequestCollection.InsertOneAsync(testRequest);
                 laboratory.TestRequestIds.Add(testRequest.Id!);
 
-                var labUpdateResponse = await UpdateInstitution<Laboratory, LaboratoryDTO>(laboratory, laboratory.Id!);
+                var labUpdateResponse = await UpdateInstitution<Laboratory, Laboratory>(laboratory, laboratory.Id!);
 
                 if (!labUpdateResponse.Success)
                     return new() { StatusCode = labUpdateResponse.StatusCode, Errors = labUpdateResponse.Errors };

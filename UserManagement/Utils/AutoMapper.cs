@@ -25,6 +25,7 @@ namespace UserManagement.Utils
             CreateMap<RegistrationDTO, Administrator>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
             CreateMap<RegistrationDTO, Doctor>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
             CreateMap<RegistrationDTO, Patient>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
+
             CreateMap<User, UserDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
             CreateMap<User, Doctor>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
             CreateMap<User, Patient>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
@@ -66,6 +67,7 @@ namespace UserManagement.Utils
 
             CreateMap<Pharmacy, PharmacyDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
 
+            CreateMap<Laboratory, Laboratory>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
             CreateMap<Laboratory, LaboratoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
             CreateMap<Laboratory, UpdateLaboratoryDTO>().ReverseMap().ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null && (!string.IsNullOrEmpty(srcMember.ToString()) || (srcMember is List<object> array && array.Count > 0))));
 
